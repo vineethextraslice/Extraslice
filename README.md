@@ -1,0 +1,2 @@
+# extraSliceApp-iOS
+extraSlice provides a comprehensive ecosystem where innovators,entrepreneurs, business professionals, and students of technology can gather together to build successful future businesses.The extraSlice App lets members collaborate with in our  community to discuss ideas, find or post opportunities, book resources such as conference rooms &amp; more.The app brings all our members under one platform regardless of their location and helps them stay connected and brings more value add to their business.
