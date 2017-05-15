@@ -1,28 +1,23 @@
 //
-//  ResourceTypeModel.m
+//  CustAcctModel.m
 //  extraSlice
 //
-//  Created by Administrator on 21/06/16.
+//  Created by Administrator on 15/11/16.
 //  Copyright © 2016 Extraslice Inc. All rights reserved.
 //
 
-#import "ResourceTypeModel.h"
+#import "CustAcctModel.h"
 #import "objc/runtime.h"
-@implementation ResourceTypeModel
+@implementation CustAcctModel
 - (instancetype)init
 {
     self = [super init];
     if (self) {
+        self.userId = @-1;
+        self.acctId = @-1;
+        self.strpAcct =  @"";
+        self.customerId =  @"";
         
-        self.planLimitUnit = @"";
-        self.allowUsageBy =  @"";
-        self.resourceTypeName =  @"";
-        self.resourceTypeId =  @-1;
-        self.planLimit =  @-1;
-        self.currentUsage =  @-1;
-        self.planSplPrice =  @-1;
-        self.orgId =  @-1;
-        self.resourceDesc=@"";
     }
     return self;
 }
@@ -70,7 +65,7 @@
         return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
 }
-- (ResourceTypeModel *)initWithDictionary:(NSDictionary*)dictionary {
+- (CustAcctModel *)initWithDictionary:(NSDictionary*)dictionary {
     if (self = [super init]) {
         NSArray*keys=[dictionary allKeys];
         for (NSString* key in keys) {
@@ -87,4 +82,5 @@
     }
     return self;
 }
+
 @end

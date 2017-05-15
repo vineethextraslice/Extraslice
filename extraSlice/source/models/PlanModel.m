@@ -22,6 +22,8 @@
         self.planDuarationInDays = @-1;
         self.planPrice=@-1;
         self.purchaseOnSpot=TRUE;
+        self.planDuaration=@"";
+        self.subStartDay=@-1;
        // self.resourceTypeList=NSMu
     }
     return self;

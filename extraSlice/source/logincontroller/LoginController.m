@@ -33,9 +33,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    //CGRect keyboardFrame = [keyboardFrameBegin CGRectValue];
-   // NSValue* keyboardFrameBegin = [keyboardInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
-    self.wnpCont = [[WnPConstants alloc]init];
+     self.wnpCont = [[WnPConstants alloc]init];
      self.userDAO = [[UserDAO alloc]init];
      [self.wnpCont setColor:0];
     self.errorLyt.hidden = true;
@@ -43,17 +41,7 @@
     self.password.delegate =self;
     self.email.delegate =self;
     self.errorLytHeight.constant = 0;
-    self.loading = [[UIActivityIndicatorView alloc]initWithFrame:CGRectMake(self.view.center.x-25,self.view.center.y-25, 50, 50)];
-    self.loading.activityIndicatorViewStyle=UIActivityIndicatorViewStyleGray;
-                    //initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    //self.loading.frame=;
-    self.loading.color = [self.wnpCont getThemeBaseColor];
-   // self.loading.center=self.view.center;
-    //self.loading.hidden=false;
-    //self.loading.hidesWhenStopped=true;
-    
-    [self.view addSubview:self.loading];
-    
+        
     UITapGestureRecognizer *signUpTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(selectPlans:)];
     signUpTap.numberOfTapsRequired = 1;
     signUpTap.numberOfTouchesRequired = 1;
@@ -136,54 +124,67 @@
         self.errorLyt.hidden = false;
         self.errorLytHeight.constant = 30;
     } else{
-       
-        
-           // [self spinActivityIndicator:YES];
-            /*dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                
-                dispatch_async(dispatch_get_main_queue(), ^{*/
-                    @try{
-                    UserModel *userMdel = [self.userDAO getUser:self.email.text Password:self.password.text];
-                    if(userMdel != nil){
-                      //  [self spinActivityIndicator:NO];
-                        [self.utils setLoggedinUser:userMdel];
-                        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                        [userDefaults setBool:self.rmChecked forKey:@"Remember"];
-                        if(self.rmChecked){
-                            [userDefaults setObject:userMdel.userName forKey:@"userName"];
-                            [userDefaults setObject:userMdel.password forKey:@"password"];
-                        }
-                        if(userMdel.verificationCode != (id)[NSNull null] && userMdel.verificationCode != nil && userMdel.verificationCode.length>0){
-                            [self showVerificationPopup];
-                        }else if(userMdel.usingTempPwd){
-                            [self showPasswordChangePopup];
-                        }else{
-                            
-                            UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
-                            MenuController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"MenuController"];
-                            if(viewCtrl != nil){
-                                viewCtrl.viewName=@"Home";
-                                viewCtrl.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
-                                [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
-                            }
-                        }
-                        
-                    }else{
-                    //    [self spinActivityIndicator:NO];
-                    }
-                    
-                    
-                }@catch(NSException *exp){
-                //    [self spinActivityIndicator:NO];
-                    self.errorLytHeight.constant = 30;
-                    self.errorText.text= exp.description;
-                    self.errorLyt.hidden = false;
-                }
-               /* });
-            });*/
-
+        [self getUser];
     }
 }
+- (void)getUser
+{
+    //dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *error = nil;
+        UserModel *userMdel = nil;
+        NSString *userName = self.email.text;
+        NSString *password = self.password.text;
+        /*UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        CGAffineTransform transform = CGAffineTransformMakeScale(2.0f, 2.0f);
+        indicator.transform = transform;
+        indicator.frame = CGRectMake(0.0, 0.0, 80.0, 80.0);
+        indicator.center = self.view.center;
+        [self.view addSubview:indicator];
+        [indicator bringSubviewToFront:self.view];*/
+       
+       
+        //[indicator startAnimating];
+        @try{
+            userMdel = [self.userDAO getUser:userName Password:password];
+        }@catch(NSException *exp){
+            error= exp.description;
+        }
+
+        //dispatch_async(dispatch_get_main_queue(), ^{
+           // [indicator stopAnimating];
+            if(error != nil){
+                self.errorLytHeight.constant = 30;
+                self.errorText.text= error;
+                self.errorLyt.hidden = false;
+            }else{
+                if(userMdel != nil){
+                    [self.utils setLoggedinUser:userMdel];
+                    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                    [userDefaults setBool:self.rmChecked forKey:@"Remember"];
+                    if(self.rmChecked){
+                        [userDefaults setObject:userMdel.userName forKey:@"userName"];
+                        [userDefaults setObject:userMdel.password forKey:@"password"];
+                    }
+                    if(userMdel.verificationCode != (id)[NSNull null] && userMdel.verificationCode != nil && userMdel.verificationCode.length>0){
+                        [self showVerificationPopup];
+                    }else if(userMdel.usingTempPwd){
+                        [self showPasswordChangePopup];
+                    }else{
+                        UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
+                        MenuController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"MenuController"];
+                        if(viewCtrl != nil){
+                            viewCtrl.viewName=@"Home";
+                            viewCtrl.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
+                            [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
+                        }
+                    }
+                }
+
+            }
+       // });
+    //});
+}
+
 
 - (void)selectPlans:(UITapGestureRecognizer *) rec{
     UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"SelectPlan" bundle:nil];
@@ -346,35 +347,60 @@
         self.popupError.text=@"Please confirm new password";
         self.popupError.hidden=false;
     }else if([self.confnePassword.text isEqualToString: self.nePassword.text]){
-        
-        @try{
-            [self.utils getLoggedinUser].password=[self.utils encode:self.nePassword.text];
-            [self.userDAO updateUser:[self.utils getLoggedinUser]];
-            UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
-            MenuController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"MenuController"];
-            [self.popup removeFromSuperview];
-            for(UIView *subViews in self.view.subviews){
-                subViews.alpha=1.0;
-                subViews.userInteractionEnabled=TRUE;
-            }
-            self.view.alpha=1.0;
-            self.view.userInteractionEnabled=TRUE;
-            self.view.backgroundColor = [UIColor whiteColor];
-            if(viewCtrl != nil){
-                viewCtrl.viewName=@"Home";
-                viewCtrl.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
-                [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
-            }
-        }@catch(NSException *exp){
-            self.popupError.text= exp.description;
-            self.popupError.hidden = false;
-        }
+        [self.utils getLoggedinUser].password=[self.utils encode:self.nePassword.text];
+        [self updateUser];
     }else{
         self.popupError.text=@"Password does not match with confirm password";
         self.popupError.hidden=false;
     }
     
 }
+
+- (void)updateUser
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *error = nil;
+        UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        CGAffineTransform transform = CGAffineTransformMakeScale(2.0f, 2.0f);
+        indicator.transform = transform;
+        indicator.frame = CGRectMake(0.0, 0.0, 80.0, 80.0);
+        indicator.center = self.view.center;
+        [self.view addSubview:indicator];
+        [indicator bringSubviewToFront:self.view];
+        [indicator startAnimating];
+        @try{
+            [self.userDAO updateUser:[self.utils getLoggedinUser]];
+        }@catch(NSException *exp){
+            error= exp.description;
+        }
+
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [indicator stopAnimating];
+            if(error != nil){
+                self.popupError.text= error;
+                self.popupError.hidden = false;
+            }else{
+                UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
+                MenuController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"MenuController"];
+                [self.popup removeFromSuperview];
+                for(UIView *subViews in self.view.subviews){
+                    subViews.alpha=1.0;
+                    subViews.userInteractionEnabled=TRUE;
+                }
+                self.view.alpha=1.0;
+                self.view.userInteractionEnabled=TRUE;
+                self.view.backgroundColor = [UIColor whiteColor];
+                if(viewCtrl != nil){
+                    viewCtrl.viewName=@"Home";
+                    viewCtrl.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
+                    [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
+                }
+            }
+        });
+    });
+}
+
 -(void)updateVerificationCode:(id)sender{
     self.popupError.textColor=[UIColor redColor];
     if(self.vrify.text == nil || self.vrify.text.length==0){
@@ -382,28 +408,7 @@
         self.popupError.hidden=false;
     }else if([self.vrify.text isEqualToString: [self.utils getLoggedinUser].verificationCode]){
         [self.utils getLoggedinUser].verificationCode=@"";
-        
-        @try{
-            [self.userDAO updateUser:[self.utils getLoggedinUser]];
-            UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
-            MenuController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"MenuController"];
-            [self.popup removeFromSuperview];
-            for(UIView *subViews in self.view.subviews){
-                subViews.alpha=1.0;
-                subViews.userInteractionEnabled=TRUE;
-            }
-            self.view.alpha=1.0;
-            self.view.userInteractionEnabled=TRUE;
-            self.view.backgroundColor = [UIColor whiteColor];
-            if(viewCtrl != nil){
-                viewCtrl.viewName=@"Home";
-                viewCtrl.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
-                [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
-            }
-        }@catch(NSException *exp){
-            self.popupError.text= exp.description;
-            self.popupError.hidden = false;
-        }
+        [self updateUser];
     }else{
         self.popupError.text=@"Verification code does not match";
         self.popupError.hidden=false;
@@ -413,22 +418,52 @@
 - (void)resendVerificationCode:(UITapGestureRecognizer *) rec{
     self.popupError.textColor=[UIColor redColor];
     @try{
-        [self.userDAO resendVericationCode:[self.utils getLoggedinUser]];
-        self.popupError.textColor=[UIColor blueColor];
-        self.popupError.text=@"New verification code send to you email";
-        [self.popup removeFromSuperview];
-        for(UIView *subViews in self.view.subviews){
-            subViews.alpha=1.0;
-            subViews.userInteractionEnabled=TRUE;
-        }
-        self.view.alpha=1.0;
-        self.view.userInteractionEnabled=TRUE;
-        self.view.backgroundColor = [UIColor whiteColor];
+        [self resendVerificationCodeBg];
     }@catch(NSException *exp){
         self.popupError.text= exp.description;
         self.popupError.hidden = false;
     }
 }
+
+- (void)resendVerificationCodeBg
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *error = nil;
+        UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        CGAffineTransform transform = CGAffineTransformMakeScale(2.0f, 2.0f);
+        indicator.transform = transform;
+        indicator.frame = CGRectMake(0.0, 0.0, 80.0, 80.0);
+        indicator.center = self.view.center;
+        [self.view addSubview:indicator];
+        [indicator bringSubviewToFront:self.view];
+        [indicator startAnimating];
+        @try{
+            [self.userDAO resendVericationCode:[self.utils getLoggedinUser]];
+        }@catch(NSException *exp){
+            error= exp.description;
+        }
+        
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [indicator stopAnimating];
+            if(error != nil){
+                self.popupError.text= error;
+                self.popupError.hidden = false;
+            }else{
+                self.popupError.textColor=[UIColor blueColor];
+                self.popupError.text=@"New verification code send to you email";
+                [self.popup removeFromSuperview];
+                for(UIView *subViews in self.view.subviews){
+                    subViews.alpha=1.0;
+                    subViews.userInteractionEnabled=TRUE;
+                }
+                self.view.alpha=1.0;
+                self.view.userInteractionEnabled=TRUE;
+                self.view.backgroundColor = [UIColor whiteColor];            }
+        });
+    });
+}
+
 -(void) hideKeyBord{
     [self.view endEditing:YES];
 }

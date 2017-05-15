@@ -20,7 +20,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *image2;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *errorLytHeight;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *errorImageHeight;
-@property (strong, nonatomic) UIActivityIndicatorView *loading;
+
 
 
 - (IBAction)verifyAndLogin:(id)sender;

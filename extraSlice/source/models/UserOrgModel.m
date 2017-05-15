@@ -1,28 +1,25 @@
 //
-//  ResourceTypeModel.m
+//  UserOrgModel.m
 //  extraSlice
 //
-//  Created by Administrator on 21/06/16.
+//  Created by Administrator on 30/09/16.
 //  Copyright © 2016 Extraslice Inc. All rights reserved.
 //
 
-#import "ResourceTypeModel.h"
+#import "UserOrgModel.h"
+#import "UserModel.h"
 #import "objc/runtime.h"
-@implementation ResourceTypeModel
+@implementation UserOrgModel
 - (instancetype)init
 {
     self = [super init];
     if (self) {
-        
-        self.planLimitUnit = @"";
-        self.allowUsageBy =  @"";
-        self.resourceTypeName =  @"";
-        self.resourceTypeId =  @-1;
-        self.planLimit =  @-1;
-        self.currentUsage =  @-1;
-        self.planSplPrice =  @-1;
-        self.orgId =  @-1;
-        self.resourceDesc=@"";
+        self.userId =@-1;
+        self.orgId=@-1;
+        self.orgRoleId=@-1;
+        self.userName=@"";
+        self.orgName=@"";
+        self.userStatus=@"";  
     }
     return self;
 }
@@ -70,7 +67,7 @@
         return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
 }
-- (ResourceTypeModel *)initWithDictionary:(NSDictionary*)dictionary {
+- (UserOrgModel *)initWithDictionary:(NSDictionary*)dictionary {
     if (self = [super init]) {
         NSArray*keys=[dictionary allKeys];
         for (NSString* key in keys) {
@@ -87,4 +84,5 @@
     }
     return self;
 }
+
 @end

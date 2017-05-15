@@ -12,6 +12,5 @@
 
 @interface StripeDAO : NSObject
 -(NSString *) doStripePayment:(NSNumber *)amount ID:(NSNumber *)id CardToken:(NSString *) cardToken Currency:(NSString *) currency Description:(NSString *) description IsDealerAccount:(BOOL) isDealerAcct ;
--(NSString *) subscribeACustomer:(NSString *)email CardToken:(NSString *) cardToken PlanId:(NSString *) planId ;
--(StripePlanModel *) getOrCreateStripePlan:(PlanModel *)planModel AddOnList:(NSMutableArray *)addOnList;
+
 @end

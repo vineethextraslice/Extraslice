@@ -15,6 +15,9 @@
 #import "AboutController.h"
 #import "MyConfRoomReservations.h"
 #import "OrganizationModel.h"
+#import "SmartSpaceDAO.h"
+#import "ProfileScreen.h"
+#import "ForumScreen.h"
 
 static UIViewController *newController;
 @interface MenuController ()
@@ -36,6 +39,7 @@ static UIViewController *newController;
     [self.navItems addObject:@"Name"];
     [self.navItems addObject:@"Home"];
     [self.navItems addObject:@"Reservation"];
+    //[self.navItems addObject:@"Forum"];
     [self.navItems addObject:@"Support"];
     [self.navItems addObject:@"About"];
     [self.navItems addObject:@"Logout"];
@@ -44,6 +48,7 @@ static UIViewController *newController;
     [self.navItemsImg addObject:@"defaultprofilepic.png"];
     [self.navItemsImg addObject:@"home_black.png"];
     [self.navItemsImg addObject:@"calendar.png"];
+    //[self.navItemsImg addObject:@"forum"];
     [self.navItemsImg addObject:@"headset.png"];
     [self.navItemsImg addObject:@"about13.png"];
     [self.navItemsImg addObject:@"logout_black.png"];
@@ -53,7 +58,7 @@ static UIViewController *newController;
      [self.menuIcon setUserInteractionEnabled:YES];
      [self.menuIcon addGestureRecognizer:singleTap];
      CGRect screenRect1 = [[UIScreen mainScreen] bounds];
-     self.navTable = [[UITableView alloc] initWithFrame:CGRectMake(0,0, (screenRect1.size.width*0.5), (screenRect1.size.height))];
+     self.navTable = [[UITableView alloc] initWithFrame:CGRectMake(0,0, (screenRect1.size.width*0.75), (screenRect1.size.height))];
      self.navTable.dataSource=self;
      self.navTable.delegate=self;
      self.navTable.rowHeight=45;
@@ -176,7 +181,17 @@ static UIViewController *newController;
     }
     
     if ([sender isEqualToString:@"Name"]) {
-        
+        [self clearPreviousView:newController];
+        self.stryBrd = [UIStoryboard storyboardWithName:@"ProfileScreen" bundle:nil];
+        ProfileScreen *viewCtrl=[self.stryBrd instantiateViewControllerWithIdentifier:@"ProfileScreen"];
+        viewCtrl.expandProfile =true;
+        [self addChildViewController:viewCtrl];
+      //  viewCtrl.view.frame = self.containerFrame.bounds ;
+        [self.containerFrame setClearsContextBeforeDrawing:TRUE];
+        [self.containerFrame addSubview:viewCtrl.view];
+        [viewCtrl didMoveToParentViewController:self];
+        newController = viewCtrl;
+
     }else if ([sender isEqualToString:@"Home"]) {
         [self clearPreviousView:newController];
         self.stryBrd = [UIStoryboard storyboardWithName:@"HomeScreen" bundle:nil];
@@ -239,6 +254,17 @@ static UIViewController *newController;
         [self.containerFrame addSubview:viewCtrl.view];
         [viewCtrl didMoveToParentViewController:self];
         newController = viewCtrl;
+    }else if ([sender isEqualToString:@"Forum"]) {
+        [self clearPreviousView:newController];
+        self.stryBrd = [UIStoryboard storyboardWithName:@"ForumScreen" bundle:nil];
+        ForumScreen *viewCtrl=[self.stryBrd instantiateViewControllerWithIdentifier:@"ForumScreen"];
+        //viewCtrl.resetPwd =self.resetPwd;
+        [self addChildViewController:viewCtrl];
+        viewCtrl.view.frame = self.containerFrame.bounds ;
+        [self.containerFrame setClearsContextBeforeDrawing:TRUE];
+        [self.containerFrame addSubview:viewCtrl.view];
+        [viewCtrl didMoveToParentViewController:self];
+        newController = viewCtrl;
     }else if ([sender isEqualToString:@"About"]) {
         [self clearPreviousView:newController];
         self.stryBrd = [UIStoryboard storyboardWithName:@"About" bundle:nil];
@@ -264,7 +290,8 @@ static UIViewController *newController;
     }
     else if ([sender isEqualToString:@"Logout"]) {
         [self clearPreviousView:newController];
-        
+        SmartSpaceDAO *smDAO = [[SmartSpaceDAO alloc] init];
+        [smDAO reset];
         UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"LoginController" bundle:nil];
         UIViewController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"LoginController"];
         [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
@@ -304,7 +331,7 @@ static UIViewController *newController;
         
     }else if(indexPath.row ==1){
         
-        UILabel *code = [[UILabel alloc] initWithFrame:CGRectMake(10, 20 ,  ((screenRect1.size.width*0.50)-50), 30)];
+        UILabel *code = [[UILabel alloc] initWithFrame:CGRectMake(10, 20 ,  ((screenRect1.size.width*0.75)-50), 30)];
         UIFont *txtFont = [code.font fontWithSize:14.0];
         code.font = txtFont;
         [code setUserInteractionEnabled:TRUE];
@@ -350,7 +377,7 @@ static UIViewController *newController;
         
         
         
-        UILabel *code = [[UILabel alloc] initWithFrame:CGRectMake(55, 20 ,  ((screenRect1.size.width*0.50)-50), 30)];
+        UILabel *code = [[UILabel alloc] initWithFrame:CGRectMake(55, 20 ,  ((screenRect1.size.width*0.75)-50), 30)];
         UIFont *txtFont = [code.font fontWithSize:14.0];
         code.font = txtFont;
         [code setUserInteractionEnabled:TRUE];
@@ -372,7 +399,7 @@ static UIViewController *newController;
     
     self.navTable.rowHeight=65;
     
-    UIView *seperator = [[UIView alloc] initWithFrame:CGRectMake(5, 65 ,  ((screenRect1.size.width*0.50)-10), 1)];
+    UIView *seperator = [[UIView alloc] initWithFrame:CGRectMake(5, 65 ,  ((screenRect1.size.width*0.75)-10), 1)];
     [seperator setBackgroundColor:[self.wnpCont getThemeHeaderColor]];
     [cell addSubview:seperator];
     

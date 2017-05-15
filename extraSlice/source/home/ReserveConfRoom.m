@@ -38,11 +38,11 @@ static UIColor *NotSelectedCellBGColor;
 @property(strong,nonatomic) ResourceModel *resModel ;
 @property(strong,nonatomic) Utilities *utils;
 @property(strong,nonatomic) SmartSpaceDAO *smSpDao;
-@property(strong,nonatomic) NSMutableArray *resTypeList;
+//@property(strong,nonatomic) NSMutableArray *resTypeList;
 @property(strong,nonatomic)NSMutableArray *currSchedules;
 @property(strong,nonatomic)NSMutableDictionary *dailySchedules;
-@property(strong,nonatomic) NSNumber *currBalance;
-@property(strong,nonatomic) NSNumber *resPrice;
+//@property(strong,nonatomic) NSNumber *currBalance;
+//@property(strong,nonatomic) NSNumber *resPrice;
 @property(strong,nonatomic) UIView *popup;
 @property(strong,nonatomic) UILabel *popupError;
 @property(strong,nonatomic) UIButton *strpSubmitBtn;
@@ -59,7 +59,8 @@ static UIColor *NotSelectedCellBGColor;
 @property(strong,nonatomic) NSDateFormatter *ymdhmFormatter;
 @property(strong,nonatomic) NSDate *neStartDateSelection;
 @property(strong,nonatomic) NSMutableArray *halfHoursForDay;
-@property(nonatomic) BOOL overLimit;
+@property(strong,nonatomic) NSDictionary *jSonResult;
+
 @end
 
 @implementation ReserveConfRoom
@@ -70,7 +71,7 @@ static UIColor *NotSelectedCellBGColor;
     if(self.selectedDate == (id)[NSNull null] || self.selectedDate == nil){
         self.selectedDate = [self getCurrentLocalTime];
     }
-    self.overLimit=FALSE;
+
     NSMutableArray *halfHours = [[NSMutableArray alloc]init];
     self.halfHoursForDay = [[NSMutableArray alloc]init];
     [halfHours addObject:@"00"];
@@ -106,6 +107,7 @@ static UIColor *NotSelectedCellBGColor;
     
     [self.ymdhmFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
     [self.mdyhmFormatter setTimeZone:[NSTimeZone localTimeZone]];
+    
     //[self.hmFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
    // [self.hmAmPmFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
    // [self.mdyFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
@@ -146,14 +148,14 @@ static UIColor *NotSelectedCellBGColor;
         
     }
     [self.utils getLoggedinUser].orgList = self.orgList;*/
-    NSMutableArray *orgIdArray = [[NSMutableArray alloc]init];
+   // NSMutableArray *orgIdArray = [[NSMutableArray alloc]init];
     if([self.utils getLoggedinUser].orgList != nil && [self.utils getLoggedinUser].orgList.count ==1){
         OrganizationModel *orgModel =[[OrganizationModel alloc]init];
         orgModel =[orgModel initWithDictionary:[[self.utils getLoggedinUser].orgList objectAtIndex:0]];
         if(orgModel.approved){
             self.orgModel = orgModel;
             [self.orgList addObject:self.orgModel];
-            [orgIdArray addObject:self.orgModel.orgId];
+         //   [orgIdArray addObject:self.orgModel.orgId];
             self.orgTableHeight.constant=0;
             self.orgTableTop.constant=0;
         }
@@ -163,25 +165,8 @@ static UIColor *NotSelectedCellBGColor;
             OrganizationModel *orgModel =[[OrganizationModel alloc]init];
             orgModel = [self.orgModel initWithDictionary:dic];
             if(orgModel.approved){
-                [orgIdArray addObject:orgModel.orgId];
+           //     [orgIdArray addObject:orgModel.orgId];
                 [self.orgList addObject:orgModel];
-            }
-        }
-    }
-    @try{
-        self.resTypeList = [self.smSpDao getResourceUsageDetailsById:orgIdArray resourceTypeName:@"Conference room" UserId:[self.utils getLoggedinUser].userId];
-    }@catch (NSException *exception) {
-        NSLog(@"%@",exception.description);
-    }
-    if(self.orgModel != nil ){
-        for(ResourceTypeModel *resTypeMdl in self.resTypeList){
-            if(resTypeMdl.orgId.intValue == self.orgModel.orgId.intValue ){
-                self.currBalance = [NSNumber numberWithDouble:(resTypeMdl.planLimit.doubleValue - resTypeMdl.currentUsage.doubleValue)];
-                if(self.currBalance.doubleValue < 0){
-                    self.currBalance = [NSNumber numberWithInt:0];
-                }
-                self.resPrice = resTypeMdl.planSplPrice;
-                break;
             }
         }
     }
@@ -298,7 +283,7 @@ static UIColor *NotSelectedCellBGColor;
     
     UIView *pickBottom= [[UIView alloc] initWithFrame:CGRectMake(2*(wid) ,28, wid, 2)];
     UILabel *pick = [[UILabel alloc] initWithFrame:CGRectMake(2*(wid) ,0, wid, 28)];
-    pick.text=@"Pick Date";
+    pick.text=@"Select Day";
     pick.textAlignment = NSTextAlignmentCenter;
     
     [self.dayHeader addSubview:today];
@@ -406,21 +391,9 @@ static UIColor *NotSelectedCellBGColor;
     int tag = btn.tag;
     self.resModel = [[ResourceModel alloc] init];
     self.resModel = [self.resModel initWithDictionary:[self.resourceList objectAtIndex:tag]];
-    if(self.currBalance == nil){
-        self.currBalance = [NSNumber numberWithInt:0];
-    }
     if(self.meetingName.text == nil || [self.meetingName.text isEqualToString:@""] ){
         [self showPopup:@"Error" Message:@"Please enter meeting name" CloseThis:YES];
     }else{
-        if(self.currBalance.doubleValue == 0 || self.currBalance.doubleValue < (self.duration.doubleValue/60.0f)){
-            double payable = (((self.duration.doubleValue/60.0f)-self.currBalance.doubleValue)*self.resPrice.doubleValue);
-           // [self showStripePopup:payable];
-           // [self addReservation:NULL];
-            self.overLimit=TRUE;
-        }else{
-            self.overLimit =FALSE;
-          //  [self addReservation:NULL];
-        }
         [self addReservation:NULL];
     }
     
@@ -669,18 +642,37 @@ static UIColor *NotSelectedCellBGColor;
         self.resrvModel.reservationName=self.meetingName.text;
         
         @try{
-            NSString *isAdded= [self.smSpDao addReservation:self.resrvModel PaymentRefKey:pymntRefKey];
-            
-            
-           // [self cancelStripePayment:nil];
-            if(!self.overLimit){
-                [self showPopup:@"Successful" Message:@"Reserved successfully."  CloseThis:NO];
+            NSDictionary *result= [self.smSpDao addReservation:self.resrvModel PaymentRefKey:pymntRefKey];
+            NSString *statusStr = [result objectForKey:@"STATUS"]    ;
+            NSLog(@"%@",statusStr);
+            if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
+                
+                NSNumber* makePayment = [result objectForKey:@"makePayment"];
+                if ([makePayment boolValue] == YES){
+                    self.jSonResult = result;
+                    NSString *paymentDesc = [result objectForKey:@"paymentDescription"];
+                    NSNumber *payableAmount = [result objectForKey:@"payableAmount"];
+                    NSNumber* haveAccount = [result objectForKey:@"haveAccount"];
+                    if ([haveAccount boolValue] == YES){
+                        [self showUpdatePopup:@"Payment" Message:paymentDesc CloseThis:NO];
+                    }else{
+                        [self showStripePopup: payableAmount.doubleValue Message:paymentDesc];
+                    }
+                    
+                }else{
+                     [self showPopup:@"Successful" Message:@"Reserved successfully."  CloseThis:NO];
+                }
+               
+                
+                
+                
+                
             }else{
-                [self showPopup:@"Successful" Message:@"Reserved successfully. Please note : Your conference room usage limit is over for the month"  CloseThis:NO];
+                NSLog(@"%@",[result objectForKey:@"ERRORMESSAGE"] );
+                NSException *e = [NSException exceptionWithName:@"UserException" reason:[result objectForKey:@"ERRORMESSAGE"] userInfo:nil];
+                @throw e;
             }
-            
-            
-            
+
         }@catch(NSException *exp){
             [self showPopup:@"Failed" Message:exp.description CloseThis:YES];
         }
@@ -858,7 +850,7 @@ static UIColor *NotSelectedCellBGColor;
     // Dispose of any resources that can be recreated.
 }
 
--(void) showStripePopup:(double) payable
+-(void) showStripePopup:(double) payable Message:(NSString *) message
 {
     //self.popupError.text=@"";
     //self.popupError.hidden=true;
@@ -895,7 +887,7 @@ static UIColor *NotSelectedCellBGColor;
     [self.popup addSubview: self.popupError];
     
     UILabel *descLabel =[[UILabel alloc] initWithFrame:CGRectMake(10,75,195,30)];
-    descLabel.text=[NSString stringWithFormat:@"%s%@","You donot have enough balance.Please pay $",[self.utils getNumberFormatter:payable]];
+    descLabel.text=message;
     descLabel.textAlignment=NSTextAlignmentLeft;
     // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
     descLabel.font = txtFont;
@@ -1013,15 +1005,27 @@ static UIColor *NotSelectedCellBGColor;
                 self.strpCancelBtn.enabled=TRUE;
                 return;
             }else{
-                @try {
-                    self.strpDAO = [[StripeDAO alloc]init];
-                    NSString *status= [self.strpDAO doStripePayment:self.payableAmount ID:@1 CardToken:token.tokenId Currency:@"USD" Description:@"Purchase additional meeting hours" IsDealerAccount:FALSE];
-                                       
-                    //subscribeACustomer:self.email.text CardToken:token.tokenId ];
-                    //do stripe payment
-                    //if ([status isEqual:@"SUCCESS"]){
-                        [self addReservation:status];
+                @try{
+                    NSNumber *payableAmount = [self.jSonResult objectForKey:@"payableAmount"];
+                    NSDictionary *i =[self.jSonResult objectForKey:@"ReservationModel"];
+                    ReservationModel *resModel = [[ReservationModel alloc]init];
+                    resModel = [resModel initWithDictionary:i];
+                    NSDate *startDate = [NSDate date];
+                    NSNumber *plnStart = [NSNumber numberWithLong:[startDate timeIntervalSince1970]];
+                    NSDate *plnEndDate  = [NSDate dateWithTimeIntervalSince1970:resModel.startDate.doubleValue/1000];
+                    NSNumber *plnEnd = [NSNumber numberWithLong:[plnEndDate timeIntervalSince1970]];
+                    long duaration = (plnEnd.longValue - plnStart.longValue)/(1000*60*60*24);
+                    NSNumber *trialPeriod =[NSNumber numberWithLong:duaration];
+                    NSDictionary *result= [self.smSpDao updateReservationStatus:resModel CardId:token.tokenId TrialPeriod:trialPeriod Amount:payableAmount Gateway:@"STRIPE"];
                     
+                    
+                    NSString *statusStr = [result objectForKey:@"STATUS"]    ;
+                    NSLog(@"%@",statusStr);
+                    if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
+                        [self showPopup:@"Successful" Message:@"Reserved successfully."  CloseThis:NO];
+                    }else{
+                        [self showPopup:@"Failed" Message:[result objectForKey:@"ERRORMESSAGE"] CloseThis:YES];
+                    }
                     
                 }
                 @catch (NSException *exception) {
@@ -1055,6 +1059,7 @@ static UIColor *NotSelectedCellBGColor;
 }
 
 - (IBAction)cancelStripePayment:(id)sender {
+    [self cancelMeeting:sender];
     [self.popup removeFromSuperview];
     for(UIView *subViews in self.view.subviews){
         subViews.alpha=1.0;
@@ -1354,5 +1359,97 @@ static UIColor *NotSelectedCellBGColor;
     [self.alertView addSubview: closeBtn];
 }
 
+-(void) showUpdatePopup:(NSString *) title Message:(NSString *) message CloseThis :(BOOL)closeThis
+{
+    self.view.backgroundColor=[UIColor grayColor];
+    for(UIView *subViews in [self.view subviews]){
+        subViews.alpha=0.2;
+        subViews.userInteractionEnabled=false;
+    }
+    float centerX = self.view.frame.size.width/2;
+    float centerY = self.view.frame.size.height/2;
+    self.alertView = [[UIView alloc] initWithFrame:CGRectMake(centerX-150, centerY-90 , 300, 180)];
+    self.alertView.backgroundColor = [UIColor whiteColor];
+    self.alertView.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
+    self.alertView.layer.borderWidth = 1.0f;
+    [self.view addSubview: self.alertView];
+    UILabel *header = [[UILabel alloc] initWithFrame:CGRectMake(0, 0 , 300, 30)];
+    header.text=title;//@"Your request processed successfully. Our community manager will contact you soon.";
+    header.textAlignment=NSTextAlignmentCenter;
+    header.numberOfLines=1;
+    header.backgroundColor=[self.wnpConst getThemeBaseColor];;
+    header.textColor=[UIColor whiteColor];
+    [self.alertView addSubview: header];
+    
+    
+    
+    UILabel *messageText = [[UILabel alloc] initWithFrame:CGRectMake(0, 40 , 300, 90)];
+    messageText.text=message;
+    messageText.textAlignment=NSTextAlignmentCenter;
+    messageText.numberOfLines=-1;
+    [self.alertView addSubview: messageText];
+    UIButton *okBtn = [[UIButton alloc] initWithFrame:CGRectMake( 50,140 , 75, 30)];
+    okBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
+    
+    [okBtn setTitle: @"Ok" forState: UIControlStateNormal];
+    okBtn.userInteractionEnabled=TRUE;
+    okBtn.enabled=TRUE;
+    [okBtn addTarget:self action:@selector(updateMeetingStatus:) forControlEvents: UIControlEventTouchUpInside];
+    [self.alertView addSubview: okBtn];
+    
+    UIButton *cancelButton = [[UIButton alloc] initWithFrame:CGRectMake( 175,140 , 75, 30)];
+    cancelButton.backgroundColor=[self.wnpConst getThemeBaseColor];
+    
+    [cancelButton setTitle: @"Cancel" forState: UIControlStateNormal];
+    cancelButton.userInteractionEnabled=TRUE;
+    cancelButton.enabled=TRUE;
+    [cancelButton addTarget:self action:@selector(cancelMeeting:) forControlEvents: UIControlEventTouchUpInside];
+    
 
+    [self.alertView addSubview: cancelButton];
+}
+- (IBAction)updateMeetingStatus:(id)sender {
+    @try{
+        NSNumber *payableAmount = [self.jSonResult objectForKey:@"payableAmount"];
+        NSDictionary *i =[self.jSonResult objectForKey:@"ReservationModel"];
+        ReservationModel *resModel = [[ReservationModel alloc]init];
+        resModel = [resModel initWithDictionary:i];
+        NSDate *startDate = [NSDate date];
+        NSNumber *plnStart = [NSNumber numberWithLong:[startDate timeIntervalSince1970]];
+        NSDate *plnEndDate  = [NSDate dateWithTimeIntervalSince1970:resModel.startDate.doubleValue/1000];
+        NSNumber *plnEnd = [NSNumber numberWithLong:[plnEndDate timeIntervalSince1970]];
+        long duaration = (plnEnd.longValue - plnStart.longValue)/(1000*60*60*24);
+        NSNumber *trialPeriod = [NSNumber numberWithLong:duaration];
+     
+        NSDictionary *result= [self.smSpDao updateReservationStatus:resModel CardId:nil TrialPeriod:trialPeriod Amount:payableAmount Gateway:@"STRIPE"];
+        
+       // NSDictionary *result= [self.smSpDao updateReservationStatus:resModel CardId:@"" TrialPeriod:trialPeriod Amount:payableAmount Gateway:@"STRIPE"];
+        NSString *statusStr = [result objectForKey:@"STATUS"]    ;
+        NSLog(@"%@",statusStr);
+        if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
+           [self showPopup:@"Successful" Message:@"Reserved successfully."  CloseThis:NO];
+        }else{
+            [self showPopup:@"Failed" Message:[result objectForKey:@"ERRORMESSAGE"] CloseThis:YES];
+        }
+        
+    }@catch(NSException *exp){
+        [self showPopup:@"Failed" Message:exp.description CloseThis:YES];
+    }
+}
+- (IBAction)cancelMeeting:(id)sender {
+    @try{
+        NSDictionary *i =[self.jSonResult objectForKey:@"ReservationModel"];
+        ReservationModel *resModel = [[ReservationModel alloc]init];
+        resModel = [resModel initWithDictionary:i];
+        NSString *statusStr= [self.smSpDao deleteReservation:resModel];
+        
+        
+        if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
+            [self showPopup:@"Successful" Message:@"Cancelled successfully."  CloseThis:NO];
+        }
+        
+    }@catch(NSException *exp){
+        [self showPopup:@"Failed" Message:exp.description CloseThis:YES];
+    }
+}
 @end

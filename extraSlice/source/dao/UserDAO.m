@@ -1,4 +1,4 @@
- //
+    //
 //  UserDAO.m
 //  WalkNPay
 //
@@ -60,17 +60,24 @@
 }
 
 
--(UserModel *) createUser:(UserModel *)userModel AddOnList:(NSMutableArray *)addOnList UserRegCode:(NSString *) userCode{
+-(UserModel *) createUser:(UserModel *)userModel OfferModel: (PlanOfferModel *)offerModel AddOnList:(NSMutableArray *)addOnList UserRegCode:(NSString *) userCode CardToken:(NSString *) cardToken PlanIds:(NSArray *) planIdList  TrialEndsAt:(NSNumber *) trialEndAt TrailDays:(NSNumber *) trialDays Gateway:(NSString *) gateway;{
     NSString *urlString =@"user/addUser";
     NSMutableDictionary *request = [NSMutableDictionary dictionary];
     if(addOnList != nil && addOnList.count > 0){
         [request setValue:addOnList forKey:@"ResourceTypeList"];
     }
+    if(offerModel != nil ){
+        [request setValue:[offerModel dictionaryWithPropertiesOfObject:offerModel] forKey:@"OfferModel"];
+    }
     [request setValue:userCode forKey:@"UserRegCode"];
+     [request setValue:planIdList forKey:@"planIdList"];
+     [request setValue:cardToken forKey:@"cardToken"];
+     [request setValue:trialEndAt forKey:@"trialEndsAt"];
+     [request setValue:trialDays forKey:@"trialDays"];
+    [request setValue:gateway forKey:@"gateWay"];
     [request setValue:[userModel dictionaryWithPropertiesOfObject:userModel] forKey:@"User"];
     NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request
-                                                       options:(NSJSONWritingOptions)    (NSJSONWritingPrettyPrinted)                                                 error:&error];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
     
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
@@ -89,13 +96,16 @@
     }
     return userModel;
 }
--(NSString *) addDedicatedMembershipRequest:(UserRequestModel *) userReqModel AddOnList:(NSMutableArray *)addOnList{
+-(NSString *) addDedicatedMembershipRequest:(UserRequestModel *) userReqModel OfferModel: (PlanOfferModel *)offerModel AddOnList:(NSMutableArray *)addOnList{
     NSString *urlString =@"user/addDedicatedMembershipRequest";
     
     
     NSMutableDictionary *request = [NSMutableDictionary dictionary];
     if(addOnList != nil && addOnList.count > 0){
         [request setValue:addOnList forKey:@"ResourceTypeList"];
+    }
+    if(offerModel != nil ){
+        [request setValue:[offerModel dictionaryWithPropertiesOfObject:offerModel] forKey:@"OfferModel"];
     }
   
     [request setValue:[userReqModel dictionaryWithPropertiesOfObject:userReqModel] forKey:@"User"];
@@ -194,16 +204,11 @@
          return [result objectForKey:@"ERRORMESSAGE"];
     }
 }
--(NSString *) updateUserPlan:(NSNumber *) userId OrgId:(NSNumber *) orgId PlanId:(NSNumber *)planId StartDate:(NSString *) plnStartDate EndtDate:(NSString *) plnEndDate PaymentReference:(NSString *) pymntRefKey{
-
-    NSString *urlString =@"user/updateUserPlan";
+-(NSString *) getCustomerAccount:(NSNumber *) userId StrpAcct:(NSNumber *) strpAcct{
+    NSString *urlString =@"custacct/getCustomerAccount";
     NSMutableDictionary *requestData = [NSMutableDictionary dictionary];
     [requestData setValue:userId forKey:@"userId"];
-    [requestData setValue:orgId forKey:@"orgId"];
-    [requestData setValue:planId forKey:@"planId"];
-    [requestData setValue:plnStartDate forKey:@"plnStartDate"];
-    [requestData setValue:plnEndDate forKey:@"plnEndDate"];
-    [requestData setValue:pymntRefKey forKey:@"pymntRefKey"];
+    [requestData setValue:strpAcct forKey:@"strpAcct"];
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:requestData options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
@@ -216,11 +221,14 @@
     }
     NSString *statusStr = [result objectForKey:@"STATUS"]    ;
     if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
-        return @"SUCCESS";
-        
+        NSDictionary *acctDic =[result objectForKey:@"User"];
+        CustAcctModel *acctMdl = [[CustAcctModel alloc]init];
+        acctMdl = [acctMdl initWithDictionary:acctDic];
+        return acctMdl.customerId;
     }else{
         return [result objectForKey:@"ERRORMESSAGE"];
     }
+
 }
 /*public JSONObject deleteUserByName(String userName,String orgName)  throws CustomException{
     String urlString = Utilities.mainUrl + "/user/deleteUserByName";

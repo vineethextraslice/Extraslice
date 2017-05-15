@@ -21,6 +21,7 @@
 #import "StripeDAO.h"
 #import "StripePlanModel.h"
 #import "SmartSpaceDAO.h"
+#import "PlanOfferModel.h"
 
 static UIColor *SelectedCellBGColor ;
 static UIColor *NotSelectedCellBGColor;
@@ -31,8 +32,11 @@ static UIColor *NotSelectedCellBGColor;
 @property(nonatomic) BOOL individual;
 @property(nonatomic) BOOL isPaypal;
 @property(nonatomic) BOOL tcAccepted;
+@property(strong,nonatomic) NSMutableArray *addOnAArray;
+
 @property(strong,nonatomic) UIView *previousRow;
 @property(strong,nonatomic) OrganizationModel *selectedOrg;
+@property(strong,nonatomic) PlanModel *selectedPlan;
 @property(strong,nonatomic) UIColor *bgColor;
 @property(strong,nonatomic) UILabel *crtOrgError;
 @property(strong,nonatomic) UITextField *crtOrgOrgName ;
@@ -46,24 +50,29 @@ static UIColor *NotSelectedCellBGColor;
 @property(strong,nonatomic) STPPaymentCardTextField *strpPymntTf;
 @property(strong,nonatomic)  Utilities *utils ;
 @property(strong,nonatomic) StripeDAO *strpDAO;
-@property(strong,nonatomic) StripePlanModel *strpPlnModel;
+@property(strong,nonatomic)  UserDAO *userDao;
 @property(strong,nonatomic) SmartSpaceDAO *smSpaceDAO;
 @property(strong,nonatomic) UITextField *orgName;
-@property(strong,nonatomic) UILabel *addOrg;
-@property(strong,nonatomic) UITableView *selectOrgTable;
-@property(strong,nonatomic) NSMutableArray * orgNameArray;
-@property(strong,nonatomic) NSMutableArray * filteredNameArray;
+@property(strong,nonatomic) NSNumber *initilaPaymentAmount;
+@property(strong,nonatomic) OrganizationModel *individualOrg;
+@property(strong,nonatomic) STPAPIClient *strpClient;
 @end
-
+/*var payableAmount = document.getElementById('planamount').value;
+var onetimeAmount =(+payableAmount)*((+noOfdaystoNextMonth)/(+noOFDaysInMoth));
+document.getElementById('onetimeamount').value =Math.round(+onetimeAmount * 100) / 100;
+var message = '<?php echo $message; ?>';
+message = message.replace("replace_amount", Math.round(+onetimeAmount * 100) / 100);*/
 @implementation UserDataController
-
+UserModel *addedModel = nil;
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.tcAccepted= FALSE;
     self.strpDAO = [[StripeDAO alloc]init];
     self.wnpCont= [[WnPConstants alloc]init];
     self.utils = [[Utilities alloc]init];
+    self.individualOrg =[[OrganizationModel alloc]init];
     self.smSpaceDAO = [[SmartSpaceDAO alloc]init];
+    self.userDao = [[UserDAO alloc]init];
     self.userName.delegate =self;
     self.email.delegate =self;
     self.password.delegate =self;
@@ -73,20 +82,38 @@ static UIColor *NotSelectedCellBGColor;
     self.makePayment=true;
     [self.tcView bringSubviewToFront:self.tcChecbox];
     [self.tcChecbox setUserInteractionEnabled:TRUE];
-    self.orgNameArray = [[NSMutableArray alloc]init];
-    self.filteredNameArray = [[NSMutableArray alloc]init];
+    [self performBackgroundTask:@"INDIVIDUAL"];
+    [self performBackgroundTask:@"ALLORG"];
     NSDictionary *attrs =@{NSFontAttributeName:[UIFont boldSystemFontOfSize:16],NSForegroundColorAttributeName:[UIColor blueColor],NSUnderlineStyleAttributeName : @(NSUnderlineStyleSingle | NSUnderlinePatternSolid),NSUnderlineColorAttributeName:[UIColor blueColor] };
     NSDictionary *subAttrs =@{NSFontAttributeName:[UIFont systemFontOfSize:14],NSUnderlineStyleAttributeName: @(NSUnderlineStyleNone)};
     NSString *str = @"I accept the Terms and Conditions";
     NSRange theRange = NSMakeRange(13,20);
     NSMutableAttributedString *tcurl=[[NSMutableAttributedString alloc]initWithString:str attributes:subAttrs];
     [tcurl setAttributes:attrs range:theRange];
+     self.tcText.attributedText = tcurl;
+    if(self.selectedPlanArray != nil){
+        self.selectedPlan = [self.selectedPlanArray objectAtIndex:0];
+    }
+    self.addOnAArray = [[NSMutableArray alloc]init];
+    
+     if(self.selectedAddonIds != (id)[NSNull null] && self.selectedAddonIds != nil){
+         for(ResourceTypeModel  *resTypeMdl in self.addonList){
+             if([self.selectedAddonIds containsObject:resTypeMdl.resourceTypeId]){
+                 [self.addOnAArray addObject:[resTypeMdl dictionaryWithPropertiesOfObject:resTypeMdl]];
+             }
+         }
+     }
+
+    double onetimeAmount =(self.payableAmount.doubleValue*self.noOfdaystoNextMonth.doubleValue)/(self.noOFDaysInMoth.doubleValue);
+    self.initilaPaymentAmount = [NSNumber numberWithDouble:onetimeAmount];
+    NSString *pymntText = [self.message stringByReplacingOccurrencesOfString:@"replace_amount" withString:[self.utils getNumberFormatter:onetimeAmount]];
+
+        self.paydescrText.text=pymntText;
+    
+    
+    
+    
    
-     //[tcurl addAttribute:NSLinkAttributeName value:@"http://extraslice.com" range:theRange];
-    
-    
-    
-    self.tcText.attributedText = tcurl;
     
     UITapGestureRecognizer *showTcTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(showTC:)];
     showTcTap.numberOfTapsRequired = 1;
@@ -100,20 +127,13 @@ static UIColor *NotSelectedCellBGColor;
     [self.tcChecbox setUserInteractionEnabled:YES];
     [self.tcChecbox addGestureRecognizer:tcCheckTap];
     
-    [self.filteredNameArray addObject:@"Add Organization"];
-    for(OrganizationModel *org in self.orgList){
-        [self.orgNameArray addObject:org.orgName];
-        [self.filteredNameArray addObject:org.orgName];
-    }
     @try{
         self.adminAcctModel=[self.smSpaceDAO getAdminAccount];
     }@catch(NSException *exp){
         
     }
 
-    if(self.selectedPlan != (id)[NSNull null] && self.selectedPlan != nil && self.selectedPlan.purchaseOnSpot){
-        self.strpPlnModel = [self.strpDAO getOrCreateStripePlan:self.selectedPlan AddOnList:self.addOnAArray];
-    }
+
     self.individual=true;
     self.isPaypal =false;
         self.bgColor = [UIColor colorWithRed:92.0/255.0 green:172.0/255.0 blue:230.0/255.0 alpha:1.0];
@@ -124,26 +144,14 @@ static UIColor *NotSelectedCellBGColor;
     self.errorTop.constant=0;
     [self.errorText clipsToBounds];
     self.orgName = [[UITextField alloc] initWithFrame:CGRectMake(0, 0 , 210, 30)];
-    self.addOrg = [[UILabel alloc] initWithFrame:CGRectMake(215, 0 , 35, 30)];
-    self.addOrg.text=@"Add";
-    self.addOrg.hidden=true;
     UIImage *grayBGImg = [UIImage imageNamed:@"edt_bg_grey.png"];
     [self.orgName setBackground:grayBGImg];
     self.orgName.placeholder=@"Select/Create Organization";
-    [self.orgDrpDwn addSubview:self.orgName];
-    [self.orgDrpDwn addSubview:self.addOrg];
+
     
-    UITapGestureRecognizer *addOrgTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(showCreateOrgPopup)];
-    addOrgTap.numberOfTapsRequired = 1;
-    addOrgTap.numberOfTouchesRequired = 1;
-    [self.addOrg setUserInteractionEnabled:YES];
-    [self.addOrg addGestureRecognizer:addOrgTap];
+   
     
-    self.selectOrgTable =[[UITableView alloc] initWithFrame:CGRectMake(0, 30 , 250, 70)];
-    self.selectOrgTable.delegate = self;
-    self.selectOrgTable.dataSource = self;
-    
-    [self.orgDrpDwn addSubview:self.selectOrgTable];
+
     self.orgName.delegate=self;
     SelectedCellBGColor=[UIColor grayColor];
     NotSelectedCellBGColor =[UIColor whiteColor];
@@ -190,11 +198,10 @@ static UIColor *NotSelectedCellBGColor;
             break;
         }
     }*/
-    self.selectedOrg=[self.smSpaceDAO getIndividualOrg];
+    
     self.selectedOrg.orgRoleId=@1;
 
-    self.orgDrpDwn.hidden=true;
-    self.selectOrgTable.hidden=true;
+
        if(self.selectedPlan == nil){
            self.alreadyRegistered = true;
            self.noOfSeats.hidden = true;
@@ -208,12 +215,7 @@ static UIColor *NotSelectedCellBGColor;
            self.membershipType.hidden=true;
            self.membTypeHeight.constant=0;
            self.membTypeTop.constant=0;
-           
-           self.selectOrgTable.hidden=true;
-           self.orgHeight.constant=0;
-           self.orgTop.constant=0;
-        
-           self.orgDrpDwn.hidden=true;
+
         
            self.userName.hidden=true;
            self.nameHeight.constant=0;
@@ -229,37 +231,32 @@ static UIColor *NotSelectedCellBGColor;
     }else{
         self.contactNo.hidden=false;
         self.alreadyRegistered = false;
-        if(self.selectedPlan.purchaseOnSpot){
-            self.dedicatedPlan = false;
+        for(PlanModel *pln in self.selectedPlanArray){
+            if(!pln.purchaseOnSpot){
+                self.dedicatedPlan = true;
+                break;
+            }
+        }
+        if(!self.dedicatedPlan){
+           
             self.noOfSeats.hidden = true;
             self.makePayment=true;
-           
+            
         }else{
-            self.dedicatedPlan = true;
+            self.tcView.hidden=true;
+            self.tcHeight.constant=0;
+            [self.joinNowBtn setTitle: @"Check availability" forState: UIControlStateNormal];
             self.makePayment=false;
-            
             self.noOfSeats.hidden = false;
-            
             self.password.hidden=true;
             self.passwordHeight.constant=0;
             self.passwordTop.constant=0;
-            
             self.confPassword.hidden=true;
             self.confPwdHeight.constant=0;
             self.confPwdTop.constant=0;
-            
             self.membershipType.hidden=true;
             self.membTypeHeight.constant=0;
             self.membTypeTop.constant=0;
-            
-            self.selectOrgTable.hidden=true;
-            self.orgHeight.constant=0;
-            self.orgTop.constant=0;
-            
-            self.orgDrpDwn.hidden=true;
-           
-            
-            
             self.payDescHeight.constant=0;
             self.payDescTop.constant=0;
             self.paydescrText.hidden=true;
@@ -294,151 +291,23 @@ static UIColor *NotSelectedCellBGColor;
     // Pass the selected object to the new view controller.
 }
 */
-- (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return self.filteredNameArray.count;
-}
-
-- (void)searchAutocompleteEntriesWithSubstring:(NSString *)substring {
-    
-    // Put anything that starts with this substring into the autocompleteUrls array
-    // The items in this array is what will show up in the table view
-    [self.filteredNameArray removeAllObjects];
-    if([substring isEqualToString:@""]){
-        self.filteredNameArray = [[NSMutableArray alloc]init];
-        //[self.filteredNameArray addObject:@"Add Organization"];
-        self.addOrg.hidden=false;
-        for(OrganizationModel *org in self.orgList){
-            [self.filteredNameArray addObject:org.orgName];
-        }
-    } else{
-        for(NSString *curString in self.orgNameArray) {
-            NSRange substringRange = [curString.uppercaseString rangeOfString:substring.uppercaseString];
-            if (substringRange.location == 0) {
-                [self.filteredNameArray addObject:curString];
-            }
-        }
-        if(self.filteredNameArray == nil || self.filteredNameArray.count == 0){
-            self.addOrg.hidden=false;
-        }else{
-            self.addOrg.hidden=true;
-        }
-    }
-    
-    [self.selectOrgTable reloadData];
-}
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-    self.selectOrgTable.hidden = NO;
-    self.selectOrgTable.alpha=1.0;
-    NSString *substring = [NSString stringWithString:textField.text];
-    substring = [substring stringByReplacingCharactersInRange:range withString:string];
-    [self searchAutocompleteEntriesWithSubstring:substring];
-    self.paydescrText.hidden=false;
-    return YES;
-}
--(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    
-    NSString *celId =@"Cell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:celId];
-    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:celId];
-    CGRect screenRect = [[UIScreen mainScreen] bounds];
-    CGFloat tableWidth = screenRect.size.width-10;
-        
-    UILabel *code = [[UILabel alloc] initWithFrame:CGRectMake(0, 2 , (tableWidth), 30)];
-    UIFont *txtFont = [code.font fontWithSize:15.0];
-    code.font = txtFont;
-    [code setUserInteractionEnabled:TRUE];
-    [code setEnabled:YES];
-    UITapGestureRecognizer *codeSel=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(setSeletedOrganization:)];
-    [codeSel setNumberOfTapsRequired:1];
-    [code addGestureRecognizer:codeSel];
-    if(self.filteredNameArray != nil && self.filteredNameArray.count > indexPath.item){
-        NSString *orgName = [self.filteredNameArray objectAtIndex:indexPath.item ];
-        code.text= orgName;
-        if([self.selectedOrg.orgName isEqualToString:orgName]){
-            code.backgroundColor=[UIColor grayColor];
-        }else{
-            code.backgroundColor=[UIColor whiteColor];
-        }
-    }else{
-        code.backgroundColor=[UIColor whiteColor];
-    }
-    code.backgroundColor=[self.wnpCont getThemeColorWithTransparency:0.2];
-    [cell addSubview:code];
-    [cell bringSubviewToFront:code];
-    UIView *seperator = [[UIView alloc] initWithFrame:CGRectMake(0, 31 , tableWidth, 1)];
-    [cell addSubview:seperator];
-    tableView.rowHeight=30;
-    cell.backgroundColor=[self.wnpCont getThemeColorWithTransparency:0.2];
-    return cell;
-}
 
 
-- (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    NSIndexPath *currentSelectedIndexPath = [tableView indexPathForSelectedRow];
-    if (currentSelectedIndexPath != nil)
-    {
-        [[tableView cellForRowAtIndexPath:currentSelectedIndexPath] setBackgroundColor:NotSelectedCellBGColor];
-    }
-    
-    return indexPath;
-}
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    [[tableView cellForRowAtIndexPath:indexPath] setBackgroundColor:SelectedCellBGColor];
-}
-
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (cell.isSelected == YES)
-    {
-        [cell setBackgroundColor:SelectedCellBGColor];
-    }
-    else
-    {
-        [cell setBackgroundColor:NotSelectedCellBGColor];
-    }
-}
-
--(IBAction) setSeletedOrganization:(UIGestureRecognizer *)recognizer{
-    UITextField *orgNameFld = (UITextField *)recognizer.view;
-    
-    if([@"Add Organization" isEqualToString:orgNameFld.text]){
-        self.makePayment=true;
-        [self showCreateOrgPopup];
-    }else{
-        for(OrganizationModel *org in self.orgList){
-            if([org.orgName isEqualToString:orgNameFld.text]){
-                self.selectedOrg = org;
-                self.orgName.text=org.orgName;
-                self.selectOrgTable.hidden=true;
-                break;
-            }
-        }
-        self.makePayment=false;
-    }
-
-    if(self.makePayment){
-        self.paydescrText.hidden=false;
-
-    }else{
-        self.paydescrText.hidden=true;
-
-    }
-    recognizer.view.backgroundColor=SelectedCellBGColor;
-    if(self.previousRow !=nil){
-        self.previousRow.backgroundColor=[UIColor whiteColor];
-    }
-    self.previousRow=recognizer.view;
-    
-}
 - (void)goBack:(UITapGestureRecognizer *) rec{
     UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"SelectPlan" bundle:nil];
     SelectPlanController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"SelectPlan"];
-    viewCtrl.selectedPlan = self.selectedPlan;
-    viewCtrl.orgList = self.orgList;
+   // viewCtrl.selectedPlan = self.selectedPlan;
     viewCtrl.planArray= self.planArray;
+    viewCtrl.addonList = self.addonList;
+    viewCtrl.adminAcctModel = self.adminAcctModel;
+    viewCtrl.planArray= self.planArray;
+    viewCtrl.offerList=self.offerList;
+    viewCtrl.noOfdaystoSubsDate = self.noOfdaystoSubsDate;
+    viewCtrl.trialEndsAt = self.trialEndsAt;
+    viewCtrl.firstsubDate  = self.firstsubDate;
+    viewCtrl.noOFDaysInMoth  = self.noOFDaysInMoth;
+    viewCtrl.message = self.message;
+    viewCtrl.noOfdaystoNextMonth = self.noOfdaystoNextMonth;
     [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];}
 
 - (void)makeIndividual:(UITapGestureRecognizer *) rec{
@@ -447,24 +316,14 @@ static UIColor *NotSelectedCellBGColor;
         self.selectedOrg=nil;
         [self.selIndividual setImage:[UIImage imageNamed:@"rb_blue_unsel.png"]];
         [self.selOrg setImage:[UIImage imageNamed:@"rb_blue_sel.png"]];
-        self.selectOrgTable.hidden=false;
-        self.selectOrgTable.alpha=1.0;
-        self.orgDrpDwn.hidden=false;
         self.paydescrText.hidden=false;
         self.individual = false;
+        [self showCreateOrgPopup];
     }else{
-        /*for(OrganizationModel *orgMdl in self.orgList){
-            if(orgMdl.orgId.intValue == 1){
-                self.selectedOrg=orgMdl;
-                break;
-            }
-        }*/
-        self.selectedOrg=[self.smSpaceDAO getIndividualOrg];
+        self.selectedOrg=self.individualOrg;
         self.selectedOrg.orgRoleId=@1;
         [self.selOrg setImage:[UIImage imageNamed:@"rb_blue_unsel.png"]];
         [self.selIndividual setImage:[UIImage imageNamed:@"rb_blue_sel.png"]];
-        self.selectOrgTable.hidden=true;
-        self.orgDrpDwn.hidden=true;
        if(!self.dedicatedPlan && !self.alreadyRegistered){
             /*self.payType.hidden=false;
             self.payTypeHeight.constant=30;
@@ -635,10 +494,7 @@ static UIColor *NotSelectedCellBGColor;
 
 -(void) showStripePopup
 {
-    //self.crtOrgError.text=@"";
-    //self.crtOrgError.hidden=true;
-
-   // self.view.backgroundColor=[UIColor grayColor];
+ 
     for(UIView *subViews in [self.view subviews]){
         subViews.alpha=0.2;
         subViews.userInteractionEnabled=false;
@@ -647,7 +503,7 @@ static UIColor *NotSelectedCellBGColor;
     float centerY = self.view.center.y;
     
     self.view.userInteractionEnabled=false;
-    self.crtOrgPopup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-95,270,190)];
+    self.crtOrgPopup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-95,270,220)];
      self.crtOrgPopup.backgroundColor = [UIColor whiteColor];
     self.crtOrgPopup.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
     self.crtOrgPopup.layer.borderWidth = 1.0f;
@@ -668,32 +524,52 @@ static UIColor *NotSelectedCellBGColor;
     self.crtOrgError.hidden=true;
     self.crtOrgError.textColor=[UIColor redColor];
     [self.crtOrgPopup addSubview: self.crtOrgError];
-
-    UILabel *descLabel =[[UILabel alloc] initWithFrame:CGRectMake(10,75,195,30)];
-    descLabel.text=@"Payment for plan purchase";
-    descLabel.textAlignment=NSTextAlignmentLeft;
+    if(self.initilaPaymentAmount.doubleValue > 0){
+        UILabel *descLabel =[[UILabel alloc] initWithFrame:CGRectMake(10,75,195,30)];
+        descLabel.text=@"Onetime Payment for plan ";
+        descLabel.textAlignment=NSTextAlignmentLeft;
+        // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
+        descLabel.font = txtFont;
+        descLabel.textColor=[UIColor blackColor];
+        // headerLbl.backgroundColor=[self.wnpCont getThemeBaseColor];
+        [self.crtOrgPopup addSubview:descLabel];
+        
+        UILabel *amtLbl =[[UILabel alloc] initWithFrame:CGRectMake(210,75,50,30)];
+        amtLbl.text=[NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:self.initilaPaymentAmount.doubleValue]];
+        amtLbl.textAlignment=NSTextAlignmentLeft;
+        // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
+        amtLbl.font = txtFont;
+        amtLbl.textColor=[UIColor blackColor];
+        // headerLbl.backgroundColor=[self.wnpCont getThemeBaseColor];
+        [self.crtOrgPopup addSubview:amtLbl];
+    }
+    
+    
+    
+    
+    UILabel *subDescLabel =[[UILabel alloc] initWithFrame:CGRectMake(10,110,195,30)];
+    subDescLabel.text=@"Subscription for plan ";
+    subDescLabel.textAlignment=NSTextAlignmentLeft;
     // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
-    descLabel.font = txtFont;
-    descLabel.textColor=[UIColor blackColor];
+    subDescLabel.font = txtFont;
+    subDescLabel.textColor=[UIColor blackColor];
     // headerLbl.backgroundColor=[self.wnpCont getThemeBaseColor];
-    [self.crtOrgPopup addSubview:descLabel];
+    [self.crtOrgPopup addSubview:subDescLabel];
     
-    UILabel *amtLbl =[[UILabel alloc] initWithFrame:CGRectMake(210,75,50,30)];
-    amtLbl.text=[NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:self.payableAmount.doubleValue]];
-    amtLbl.textAlignment=NSTextAlignmentLeft;
+    UILabel *subAmtLbl =[[UILabel alloc] initWithFrame:CGRectMake(210,110,50,30)];
+    subAmtLbl.text=[NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:self.payableAmount.doubleValue]];
+    subAmtLbl.textAlignment=NSTextAlignmentLeft;
     // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
-    amtLbl.font = txtFont;
-    amtLbl.textColor=[UIColor blackColor];
+    subAmtLbl.font = txtFont;
+    subAmtLbl.textColor=[UIColor blackColor];
     // headerLbl.backgroundColor=[self.wnpCont getThemeBaseColor];
-    [self.crtOrgPopup addSubview:amtLbl];
+    [self.crtOrgPopup addSubview:subAmtLbl];
     
-    
-    
-    self.strpPymntTf = [[STPPaymentCardTextField alloc] initWithFrame:CGRectMake(10,110,250,30)];
+    self.strpPymntTf = [[STPPaymentCardTextField alloc] initWithFrame:CGRectMake(10,145,250,30)];
     self.strpPymntTf.delegate=self;
     [self.crtOrgPopup addSubview:self.strpPymntTf];
     
-    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(20,150,100,30)];
+    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(20,185,100,30)];
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
     [self.strpSubmitBtn setTitle: @"Submit" forState: UIControlStateNormal];
     self.strpSubmitBtn.userInteractionEnabled=TRUE;
@@ -703,7 +579,7 @@ static UIColor *NotSelectedCellBGColor;
 
     [self.crtOrgPopup addSubview:self.strpSubmitBtn];
     
-    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(150,150,100,30)];
+    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(150,185,100,30)];
     self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
    // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
     
@@ -737,6 +613,9 @@ static UIColor *NotSelectedCellBGColor;
     if(self.crtOrgOrgName.text == nil || self.crtOrgOrgName.text.length == 0){
         self.crtOrgError.text=@"Please enter organization name";
         self.crtOrgError.hidden=false;
+    }else if([self.orgList containsObject:self.crtOrgOrgName.text]){
+        self.crtOrgError.text=@"Organization name already exists";
+        self.crtOrgError.hidden=false;
     }else{
         self.selectedOrg = [[OrganizationModel alloc]init];
         self.selectedOrg.orgName=self.crtOrgOrgName.text;
@@ -745,7 +624,6 @@ static UIColor *NotSelectedCellBGColor;
         self.selectedOrg.contactNo=self.crtOrgContactNo.text;
         self.selectedOrg.keyWords=self.crtOrgDesc.text;
         self.orgName.text = self.crtOrgOrgName.text;
-        self.selectOrgTable.hidden=true;
         self.orgName.text=self.crtOrgOrgName.text;
         [self closeOrgPopup:sender];
     }
@@ -757,58 +635,17 @@ static UIColor *NotSelectedCellBGColor;
     self.errorHieght.constant=0;
     self.errorTop.constant=0;
     NSString *errorMsg = [self validateUserData];
-    UserDAO *userDao = [[UserDAO alloc]init];
+    
    
     if(errorMsg == nil){
         if(self.dedicatedPlan){
-            UserRequestModel *userReqModel = [[UserRequestModel alloc]init];
-            userReqModel.email=self.email.text;
-            userReqModel.name =self.userName.text;
-            userReqModel.noOfSeats=[NSNumber numberWithInt:self.noOfSeats.text.intValue];
-            userReqModel.contactNo=self.contactNo.text;
-            userReqModel.planName=self.selectedPlan.planName;
-            NSString *status = [userDao addDedicatedMembershipRequest:userReqModel AddOnList:self.addOnAArray];
-            if([status isEqualToString:@"SUCCESS"]){
-                [self showPopup:@"Thank you" Message:@"Your request processed successfully. Our community manager will contact you soon."];
-            }else{
-                self.errorText.text=status;
-                self.errorLyt.hidden=false;
-                self.errorHieght.constant=30;
-                self.errorTop.constant=10;
-            }
             
+            [self addDedicatedMembershipRequest];
         }else{
             if(self.makePayment){
                 [self showStripePopup];
             }else{
-                UserModel *userModel = [[UserModel alloc]init];
-                userModel.userName=self.email.text;
-                userModel.email=self.email.text;
-                userModel.password =[self.utils encode:self.password.text];
-                userModel.userId = [NSNumber numberWithInt:0];
-                userModel.roleId = [NSNumber numberWithInt:0];
-                userModel.firstName = self.userName.text;
-                NSMutableArray *orgArray = [[NSMutableArray alloc]init];
-                if(self.selectedOrg != nil){
-                    [orgArray addObject:[self.selectedOrg dictionaryWithPropertiesOfObject:self.selectedOrg]];
-                }
-                userModel.orgList=orgArray;
-                UserModel *addedModel = nil;
-                @try{
-                    NSString *userCode = nil;
-                    if(self.alreadyRegistered){
-                        userCode = @"Existing";
-                    }
-                    addedModel = [userDao createUser:userModel AddOnList:self.addOnAArray UserRegCode:userCode];
-                    if(addedModel != nil){
-                        [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
-                    }
-                }@catch(NSException *exp){
-                    self.errorText.text=exp.description;
-                    self.errorLyt.hidden=false;
-                    self.errorHieght.constant=30;
-                    self.errorTop.constant=10;
-                }
+                [self addUser:nil];
             }
             
             
@@ -824,8 +661,10 @@ static UIColor *NotSelectedCellBGColor;
 }
 -(NSString *) validateUserData{
     NSString *error=nil;
-    if(!self.tcAccepted){
-        return @"Please accept terms and conditions";
+    if(!self.dedicatedPlan){
+        if(!self.tcAccepted){
+            return @"Please accept terms and conditions";
+        }
     }
     if(self.email.text == nil || self.email.text.length == 0){
         return @"Please enter a valid email";
@@ -858,6 +697,8 @@ static UIColor *NotSelectedCellBGColor;
     return error;
 }
 - (IBAction)submitStripePayment:(id)sender {
+
+
     self.crtOrgError.text= @"";
     self.crtOrgError.hidden=true;
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
@@ -887,9 +728,9 @@ static UIColor *NotSelectedCellBGColor;
     NSString *publicKey=[self.utils decode:self.adminAcctModel.strpPubKey];
     @try{
         NSLog(@"%@",publicKey);
-        STPAPIClient *strpClient = [[STPAPIClient alloc] initWithPublishableKey:publicKey];
+        self.strpClient = [[STPAPIClient alloc] initWithPublishableKey:publicKey];
         [Stripe setDefaultPublishableKey:publicKey];
-        NSLog(@"%@",strpClient.publishableKey);
+        NSLog(@"%@",self.strpClient.publishableKey);
         if (![self.strpPymntTf isValid]) {
             self.crtOrgError.text= @"Invalid Card";
             self.crtOrgError.hidden=false;
@@ -912,7 +753,7 @@ static UIColor *NotSelectedCellBGColor;
             return;
         }
         
-        [strpClient createTokenWithCard:self.strpPymntTf.card completion:^(STPToken *token, NSError *error) {
+        [self.strpClient createTokenWithCard:self.strpPymntTf.card completion:^(STPToken *token, NSError *error) {
             if (error) {
                 self.crtOrgError.text= error.description;
                 self.crtOrgError.hidden=false;
@@ -923,120 +764,14 @@ static UIColor *NotSelectedCellBGColor;
                 self.strpCancelBtn.enabled=TRUE;
                 return;
             }else{
-                UserModel *userModel = [[UserModel alloc]init];
-                userModel.userName=self.email.text;
-                userModel.email=self.email.text;
-                userModel.password =[self.utils encode:self.password.text];
-                userModel.userId = [NSNumber numberWithInt:0];
-                userModel.roleId = [NSNumber numberWithInt:0];
-                userModel.firstName = self.userName.text;
-                NSMutableArray *orgArray = [[NSMutableArray alloc]init];
-                if(self.selectedOrg != nil){
-                    [orgArray addObject:[self.selectedOrg dictionaryWithPropertiesOfObject:self.selectedOrg]];
-                }
-                userModel.orgList=orgArray;
-                UserModel *addedModel = nil;
-                @try{
-                    BOOL newOrg = FALSE;
-                    if(self.selectedOrg.orgId.intValue <=0){
-                        newOrg = true;
-                    }
-                    UserDAO *userDao = [[UserDAO alloc]init];
-                    NSString *userCode = nil;
-                    if(self.alreadyRegistered){
-                        userCode = @"Existing";
-                    }
-
-                    addedModel = [userDao createUser:userModel AddOnList:self.addOnAArray UserRegCode:userCode] ;
-                    if(addedModel != nil){
-                        NSNumber *currOrgId = @-1;
-                        for(NSDictionary *orgDic in addedModel.orgList){
-                            if([self.selectedOrg.orgName isEqualToString:[orgDic objectForKey:@"orgName"]]){
-                                currOrgId = [orgDic objectForKey:@"orgId"];
-                            }
-                        }
-                        @try {
-                            NSString *status= [self.strpDAO subscribeACustomer:self.email.text CardToken:token.tokenId PlanId:self.strpPlnModel.stripePlanId];
-                            //subscribeACustomer:self.email.text CardToken:token.tokenId ];
-                            //do stripe payment
-                            
-                                
-                                NSCalendar *gregorian = [NSCalendar currentCalendar];
-                               
-                                
-                                
-                                NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
-                                [dateComponents setDay:(30)];
-                                NSDate *enddate = [gregorian dateByAddingComponents:dateComponents toDate:[NSDate date] options:0];
-                                
-                                NSDateFormatter *mdyhmFormatter = [[NSDateFormatter alloc] init];
-                                [mdyhmFormatter setDateFormat:@"yyyy-MM-dd HH:mm"];
-                                [mdyhmFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
-                                
-                                
-                                [userDao updateUserPlan:addedModel.userId OrgId:currOrgId PlanId:self.selectedPlan.planId StartDate:[mdyhmFormatter stringFromDate:[NSDate date]] EndtDate:[mdyhmFormatter stringFromDate:enddate] PaymentReference:status];
-                                [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
-                           
-                            
-            
-                        }
-                        @catch (NSException *exception) {
-                            if(newOrg){
-                                [userDao deleteUser:addedModel.userId OrgId:currOrgId];
-                            }else{
-                                [userDao deleteUser:addedModel.userId OrgId:@-1];
-                            }
-                            
-                            self.errorText.text=@"Failed to add user";
-                            self.errorLyt.hidden=false;
-                            self.errorHieght.constant=30;
-                            self.errorTop.constant=10;
-                            self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
-                            // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-                            
-                            self.strpCancelBtn.userInteractionEnabled=TRUE;
-                            self.strpCancelBtn.enabled=TRUE;
-                            self.errorText.text=exception.description;
-                            self.errorLyt.hidden=false;
-                            self.errorHieght.constant=30;
-                            self.errorTop.constant=10;
-                            self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
-                            // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-                            
-                            self.strpCancelBtn.userInteractionEnabled=TRUE;
-                            self.strpCancelBtn.enabled=TRUE;
-                        }
-                        
-                        for(UIView *subViews in [self.crtOrgPopup subviews]){
-                            [subViews removeFromSuperview];
-                        }
-                        for(UIView *subViews in [[UIApplication sharedApplication].keyWindow subviews]){
-                            subViews.alpha=1.0;
-                            subViews.userInteractionEnabled=TRUE;
-                        }
-                        [self.crtOrgPopup removeFromSuperview];
-                        self.view.alpha=1.0;
-                        
-                        self.view.userInteractionEnabled=TRUE;
-                        
-
-                    }
-                }@catch(NSException *exp){
-                    self.errorText.text=exp.description;
-                    self.errorLyt.hidden=false;
-                    self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
-                    // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-                    self.errorHieght.constant=30;
-                    self.errorTop.constant=10;
-                    self.strpCancelBtn.userInteractionEnabled=TRUE;
-                    self.strpCancelBtn.enabled=TRUE;
-                }
-
-                
-                
-                
+                [self addUser:token.tokenId];
             }
         }];
+        
+        
+        
+       
+        
     }@catch(NSException *exception) {
         self.crtOrgError.text= exception.description;
         self.crtOrgError.hidden=false;
@@ -1114,5 +849,266 @@ static UIColor *NotSelectedCellBGColor;
 -(void) hideKeyBord{
     [self.strpPymntTf resignFirstResponder];
     [self.view endEditing:YES];
+}
+- (void)performBackgroundTask:(NSString *)purpose
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        if([purpose isEqualToString:@"INDIVIDUAL"]){
+            
+            indicator.frame = CGRectMake(0.0, 0.0, 80.0, 80.0);
+            CGAffineTransform transform = CGAffineTransformMakeScale(2.0f, 2.0f);
+            indicator.transform = transform;
+            indicator.center = self.view.center;
+            [self.view addSubview:indicator];
+            [indicator bringSubviewToFront:self.view];
+            [indicator startAnimating];
+            @try{
+                self.individualOrg= [self.smSpaceDAO getIndividualOrg];
+            }@catch(NSException *exp){
+                
+            }
+        }else{
+            @try{
+                self.orgList =[self.smSpaceDAO getAllOrganizationNames];
+                
+            }@catch(NSException *exp){
+                
+            }
+        }
+    
+       
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if([purpose isEqualToString:@"INDIVIDUAL"]){
+               [indicator stopAnimating];
+                self.selectedOrg=self.individualOrg;
+            }else{
+               
+            }
+            
+            
+            
+        });
+    });
+}
+-(void )addDedicatedMembershipRequest{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *error = nil;
+        NSString *status = nil;
+        UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        
+            
+            indicator.frame = CGRectMake(0.0, 0.0, 80.0, 80.0);
+            CGAffineTransform transform = CGAffineTransformMakeScale(2.0f, 2.0f);
+            indicator.transform = transform;
+            indicator.center = self.view.center;
+            [self.view addSubview:indicator];
+            [indicator bringSubviewToFront:self.view];
+            [indicator startAnimating];
+            @try{
+                UserRequestModel *userReqModel = [[UserRequestModel alloc]init];
+                userReqModel.email=self.email.text;
+                userReqModel.name =self.userName.text;
+                userReqModel.noOfSeats=[NSNumber numberWithInt:self.noOfSeats.text.intValue];
+                userReqModel.contactNo=self.contactNo.text;
+                userReqModel.planName=self.selectedPlan.planName;
+                status = [self.userDao addDedicatedMembershipRequest:userReqModel OfferModel: self.selectedOffer AddOnList:self.addOnAArray];
+                
+
+            }@catch(NSException *exp){
+                error = exp.description;
+            }
+       
+        
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [indicator stopAnimating];
+            if(error != nil){
+                self.errorText.text=error;
+                self.errorLyt.hidden=false;
+                self.errorHieght.constant=30;
+                self.errorTop.constant=10;
+            }else if(status != nil && [status isEqualToString:@"SUCCESS"]){
+                [self showPopup:@"Thank you" Message:@"Your request processed successfully. Our community manager will contact you soon."];
+            }else{
+                self.errorText.text=status;
+                self.errorLyt.hidden=false;
+                self.errorHieght.constant=30;
+                self.errorTop.constant=10;
+            }
+            
+            
+        });
+    });
+
+}
+
+-(void )addUser:(NSString *)tokenId{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *error = nil;
+        NSString *status = nil;
+        UserModel *addedModel = nil;
+         NSMutableArray *plnIdArray = [[NSMutableArray alloc]init];
+        UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        
+        
+        indicator.frame = CGRectMake(0.0, 0.0, 80.0, 80.0);
+        CGAffineTransform transform = CGAffineTransformMakeScale(2.0f, 2.0f);
+        indicator.transform = transform;
+        indicator.center = self.view.center;
+      //  if(tokenId == nil){
+            [self.view addSubview:indicator];
+            [indicator bringSubviewToFront:self.view];
+       // }else{
+           // [self.crtOrgPopup addSubview:indicator];
+           // [indicator bringSubviewToFront:self.crtOrgPopup];
+       // }
+        
+        [indicator startAnimating];
+        @try{
+            UserModel *userModel = [[UserModel alloc]init];
+            userModel.userName=self.email.text;
+            userModel.email=self.email.text;
+            userModel.password =[self.utils encode:self.password.text];
+            userModel.userId = [NSNumber numberWithInt:0];
+            userModel.roleId = [NSNumber numberWithInt:0];
+            userModel.firstName = self.userName.text;
+            NSMutableArray *orgArray = [[NSMutableArray alloc]init];
+            if(self.selectedOrg != nil){
+                [orgArray addObject:[self.selectedOrg dictionaryWithPropertiesOfObject:self.selectedOrg]];
+            }
+            userModel.orgList=orgArray;
+            
+            NSString *userCode = nil;
+            if(self.alreadyRegistered){
+                userCode = @"Existing";
+            }
+            for(PlanModel *pln in self.selectedPlanArray){
+                [plnIdArray addObject:pln.planId];
+            }
+            addedModel = [self.userDao createUser:userModel OfferModel: self.selectedOffer AddOnList:self.addOnAArray UserRegCode:userCode CardToken:tokenId PlanIds:plnIdArray TrialEndsAt:self.trialEndsAt TrailDays:self.noOfdaystoSubsDate Gateway:@"STRIPE"] ;
+
+            
+        }@catch(NSException *exp){
+            error = exp.description;
+        }
+        
+        
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if(error != nil){
+                [indicator stopAnimating];
+                //self.errorText.text=error;
+               // self.errorLyt.hidden=false;
+                self.crtOrgError.text= error;
+                self.crtOrgError.hidden=false;
+                //self.errorHieght.constant=30;
+               // self.errorTop.constant=10;
+                self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                self.strpCancelBtn.userInteractionEnabled=TRUE;
+                self.strpCancelBtn.enabled=TRUE;
+                self.errorText.text=error;
+                self.errorLyt.hidden=false;
+                self.errorHieght.constant=30;
+                self.errorTop.constant=10;
+                self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                self.strpCancelBtn.userInteractionEnabled=TRUE;
+                self.strpCancelBtn.enabled=TRUE;
+                NSLog(error);
+
+            }else{
+                if(addedModel != nil){
+                    if(tokenId == nil){
+                        [indicator stopAnimating];
+                       [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
+                    }else{
+                        NSLog(@"taking one time payment");
+                        if(self.initilaPaymentAmount.doubleValue > 0){
+                            [self.strpClient createTokenWithCard:self.strpPymntTf.card completion:^(STPToken *token, NSError *error) {
+                                if (error) {
+                                    self.crtOrgError.text= error.description;
+                                    self.crtOrgError.hidden=false;
+                                    self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                                    // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
+                                    
+                                    self.strpCancelBtn.userInteractionEnabled=TRUE;
+                                    self.strpCancelBtn.enabled=TRUE;
+                                    return;
+                                }else{
+                                   
+                                   
+                                    self.strpDAO = [[StripeDAO alloc]init];
+                                    @try{
+                                        NSString *status= [self.strpDAO doStripePayment:[NSNumber numberWithDouble:self.initilaPaymentAmount.doubleValue] ID:addedModel.userId CardToken:token.tokenId Currency:@"USD" Description:[NSString stringWithFormat:@"%s%@","One time payment for registering",self.email.text] IsDealerAccount:FALSE];
+                                        NSLog(@"status one time payment");
+                                         NSLog(@"%@",status);
+                                        NSMutableDictionary *orgDic = [addedModel.orgList objectAtIndex:0];
+                                        OrganizationModel *org = [[OrganizationModel alloc]init];
+                                        org = [org initWithDictionary:orgDic];
+                                        NSDate *startDate = [NSDate date];
+                                        
+                                        NSNumber *plnStart = [NSNumber numberWithLongLong:[startDate timeIntervalSince1970]*1000];
+                                      
+                                        for(PlanModel *pln in self.selectedPlanArray){
+                                            [plnIdArray addObject:pln.planId];
+                                        }
+                                        [self.smSpaceDAO updatePlanForOrg:addedModel.userId OrgId:org.orgId PlanIds:plnIdArray CustomerId:@"Onetime payment" SubscriptionId:status PlanStartDate:plnStart PlanEndDate:self.firstsubDate PymntGateway:@"Stripe" EventType:@"onetimepayment" EventId:status];
+                                        
+                                        
+                                        [self.crtOrgPopup removeFromSuperview];
+                                        for(UIView *subViews in self.view.subviews){
+                                            subViews.alpha=1.0;
+                                            subViews.userInteractionEnabled=TRUE;
+                                        }
+                                        self.view.alpha=1.0;
+                                        self.view.userInteractionEnabled=TRUE;
+                                        [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
+                                    }@catch(NSException *exp){
+                                        self.errorText.text=exp.description;
+                                        self.errorLyt.hidden=false;
+                                        self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                                        // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
+                                        self.errorHieght.constant=30;
+                                        self.errorTop.constant=10;
+                                        self.strpCancelBtn.userInteractionEnabled=TRUE;
+                                        self.strpCancelBtn.enabled=TRUE;
+                                    }
+                                }
+                            }];
+                        }else{
+                            [indicator stopAnimating];
+                            [self.crtOrgPopup removeFromSuperview];
+                            for(UIView *subViews in self.view.subviews){
+                                subViews.alpha=1.0;
+                                subViews.userInteractionEnabled=TRUE;
+                            }
+                            self.view.alpha=1.0;
+                            self.view.userInteractionEnabled=TRUE;
+                            [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
+                        }
+
+                    }
+                    
+                }else{
+                    [indicator stopAnimating];
+                    self.errorText.text=@"Failed to add user";
+                    self.errorLyt.hidden=false;
+                    self.errorHieght.constant=30;
+                    self.errorTop.constant=10;
+                    self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                    self.strpCancelBtn.userInteractionEnabled=TRUE;
+                    self.strpCancelBtn.enabled=TRUE;
+                    self.errorText.text=@"Failed to add user";
+                    self.errorLyt.hidden=false;
+                    self.errorHieght.constant=30;
+                    self.errorTop.constant=10;
+                    self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                    self.strpCancelBtn.userInteractionEnabled=TRUE;
+                    self.strpCancelBtn.enabled=TRUE;
+                }
+            }
+        });
+    });
+    
 }
 @end

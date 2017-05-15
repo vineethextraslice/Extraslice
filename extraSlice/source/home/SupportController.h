@@ -9,9 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface SupportController : UIViewController
-@property (weak, nonatomic) IBOutlet UILabel *phoneNo;
-@property (weak, nonatomic) IBOutlet UILabel *emailAddr;
-@property (weak, nonatomic) IBOutlet UILabel *supportUrl;
+
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
 
 @end

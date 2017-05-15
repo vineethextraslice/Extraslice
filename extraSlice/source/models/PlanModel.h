@@ -18,7 +18,8 @@
 @property(strong, nonatomic) NSNumber *planPrice ;
 @property(strong, nonatomic) NSMutableArray *resourceTypeList ;
 @property(nonatomic) BOOL purchaseOnSpot;
-
+@property(strong, nonatomic) NSString *planDuaration;
+@property(strong, nonatomic) NSNumber *subStartDay;
 
 
 

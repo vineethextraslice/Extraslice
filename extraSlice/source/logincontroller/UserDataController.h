@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "PlanModel.h"
 #import "AdminAccountModel.h"
+#import "PlanOfferModel.h"
 
 @class StripePaymentViewController;
 
@@ -17,12 +18,15 @@
 - (void)stripePaymentViewController:(StripePaymentViewController *)controller didFinish:(NSError *)error;
 
 @end
-@interface UserDataController : UIViewController<UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate>
+@interface UserDataController : UIViewController<UITextFieldDelegate>
 @property(strong,nonatomic) NSMutableArray *planArray;
 @property(strong,nonatomic) NSNumber *payableAmount;
-@property(strong,nonatomic) PlanModel *selectedPlan;
+@property(strong,nonatomic) NSMutableArray *selectedPlanArray;
 @property(strong,nonatomic) NSMutableArray *orgList;
-@property(strong,nonatomic) NSMutableArray *addOnAArray;
+@property(strong,nonatomic) NSMutableArray *addonList;
+@property(strong,nonatomic)  NSMutableSet *selectedAddonIds;
+@property(strong,nonatomic)  NSMutableSet *selectedPlansResIds;
+@property(strong,nonatomic) NSMutableDictionary *selectedPlnMap;
 @property(strong,nonatomic) AdminAccountModel *adminAcctModel;
 @property (nonatomic, weak) id<StripePaymentViewControllerDelegate> delegate;
 
@@ -37,7 +41,6 @@
 @property (weak, nonatomic) IBOutlet UITextField *noOfSeats;
 @property (weak, nonatomic) IBOutlet UITextField *userName;
 @property (weak, nonatomic) IBOutlet UIView *membershipType;
-@property (weak, nonatomic) IBOutlet UIView *orgDrpDwn;
 @property (weak, nonatomic) IBOutlet UITextField *email;
 @property (weak, nonatomic) IBOutlet UITextField *contactNo;
 @property (weak, nonatomic) IBOutlet UIView *tcView;
@@ -53,7 +56,6 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *membTypeHeight;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *errorHieght;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *phoneHeight;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *orgHeight;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *payDescHeight;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *tcHeight;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *errorTop;
@@ -64,16 +66,22 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *confPwdTop;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *seatTop;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *membTypeTop;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *orgTop;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *tcTop;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *payDescTop;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *joinTop;
+@property (weak, nonatomic) IBOutlet UIButton *joinNowBtn;
 
 
+@property(strong,nonatomic) NSMutableArray *offerList;
+@property(strong,nonatomic) PlanOfferModel *selectedOffer;
 
 
-
-
+@property(strong,nonatomic) NSNumber *noOfdaystoSubsDate ;
+@property(strong,nonatomic) NSNumber *trialEndsAt ;
+@property(strong,nonatomic) NSNumber *firstsubDate;
+@property(strong,nonatomic) NSNumber *noOFDaysInMoth ;
+@property(strong,nonatomic) NSString *message;
+@property(strong,nonatomic) NSNumber *noOfdaystoNextMonth;
 
 
 

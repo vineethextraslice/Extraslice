@@ -18,26 +18,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    /*SmartSpaceDAO *smDAO = [[SmartSpaceDAO alloc]init];
-    AdminAccountModel *admModel = nil;
-    NSMutableAttributedString *urlString = [[NSMutableAttributedString alloc] initWithString:@"Support"];
-    [urlString addAttribute:NSLinkAttributeName value:@"http://extraslice.com/support" range:NSMakeRange(0,urlString.length)];
-    self.supportUrl.attributedText=urlString;
-    UITapGestureRecognizer *showSuppportTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(showSuppport:)];
-    showSuppportTap.numberOfTapsRequired = 1;
-    showSuppportTap.numberOfTouchesRequired = 1;
-    [self.supportUrl setUserInteractionEnabled:YES];
-    [self.supportUrl addGestureRecognizer:showSuppportTap];
-
-    
-    @try{
-        admModel = [smDAO getAdminAccount];
-        self.phoneNo.text = admModel.contactNo;
-        self.emailAddr.text = admModel.contactEmail;
-    }@catch (NSException *exception) {
         
-    }*/
-    
     NSURL *url = [NSURL URLWithString:@"https://docs.google.com/forms/d/e/1FAIpQLSdyWUIshrIGHrexvkZkG_bohxwagIt6biX0ZySBTy9EhyaNSg/viewform?embedded=true"];
     NSURLRequest *requestObj = [NSURLRequest requestWithURL:url];
     [self.webView loadRequest:requestObj];

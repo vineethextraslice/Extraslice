@@ -1,28 +1,28 @@
 //
-//  ResourceTypeModel.m
+//  PlanOfferModel.m
 //  extraSlice
 //
-//  Created by Administrator on 21/06/16.
+//  Created by Administrator on 07/10/16.
 //  Copyright © 2016 Extraslice Inc. All rights reserved.
 //
 
-#import "ResourceTypeModel.h"
+#import "PlanOfferModel.h"
 #import "objc/runtime.h"
-@implementation ResourceTypeModel
+@implementation PlanOfferModel
 - (instancetype)init
 {
     self = [super init];
     if (self) {
         
-        self.planLimitUnit = @"";
-        self.allowUsageBy =  @"";
-        self.resourceTypeName =  @"";
-        self.resourceTypeId =  @-1;
-        self.planLimit =  @-1;
-        self.currentUsage =  @-1;
-        self.planSplPrice =  @-1;
-        self.orgId =  @-1;
-        self.resourceDesc=@"";
+        self.offerId = @-1;
+        self.offerName =  @"";
+        self.offerShortDesc =  @"";
+        self.applicableTo =  @"";
+        self.offerType =@"";
+        self.offerValue = @0;
+        self.commitmentType =@"";
+        self.commitmentValue = @0;
+        
     }
     return self;
 }
@@ -70,7 +70,7 @@
         return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
 }
-- (ResourceTypeModel *)initWithDictionary:(NSDictionary*)dictionary {
+- (PlanOfferModel *)initWithDictionary:(NSDictionary*)dictionary {
     if (self = [super init]) {
         NSArray*keys=[dictionary allKeys];
         for (NSString* key in keys) {

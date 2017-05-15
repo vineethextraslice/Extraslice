@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="14F1509" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="14F1909" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
@@ -17,7 +17,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rIU-Mm-H9i">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rIU-Mm-H9i">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="65"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="D3A-lA-7Me">
@@ -39,7 +39,7 @@
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Select Plan" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h5v-p1-Zcu">
-                                        <rect key="frame" x="40" y="33" width="520" height="29"/>
+                                        <rect key="frame" x="40" y="36" width="520" height="29"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="29" id="caA-Tp-d5l"/>
                                         </constraints>
@@ -86,19 +86,7 @@
                                     <constraint firstItem="GCQ-tc-d0r" firstAttribute="centerY" secondItem="ICm-sz-fOL" secondAttribute="centerY" id="riX-ET-CFb"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1WD-GE-Osd">
-                                <rect key="frame" x="0.0" y="131" width="600" height="144"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="144" id="CWa-GM-zFX"/>
-                                </constraints>
-                            </view>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="login.png" translatesAutoresizingMaskIntoConstraints="NO" id="rUY-M4-Ctl">
-                                <rect key="frame" x="0.0" y="275" width="600" height="325"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="325" id="koi-Wo-3Mc"/>
-                                </constraints>
-                            </imageView>
-                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nqS-cX-Tg7">
+                            <view clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nqS-cX-Tg7">
                                 <rect key="frame" x="0.0" y="96" width="600" height="34"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="checkbox_unsel.png" translatesAutoresizingMaskIntoConstraints="NO" id="AOB-5q-qLl">
@@ -126,12 +114,17 @@
                                     <constraint firstItem="AOB-5q-qLl" firstAttribute="centerY" secondItem="nqS-cX-Tg7" secondAttribute="centerY" id="mPd-Mc-9u0"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1WD-GE-Osd">
+                                <rect key="frame" x="0.0" y="131" width="600" height="145"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="144" id="CWa-GM-zFX"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="nqS-cX-Tg7" firstAttribute="leading" secondItem="e3c-ZY-nL2" secondAttribute="leading" id="7nH-FI-ri2"/>
                             <constraint firstItem="nqS-cX-Tg7" firstAttribute="top" secondItem="ICm-sz-fOL" secondAttribute="bottom" constant="2" id="9y1-QO-Irv"/>
-                            <constraint firstAttribute="trailing" secondItem="rUY-M4-Ctl" secondAttribute="trailing" id="Bng-7S-Swn"/>
                             <constraint firstItem="ICm-sz-fOL" firstAttribute="top" secondItem="rIU-Mm-H9i" secondAttribute="bottom" constant="1" id="EuN-Ch-wzE"/>
                             <constraint firstItem="rIU-Mm-H9i" firstAttribute="centerX" secondItem="e3c-ZY-nL2" secondAttribute="centerX" id="Ibn-zF-u3d"/>
                             <constraint firstItem="ICm-sz-fOL" firstAttribute="top" secondItem="rIU-Mm-H9i" secondAttribute="bottom" constant="1" id="LeN-xR-Mqe"/>
@@ -140,25 +133,19 @@
                             <constraint firstItem="1WD-GE-Osd" firstAttribute="top" secondItem="nqS-cX-Tg7" secondAttribute="bottom" constant="1" id="PRx-RQ-CS8"/>
                             <constraint firstAttribute="trailing" secondItem="nqS-cX-Tg7" secondAttribute="trailing" id="Py9-Oy-BHN"/>
                             <constraint firstItem="ICm-sz-fOL" firstAttribute="leading" secondItem="e3c-ZY-nL2" secondAttribute="leading" id="SSK-7M-SYC"/>
-                            <constraint firstItem="a4u-Zn-fUE" firstAttribute="top" secondItem="rUY-M4-Ctl" secondAttribute="bottom" id="YXS-sv-Bp9"/>
                             <constraint firstItem="nqS-cX-Tg7" firstAttribute="top" secondItem="ICm-sz-fOL" secondAttribute="bottom" constant="2" id="cH6-Tv-MIs"/>
                             <constraint firstItem="rIU-Mm-H9i" firstAttribute="leading" secondItem="e3c-ZY-nL2" secondAttribute="leading" id="cwS-ui-Wmk"/>
                             <constraint firstItem="ICm-sz-fOL" firstAttribute="centerX" secondItem="e3c-ZY-nL2" secondAttribute="centerX" id="euU-z9-Zx4"/>
-                            <constraint firstItem="rUY-M4-Ctl" firstAttribute="top" secondItem="1WD-GE-Osd" secondAttribute="bottom" id="fwN-zX-bDQ"/>
                             <constraint firstItem="1WD-GE-Osd" firstAttribute="leading" secondItem="e3c-ZY-nL2" secondAttribute="leading" id="l6i-nV-qbT"/>
                             <constraint firstItem="rIU-Mm-H9i" firstAttribute="top" secondItem="e3c-ZY-nL2" secondAttribute="top" id="mU8-N1-apH"/>
                             <constraint firstItem="ICm-sz-fOL" firstAttribute="top" secondItem="rIU-Mm-H9i" secondAttribute="bottom" constant="1" id="mXo-cE-M3r"/>
                             <constraint firstAttribute="trailing" secondItem="rIU-Mm-H9i" secondAttribute="trailing" id="nV8-Q3-Uec"/>
                             <constraint firstAttribute="trailing" secondItem="1WD-GE-Osd" secondAttribute="trailing" id="rjz-vj-YHQ"/>
-                            <constraint firstItem="rUY-M4-Ctl" firstAttribute="leading" secondItem="e3c-ZY-nL2" secondAttribute="leading" id="s2c-ci-Kt3"/>
                             <constraint firstItem="nqS-cX-Tg7" firstAttribute="top" secondItem="ICm-sz-fOL" secondAttribute="bottom" constant="2" id="teZ-IW-nnC"/>
-                            <constraint firstItem="rUY-M4-Ctl" firstAttribute="top" secondItem="1WD-GE-Osd" secondAttribute="bottom" id="tsV-74-I2f"/>
                             <constraint firstItem="nqS-cX-Tg7" firstAttribute="centerX" secondItem="e3c-ZY-nL2" secondAttribute="centerX" id="xni-mP-meX"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="bcImage" destination="rUY-M4-Ctl" id="HVp-Bx-vFc"/>
-                        <outlet property="bcImageHeight" destination="koi-Wo-3Mc" id="rBc-af-xTw"/>
                         <outlet property="errorText" destination="GCQ-tc-d0r" id="5Pc-xc-tTK"/>
                         <outlet property="errorView" destination="ICm-sz-fOL" id="vhw-HG-EEa"/>
                         <outlet property="errorViewHeight" destination="7Fx-ai-eRS" id="isx-rW-PYx"/>
@@ -180,6 +167,5 @@
         <image name="checkbox_unsel.png" width="30" height="30"/>
         <image name="error.png" width="128" height="128"/>
         <image name="goback.png" width="48" height="48"/>
-        <image name="login.png" width="576" height="503"/>
     </resources>
 </document>

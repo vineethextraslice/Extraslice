@@ -13,6 +13,7 @@
 		8417EE941D22A28F006D0F02 /* Support.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8417EE931D22A28F006D0F02 /* Support.storyboard */; };
 		8417EE971D22A436006D0F02 /* SupportController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8417EE961D22A436006D0F02 /* SupportController.m */; };
 		8417EE9A1D22A44F006D0F02 /* AboutController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8417EE991D22A44F006D0F02 /* AboutController.m */; };
+		843A32721D99A98600015491 /* forum.png in Resources */ = {isa = PBXBuildFile; fileRef = 843A32711D99A98600015491 /* forum.png */; };
 		844382691D19BEC600ECB506 /* checkbox_unsel.png in Resources */ = {isa = PBXBuildFile; fileRef = 844382551D19BEC600ECB506 /* checkbox_unsel.png */; };
 		8443826A1D19BEC600ECB506 /* checkbox_sel.png in Resources */ = {isa = PBXBuildFile; fileRef = 844382561D19BEC600ECB506 /* checkbox_sel.png */; };
 		8443826C1D19BEC600ECB506 /* conf_room.png in Resources */ = {isa = PBXBuildFile; fileRef = 844382581D19BEC600ECB506 /* conf_room.png */; };
@@ -24,7 +25,11 @@
 		8443827A1D19BEC600ECB506 /* rb_blue_unsel.png in Resources */ = {isa = PBXBuildFile; fileRef = 844382661D19BEC600ECB506 /* rb_blue_unsel.png */; };
 		8443827D1D19BF2100ECB506 /* edt_bg_blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 8443827B1D19BF2100ECB506 /* edt_bg_blue.png */; };
 		8443827E1D19BF2100ECB506 /* edt_bg_grey.png in Resources */ = {isa = PBXBuildFile; fileRef = 8443827C1D19BF2100ECB506 /* edt_bg_grey.png */; };
+		8452E82E1D9BEDC000907F0E /* PlanDetails.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8452E82D1D9BEDC000907F0E /* PlanDetails.storyboard */; };
+		8452E8311D9BF34100907F0E /* PlanDetails.m in Sources */ = {isa = PBXBuildFile; fileRef = 8452E8301D9BF34100907F0E /* PlanDetails.m */; };
 		84533C0E1D1CF469001536B4 /* StripePlanModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 84533C0D1D1CF469001536B4 /* StripePlanModel.m */; };
+		8461D0CE1DA7CB6F007BEDCF /* PlanOfferModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 8461D0CD1DA7CB6F007BEDCF /* PlanOfferModel.m */; };
+		84668D201D9DBA920096711A /* UserOrgModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 84668D1F1D9DBA910096711A /* UserOrgModel.m */; };
 		847AF8A71D18F10A00A87CAD /* StripeDAO.m in Sources */ = {isa = PBXBuildFile; fileRef = 847AF88A1D18F10A00A87CAD /* StripeDAO.m */; };
 		847AF8A91D18F10A00A87CAD /* UserDAO.m in Sources */ = {isa = PBXBuildFile; fileRef = 847AF88E1D18F10A00A87CAD /* UserDAO.m */; };
 		847AF8AA1D18F10A00A87CAD /* WebServiceDAO.m in Sources */ = {isa = PBXBuildFile; fileRef = 847AF8901D18F10A00A87CAD /* WebServiceDAO.m */; };
@@ -116,6 +121,10 @@
 		847AF9AB1D18F5B400A87CAD /* UserRequestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 847AF9AA1D18F5B400A87CAD /* UserRequestModel.m */; };
 		847AF9AE1D18F5DE00A87CAD /* SmartSpaceDAO.m in Sources */ = {isa = PBXBuildFile; fileRef = 847AF9AD1D18F5DE00A87CAD /* SmartSpaceDAO.m */; };
 		847AF9B11D18FD0E00A87CAD /* PlanModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 847AF9B01D18FD0E00A87CAD /* PlanModel.m */; };
+		84B6544A1D7E6D01003AF677 /* ProfileScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84B654491D7E6D01003AF677 /* ProfileScreen.storyboard */; };
+		84B6544D1D7E6D7A003AF677 /* ProfileScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 84B6544C1D7E6D7A003AF677 /* ProfileScreen.m */; };
+		84BB60DA1D9CFD6F005EBCAC /* next.png in Resources */ = {isa = PBXBuildFile; fileRef = 84BB60D91D9CFD6F005EBCAC /* next.png */; };
+		84BB60DC1D9CFD96005EBCAC /* dropdown.png in Resources */ = {isa = PBXBuildFile; fileRef = 84BB60DB1D9CFD96005EBCAC /* dropdown.png */; };
 		84C4D3B81D35D605001E8230 /* login.png in Resources */ = {isa = PBXBuildFile; fileRef = 84C4D3B71D35D605001E8230 /* login.png */; };
 		84C4D3BA1D35E310001E8230 /* promo_graphics.png in Resources */ = {isa = PBXBuildFile; fileRef = 84C4D3B91D35E310001E8230 /* promo_graphics.png */; };
 		84E3B0B31D1A624F00C6BA21 /* Images-3.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84E3B0B21D1A624F00C6BA21 /* Images-3.xcassets */; };
@@ -124,6 +133,10 @@
 		84E3B0BB1D1A6BE700C6BA21 /* icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = 84E3B0B61D1A6BE700C6BA21 /* icon-120.png */; };
 		84E3B0BC1D1A6BE700C6BA21 /* icon-152.png in Resources */ = {isa = PBXBuildFile; fileRef = 84E3B0B71D1A6BE700C6BA21 /* icon-152.png */; };
 		84E3B0BD1D1A6BE700C6BA21 /* icon-167.png in Resources */ = {isa = PBXBuildFile; fileRef = 84E3B0B81D1A6BE700C6BA21 /* icon-167.png */; };
+		84E3DFC91D9D55690025EF09 /* down.png in Resources */ = {isa = PBXBuildFile; fileRef = 84E3DFC81D9D55690025EF09 /* down.png */; };
+		84E3DFCB1D9D557B0025EF09 /* up.png in Resources */ = {isa = PBXBuildFile; fileRef = 84E3DFCA1D9D557B0025EF09 /* up.png */; };
+		84E551A01D8EEB2D00195254 /* checkout.png in Resources */ = {isa = PBXBuildFile; fileRef = 84E5519E1D8EEB2D00195254 /* checkout.png */; };
+		84E551A11D8EEB2D00195254 /* delete.png in Resources */ = {isa = PBXBuildFile; fileRef = 84E5519F1D8EEB2D00195254 /* delete.png */; };
 		84E8D1761D1679F200FF71CF /* SelectPlan.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84E8D1751D1679F200FF71CF /* SelectPlan.storyboard */; };
 		84E8D17A1D167EC100FF71CF /* UserData.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84E8D1791D167EC100FF71CF /* UserData.storyboard */; };
 		84E8D17C1D1682D100FF71CF /* ResetPwd.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84E8D17B1D1682D100FF71CF /* ResetPwd.storyboard */; };
@@ -154,6 +167,8 @@
 		84F3AE2F1D20FA8B00D8E238 /* extraslicelogo.png in Resources */ = {isa = PBXBuildFile; fileRef = 84F3AE2E1D20FA8B00D8E238 /* extraslicelogo.png */; };
 		84F7D0B41D215BFE000F63E9 /* SmartSpaceModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 84F7D0B31D215BFE000F63E9 /* SmartSpaceModel.m */; };
 		84F7D0B71D215D9B000F63E9 /* ReservationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 84F7D0B61D215D9B000F63E9 /* ReservationModel.m */; };
+		84F82A531D99A613004C57C7 /* ForumScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84F82A521D99A613004C57C7 /* ForumScreen.storyboard */; };
+		84F82A561D99A6C0004C57C7 /* ForumScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 84F82A551D99A6C0004C57C7 /* ForumScreen.m */; };
 		84FB08621D20DC9B00075381 /* LoginController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FB085B1D20DC9B00075381 /* LoginController.m */; };
 		84FB08631D20DC9B00075381 /* ResetPwdController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FB085D1D20DC9B00075381 /* ResetPwdController.m */; };
 		84FB08641D20DC9B00075381 /* SelectPlanController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FB085F1D20DC9B00075381 /* SelectPlanController.m */; };
@@ -166,6 +181,7 @@
 		84FB47531D2FD65600796E68 /* swiperight1.png in Resources */ = {isa = PBXBuildFile; fileRef = 84FB474F1D2FD65600796E68 /* swiperight1.png */; };
 		84FC63011D22BFD8001C797D /* MyConfReservations.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84FC63001D22BFD8001C797D /* MyConfReservations.storyboard */; };
 		84FC63041D22C0A0001C797D /* MyConfRoomReservations.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FC63031D22C0A0001C797D /* MyConfRoomReservations.m */; };
+		84FDE0211DDB594E00CC438F /* CustAcctModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FDE0201DDB594E00CC438F /* CustAcctModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -178,6 +194,7 @@
 		8417EE961D22A436006D0F02 /* SupportController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SupportController.m; sourceTree = "<group>"; };
 		8417EE981D22A44F006D0F02 /* AboutController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutController.h; sourceTree = "<group>"; };
 		8417EE991D22A44F006D0F02 /* AboutController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutController.m; sourceTree = "<group>"; };
+		843A32711D99A98600015491 /* forum.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = forum.png; sourceTree = "<group>"; };
 		844382551D19BEC600ECB506 /* checkbox_unsel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_unsel.png; sourceTree = "<group>"; };
 		844382561D19BEC600ECB506 /* checkbox_sel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_sel.png; sourceTree = "<group>"; };
 		844382581D19BEC600ECB506 /* conf_room.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = conf_room.png; sourceTree = "<group>"; };
@@ -189,8 +206,15 @@
 		844382661D19BEC600ECB506 /* rb_blue_unsel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rb_blue_unsel.png; sourceTree = "<group>"; };
 		8443827B1D19BF2100ECB506 /* edt_bg_blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edt_bg_blue.png; sourceTree = "<group>"; };
 		8443827C1D19BF2100ECB506 /* edt_bg_grey.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edt_bg_grey.png; sourceTree = "<group>"; };
+		8452E82D1D9BEDC000907F0E /* PlanDetails.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = PlanDetails.storyboard; sourceTree = "<group>"; };
+		8452E82F1D9BF34100907F0E /* PlanDetails.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlanDetails.h; sourceTree = "<group>"; };
+		8452E8301D9BF34100907F0E /* PlanDetails.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlanDetails.m; sourceTree = "<group>"; };
 		84533C0C1D1CF469001536B4 /* StripePlanModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StripePlanModel.h; sourceTree = "<group>"; };
 		84533C0D1D1CF469001536B4 /* StripePlanModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StripePlanModel.m; sourceTree = "<group>"; };
+		8461D0CC1DA7CB6F007BEDCF /* PlanOfferModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlanOfferModel.h; sourceTree = "<group>"; };
+		8461D0CD1DA7CB6F007BEDCF /* PlanOfferModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlanOfferModel.m; sourceTree = "<group>"; };
+		84668D1E1D9DBA910096711A /* UserOrgModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserOrgModel.h; sourceTree = "<group>"; };
+		84668D1F1D9DBA910096711A /* UserOrgModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserOrgModel.m; sourceTree = "<group>"; };
 		847AF8891D18F10A00A87CAD /* StripeDAO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StripeDAO.h; sourceTree = "<group>"; };
 		847AF88A1D18F10A00A87CAD /* StripeDAO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StripeDAO.m; sourceTree = "<group>"; };
 		847AF88D1D18F10A00A87CAD /* UserDAO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserDAO.h; sourceTree = "<group>"; };
@@ -348,6 +372,11 @@
 		847AF9AD1D18F5DE00A87CAD /* SmartSpaceDAO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SmartSpaceDAO.m; sourceTree = "<group>"; };
 		847AF9AF1D18FD0E00A87CAD /* PlanModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlanModel.h; sourceTree = "<group>"; };
 		847AF9B01D18FD0E00A87CAD /* PlanModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlanModel.m; sourceTree = "<group>"; };
+		84B654491D7E6D01003AF677 /* ProfileScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ProfileScreen.storyboard; sourceTree = "<group>"; };
+		84B6544B1D7E6D7A003AF677 /* ProfileScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProfileScreen.h; sourceTree = "<group>"; };
+		84B6544C1D7E6D7A003AF677 /* ProfileScreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProfileScreen.m; sourceTree = "<group>"; };
+		84BB60D91D9CFD6F005EBCAC /* next.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = next.png; sourceTree = "<group>"; };
+		84BB60DB1D9CFD96005EBCAC /* dropdown.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dropdown.png; sourceTree = "<group>"; };
 		84C4D3B71D35D605001E8230 /* login.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = login.png; sourceTree = "<group>"; };
 		84C4D3B91D35E310001E8230 /* promo_graphics.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = promo_graphics.png; sourceTree = "<group>"; };
 		84E3B0B21D1A624F00C6BA21 /* Images-3.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Images-3.xcassets"; sourceTree = "<group>"; };
@@ -356,6 +385,10 @@
 		84E3B0B61D1A6BE700C6BA21 /* icon-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-120.png"; sourceTree = "<group>"; };
 		84E3B0B71D1A6BE700C6BA21 /* icon-152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-152.png"; sourceTree = "<group>"; };
 		84E3B0B81D1A6BE700C6BA21 /* icon-167.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-167.png"; sourceTree = "<group>"; };
+		84E3DFC81D9D55690025EF09 /* down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = down.png; sourceTree = "<group>"; };
+		84E3DFCA1D9D557B0025EF09 /* up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = up.png; sourceTree = "<group>"; };
+		84E5519E1D8EEB2D00195254 /* checkout.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkout.png; sourceTree = "<group>"; };
+		84E5519F1D8EEB2D00195254 /* delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete.png; sourceTree = "<group>"; };
 		84E8D1751D1679F200FF71CF /* SelectPlan.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SelectPlan.storyboard; sourceTree = "<group>"; };
 		84E8D1791D167EC100FF71CF /* UserData.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = UserData.storyboard; sourceTree = "<group>"; };
 		84E8D17B1D1682D100FF71CF /* ResetPwd.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ResetPwd.storyboard; sourceTree = "<group>"; };
@@ -393,6 +426,9 @@
 		84F7D0B31D215BFE000F63E9 /* SmartSpaceModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SmartSpaceModel.m; sourceTree = "<group>"; };
 		84F7D0B51D215D9B000F63E9 /* ReservationModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReservationModel.h; sourceTree = "<group>"; };
 		84F7D0B61D215D9B000F63E9 /* ReservationModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReservationModel.m; sourceTree = "<group>"; };
+		84F82A521D99A613004C57C7 /* ForumScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ForumScreen.storyboard; sourceTree = "<group>"; };
+		84F82A541D99A6C0004C57C7 /* ForumScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForumScreen.h; sourceTree = "<group>"; };
+		84F82A551D99A6C0004C57C7 /* ForumScreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ForumScreen.m; sourceTree = "<group>"; };
 		84FB085A1D20DC9B00075381 /* LoginController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginController.h; sourceTree = "<group>"; };
 		84FB085B1D20DC9B00075381 /* LoginController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginController.m; sourceTree = "<group>"; };
 		84FB085C1D20DC9B00075381 /* ResetPwdController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResetPwdController.h; sourceTree = "<group>"; };
@@ -411,6 +447,8 @@
 		84FC63001D22BFD8001C797D /* MyConfReservations.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MyConfReservations.storyboard; sourceTree = "<group>"; };
 		84FC63021D22C0A0001C797D /* MyConfRoomReservations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyConfRoomReservations.h; sourceTree = "<group>"; };
 		84FC63031D22C0A0001C797D /* MyConfRoomReservations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyConfRoomReservations.m; sourceTree = "<group>"; };
+		84FDE01F1DDB594E00CC438F /* CustAcctModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustAcctModel.h; sourceTree = "<group>"; };
+		84FDE0201DDB594E00CC438F /* CustAcctModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustAcctModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -466,6 +504,12 @@
 				84F7D0B61D215D9B000F63E9 /* ReservationModel.m */,
 				8405631D1D225F4F003BF2A0 /* ResourceModel.h */,
 				8405631E1D225F4F003BF2A0 /* ResourceModel.m */,
+				84668D1E1D9DBA910096711A /* UserOrgModel.h */,
+				84668D1F1D9DBA910096711A /* UserOrgModel.m */,
+				8461D0CC1DA7CB6F007BEDCF /* PlanOfferModel.h */,
+				8461D0CD1DA7CB6F007BEDCF /* PlanOfferModel.m */,
+				84FDE01F1DDB594E00CC438F /* CustAcctModel.h */,
+				84FDE0201DDB594E00CC438F /* CustAcctModel.m */,
 			);
 			path = models;
 			sourceTree = "<group>";
@@ -826,6 +870,10 @@
 				8417EE991D22A44F006D0F02 /* AboutController.m */,
 				84FC63021D22C0A0001C797D /* MyConfRoomReservations.h */,
 				84FC63031D22C0A0001C797D /* MyConfRoomReservations.m */,
+				84B6544B1D7E6D7A003AF677 /* ProfileScreen.h */,
+				84B6544C1D7E6D7A003AF677 /* ProfileScreen.m */,
+				84F82A541D99A6C0004C57C7 /* ForumScreen.h */,
+				84F82A551D99A6C0004C57C7 /* ForumScreen.m */,
 			);
 			path = home;
 			sourceTree = "<group>";
@@ -879,6 +927,13 @@
 		84F30C631D15E8EF00B12E8D /* images */ = {
 			isa = PBXGroup;
 			children = (
+				84E3DFCA1D9D557B0025EF09 /* up.png */,
+				84E3DFC81D9D55690025EF09 /* down.png */,
+				84BB60DB1D9CFD96005EBCAC /* dropdown.png */,
+				84BB60D91D9CFD6F005EBCAC /* next.png */,
+				843A32711D99A98600015491 /* forum.png */,
+				84E5519E1D8EEB2D00195254 /* checkout.png */,
+				84E5519F1D8EEB2D00195254 /* delete.png */,
 				84C4D3B91D35E310001E8230 /* promo_graphics.png */,
 				84C4D3B71D35D605001E8230 /* login.png */,
 				84EF0F601D33CBD900210F5A /* arrow_down.png */,
@@ -944,6 +999,9 @@
 				8417EE911D22A268006D0F02 /* About.storyboard */,
 				8417EE931D22A28F006D0F02 /* Support.storyboard */,
 				84FC63001D22BFD8001C797D /* MyConfReservations.storyboard */,
+				84B654491D7E6D01003AF677 /* ProfileScreen.storyboard */,
+				84F82A521D99A613004C57C7 /* ForumScreen.storyboard */,
+				8452E82D1D9BEDC000907F0E /* PlanDetails.storyboard */,
 			);
 			path = uistoryboards;
 			sourceTree = "<group>";
@@ -968,6 +1026,8 @@
 				84FB085F1D20DC9B00075381 /* SelectPlanController.m */,
 				84FB08611D20DC9B00075381 /* UserDataController.m */,
 				84FB08601D20DC9B00075381 /* UserDataController.h */,
+				8452E82F1D9BF34100907F0E /* PlanDetails.h */,
+				8452E8301D9BF34100907F0E /* PlanDetails.m */,
 			);
 			path = logincontroller;
 			sourceTree = "<group>";
@@ -1037,6 +1097,7 @@
 				84EF0F681D33CBD900210F5A /* cancel.png in Resources */,
 				84F30C5C1D15D22600B12E8D /* LaunchScreen.storyboard in Resources */,
 				847AF95C1D18F2CC00A87CAD /* Project-Shared.xcconfig in Resources */,
+				84E551A11D8EEB2D00195254 /* delete.png in Resources */,
 				847AF95E1D18F2CC00A87CAD /* StripeiOS Tests-Release.xcconfig in Resources */,
 				84F29B101D1E311F006D8C32 /* HomeScreen.storyboard in Resources */,
 				84FB47521D2FD65600796E68 /* swiperight.png in Resources */,
@@ -1045,6 +1106,7 @@
 				847AF9611D18F2CC00A87CAD /* StripeiOS-Release.xcconfig in Resources */,
 				84E3B0BD1D1A6BE700C6BA21 /* icon-167.png in Resources */,
 				847AF9861D18F2CC00A87CAD /* stp_card_mastercard.png in Resources */,
+				84BB60DC1D9CFD96005EBCAC /* dropdown.png in Resources */,
 				847AF98B1D18F2CC00A87CAD /* stp_card_placeholder@3x.png in Resources */,
 				847AF9791D18F2CC00A87CAD /* stp_card_cvc@3x.png in Resources */,
 				84FB086A1D20F28500075381 /* MenuController.storyboard in Resources */,
@@ -1059,13 +1121,16 @@
 				84EF9AD01D2143B30093DAF5 /* forwardarrow.png in Resources */,
 				847AF9831D18F2CC00A87CAD /* stp_card_jcb.png in Resources */,
 				847AF9871D18F2CC00A87CAD /* stp_card_mastercard@2x.png in Resources */,
+				84F82A531D99A613004C57C7 /* ForumScreen.storyboard in Resources */,
 				847AF9801D18F2CC00A87CAD /* stp_card_discover.png in Resources */,
 				847AF9751D18F2CC00A87CAD /* stp_card_amex@2x.png in Resources */,
 				84E3B0BB1D1A6BE700C6BA21 /* icon-120.png in Resources */,
 				847AF97C1D18F2CC00A87CAD /* stp_card_cvc_amex@3x.png in Resources */,
 				84FC63011D22BFD8001C797D /* MyConfReservations.storyboard in Resources */,
 				847AF9761D18F2CC00A87CAD /* stp_card_amex@3x.png in Resources */,
+				84B6544A1D7E6D01003AF677 /* ProfileScreen.storyboard in Resources */,
 				8443826D1D19BEC600ECB506 /* error.png in Resources */,
+				84E3DFCB1D9D557B0025EF09 /* up.png in Resources */,
 				847AF95D1D18F2CC00A87CAD /* StripeiOS Tests-Debug.xcconfig in Resources */,
 				84EF0F671D33CBD900210F5A /* arrow_up.png in Resources */,
 				8443826C1D19BEC600ECB506 /* conf_room.png in Resources */,
@@ -1076,8 +1141,11 @@
 				847AF9671D18F2CC00A87CAD /* StripeOSX-Shared.xcconfig in Resources */,
 				844382691D19BEC600ECB506 /* checkbox_unsel.png in Resources */,
 				8443826F1D19BEC600ECB506 /* goforward.png in Resources */,
+				84BB60DA1D9CFD6F005EBCAC /* next.png in Resources */,
+				84E551A01D8EEB2D00195254 /* checkout.png in Resources */,
 				847AF98A1D18F2CC00A87CAD /* stp_card_placeholder@2x.png in Resources */,
 				847AF9661D18F2CC00A87CAD /* StripeOSX-Release.xcconfig in Resources */,
+				8452E82E1D9BEDC000907F0E /* PlanDetails.storyboard in Resources */,
 				84EF9AD31D2143B30093DAF5 /* logout_black.png in Resources */,
 				847AF9601D18F2CC00A87CAD /* StripeiOS-Debug.xcconfig in Resources */,
 				8443826A1D19BEC600ECB506 /* checkbox_sel.png in Resources */,
@@ -1089,6 +1157,7 @@
 				847AF95B1D18F2CC00A87CAD /* Project-Release.xcconfig in Resources */,
 				840DDB991D21076400BC6EF5 /* defaultprofilepic.png in Resources */,
 				84C4D3BA1D35E310001E8230 /* promo_graphics.png in Resources */,
+				843A32721D99A98600015491 /* forum.png in Resources */,
 				847AF9851D18F2CC00A87CAD /* stp_card_jcb@3x.png in Resources */,
 				847AF95F1D18F2CC00A87CAD /* StripeiOS Tests-Shared.xcconfig in Resources */,
 				84E8D1761D1679F200FF71CF /* SelectPlan.storyboard in Resources */,
@@ -1120,6 +1189,7 @@
 				8417EE941D22A28F006D0F02 /* Support.storyboard in Resources */,
 				847AF98E1D18F2CC00A87CAD /* stp_card_placeholder_template@3x.png in Resources */,
 				84E8D17C1D1682D100FF71CF /* ResetPwd.storyboard in Resources */,
+				84E3DFC91D9D55690025EF09 /* down.png in Resources */,
 				847AF98F1D18F2CC00A87CAD /* stp_card_visa.png in Resources */,
 				84E3B0BA1D1A6BE700C6BA21 /* icon-76.png in Resources */,
 				847AF9841D18F2CC00A87CAD /* stp_card_jcb@2x.png in Resources */,
@@ -1141,10 +1211,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				847AF9591D18F2CC00A87CAD /* Stripe+ApplePay.m in Sources */,
+				84FDE0211DDB594E00CC438F /* CustAcctModel.m in Sources */,
+				8461D0CE1DA7CB6F007BEDCF /* PlanOfferModel.m in Sources */,
 				84FB08621D20DC9B00075381 /* LoginController.m in Sources */,
 				847AF99B1D18F2CC00A87CAD /* STPToken.m in Sources */,
 				847AF96C1D18F2CC00A87CAD /* STPCheckoutOptions.m in Sources */,
 				847AF9931D18F2CC00A87CAD /* STPAPIPostRequest.m in Sources */,
+				8452E8311D9BF34100907F0E /* PlanDetails.m in Sources */,
 				847AF9981D18F2CC00A87CAD /* STPCardValidator.m in Sources */,
 				847AF9AB1D18F5B400A87CAD /* UserRequestModel.m in Sources */,
 				847AF9921D18F2CC00A87CAD /* STPAPIClient.m in Sources */,
@@ -1163,6 +1236,7 @@
 				84FB08681D20DD5600075381 /* MenuController.m in Sources */,
 				847AF9961D18F2CC00A87CAD /* STPCard.m in Sources */,
 				84EF9ADA1D2149AB0093DAF5 /* ReserveConfRoom.m in Sources */,
+				84F82A561D99A6C0004C57C7 /* ForumScreen.m in Sources */,
 				847AF99A1D18F2CC00A87CAD /* STPFormEncoder.m in Sources */,
 				847AF9941D18F2CC00A87CAD /* STPBankAccount.m in Sources */,
 				84F7D0B71D215D9B000F63E9 /* ReservationModel.m in Sources */,
@@ -1175,6 +1249,7 @@
 				847AF9581D18F2CC00A87CAD /* STPAPIClient+ApplePay.m in Sources */,
 				84FB08651D20DC9B00075381 /* UserDataController.m in Sources */,
 				847AF8A91D18F10A00A87CAD /* UserDAO.m in Sources */,
+				84B6544D1D7E6D7A003AF677 /* ProfileScreen.m in Sources */,
 				84FB08631D20DC9B00075381 /* ResetPwdController.m in Sources */,
 				8405631F1D225F4F003BF2A0 /* ResourceModel.m in Sources */,
 				84FC63041D22C0A0001C797D /* MyConfRoomReservations.m in Sources */,
@@ -1186,6 +1261,7 @@
 				847AF9731D18F2CC00A87CAD /* NSDictionary+Stripe.m in Sources */,
 				8417EE971D22A436006D0F02 /* SupportController.m in Sources */,
 				847AF9571D18F2CC00A87CAD /* PKPayment+Stripe.m in Sources */,
+				84668D201D9DBA920096711A /* UserOrgModel.m in Sources */,
 				847AF8A71D18F10A00A87CAD /* StripeDAO.m in Sources */,
 				847AF9951D18F2CC00A87CAD /* STPBankAccountParams.m in Sources */,
 				84533C0E1D1CF469001536B4 /* StripePlanModel.m in Sources */,

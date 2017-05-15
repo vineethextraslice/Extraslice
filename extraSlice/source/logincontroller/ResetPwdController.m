@@ -57,6 +57,7 @@
 - (void)goBack:(UITapGestureRecognizer *) rec{
     UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"LoginController" bundle:nil];
     LoginController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"LoginController"];
+    
     [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
     
 }
@@ -75,23 +76,50 @@
         self.errorLyt.hidden = false;
         
     }else{
-         @try{
-             UserDAO *userDAO = [[UserDAO alloc]init];
-             NSString *status= [userDAO resetPassword:self.email.text];
-             if([status isEqualToString:@"SUCCESS"]){
-                 [self showPopup:@"Successfull" Message:@"new password sent to your email"];
-             }else{
-                 self.errorText.text= status;
-                 self.errorLyt.hidden = false;
-             }
-         }@catch(NSException *exp){
-             self.errorText.text= exp.description;
-             self.errorLyt.hidden = false;
-         }
+        [self performBackgroundTask];
     }
 
 }
-
+- (void)performBackgroundTask
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *error = nil;
+        NSString *status = nil;
+        UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        CGAffineTransform transform = CGAffineTransformMakeScale(2.0f, 2.0f);
+        indicator.transform = transform;
+        indicator.frame = CGRectMake(0.0, 0.0, 80.0, 80.0);
+        indicator.center = self.view.center;
+        [self.view addSubview:indicator];
+        [indicator bringSubviewToFront:self.view];
+        NSString *userName=self.email.text;
+        UserDAO *userDAO = [[UserDAO alloc]init];
+        [indicator startAnimating];
+        
+        @try{
+            
+            status= [userDAO resetPassword:userName];
+            
+        }@catch(NSException *exp){
+            error =exp.description;;
+            
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [indicator stopAnimating];
+            if(error != nil){
+                self.errorText.text= error;
+                self.errorLyt.hidden = false;
+            }else{
+                if([status isEqualToString:@"SUCCESS"]){
+                    [self showPopup:@"Successfull" Message:@"new password sent to your email"];
+                }else{
+                    self.errorText.text= status;
+                    self.errorLyt.hidden = false;
+                }
+            }
+        });
+    });
+}
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
     [textField resignFirstResponder];
     return YES;

@@ -13,14 +13,42 @@
 #import "OrganizationModel.h"
 #import "PlanModel.h"
 #import "Utilities.h"
+#import "PlanOfferModel.h"
 @implementation SmartSpaceDAO
-    -(OrganizationModel *) getIndividualOrg{
-        return individualOrg;
+
+-(OrganizationModel *) getIndividualOrg{
+    if(individualOrg == (id)[NSNull null] || individualOrg == nil){
+        NSString *urlString =@"smSpace/getIndividualOrg";
+        NSString *jsonString = @"";
+        WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+        NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+        if(result == nil || [result objectForKey:@"STATUS"]==nil){
+            NSException *e = [NSException exceptionWithName:@"UserException" reason:@"Error. Failed to get plan details" userInfo:nil];
+            @throw e;
+        }
+        NSString *statusStr = [result objectForKey:@"STATUS"]    ;
+        if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
+            NSDictionary *orgModelDic =[result objectForKey:@"OrganizationModel"];
+            individualOrg = [[OrganizationModel alloc]init];
+            individualOrg = [individualOrg initWithDictionary:orgModelDic];
+            
+        }else{
+            NSException *e = [NSException exceptionWithName:@"UserException" reason:[result objectForKey:@"ERRORMESSAGE"] userInfo:nil];
+            @throw e;
+        }
+        
     }
-    -(NSString *) getPlanAndOrgDetl{
+    return individualOrg;
+}
+
+    -(void ) reset{
+        adminAcctMdl = nil;
+        
+    }
+    -(NSString *) getSignupData{
         self.planArray = [[NSMutableArray alloc]init];
-        self.orgArray = [[NSMutableArray alloc]init];
-        NSString *urlString =@"smSpace/getPlanAndOrgDetl";
+       
+        NSString *urlString =@"smSpace/getSignupData";
         NSString *jsonString = @"";
         WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
         NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
@@ -37,20 +65,39 @@
                 [self.planArray addObject:planModel];
             }
             
-            NSArray *orgObjArray =[result objectForKey:@"OrganizationList"];
-            for(NSDictionary *i in orgObjArray){
-                OrganizationModel *orgModel = [[OrganizationModel alloc]init];
-                orgModel = [orgModel initWithDictionary:i];
-                if(orgModel.individualRefOrg){
-                    individualOrg = orgModel;
-                }else{
-                    [self.orgArray addObject:orgModel];
-                }
-            }
             NSDictionary *admAcctDic =[result objectForKey:@"AdminAccountModel"];
             adminAcctMdl = [[AdminAccountModel alloc]init];
             adminAcctMdl = [adminAcctMdl initWithDictionary:admAcctDic];
-            
+            if(addonList == (id)[NSNull null] || addonList == nil){
+                addonList = [[NSMutableArray alloc]init];
+                NSArray *addonArray =[result objectForKey:@"AddonList"];
+                for(NSDictionary *i in addonArray){
+                    ResourceTypeModel *resModel = [[ResourceTypeModel alloc]init];
+                    resModel = [resModel initWithDictionary:i];
+                    [addonList addObject:resModel];
+                }
+               
+            }
+            @try {
+                if(offerList == (id)[NSNull null] || offerList == nil){
+                    offerList = [[NSMutableArray alloc]init];
+                    NSArray *offerArray =[result objectForKey:@"OfferList"];
+                    for(NSDictionary *i in offerArray){
+                        PlanOfferModel *offerModel = [[PlanOfferModel alloc]init];
+                        offerModel = [offerModel initWithDictionary:i];
+                        [offerList addObject:offerModel];
+                    }
+                    
+                }
+            }@catch (NSException *exp) {
+               offerList = [[NSMutableArray alloc]init];
+            }
+            self.noOfdaystoSubsDate = [result objectForKey:@"noOfdaystoSubsDate"];
+            self.trialEndsAt = [result objectForKey:@"trialEndsAt"];
+            self.firstsubDate = [result objectForKey:@"firstsubDate"];
+            self.noOFDaysInMoth = [result objectForKey:@"noOFDaysInMoth"];
+            self.message = [result objectForKey:@"message"];
+            self.noOfdaystoNextMonth = [result objectForKey:@"noOfdaystoNextMonth"];
             
         }else{
             NSException *e = [NSException exceptionWithName:@"UserException" reason:[result objectForKey:@"ERRORMESSAGE"] userInfo:nil];
@@ -59,7 +106,40 @@
         return @"SUCCESS";
     }
 
+-(NSMutableArray *) getAllOrganizationNames{
 
+    NSMutableArray *orgArray= [[NSMutableArray alloc]init];
+    NSString *urlString =@"smSpace/getAllOrganizationNames";
+    NSString *jsonString = @"";
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    if(result == nil || [result objectForKey:@"STATUS"]==nil){
+        NSException *e = [NSException exceptionWithName:@"UserException" reason:@"Error. Failed to get plan details" userInfo:nil];
+        @throw e;
+    }
+    NSString *statusStr = [result objectForKey:@"STATUS"]    ;
+    if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
+        
+        
+        NSArray *orgObjArray =[result objectForKey:@"OrganizationNameList"];
+        for(NSDictionary *orgName in orgObjArray){
+            [orgArray addObject:orgName];
+        }
+    }else{
+        NSException *e = [NSException exceptionWithName:@"UserException" reason:[result objectForKey:@"ERRORMESSAGE"] userInfo:nil];
+        @throw e;
+    }
+    return orgArray;
+}
+
+
+-(NSMutableArray *) getAllAddons{
+    return addonList;
+}
+
+-(NSMutableArray *) getPlanOffers{
+    return offerList;
+}
 
 -(AdminAccountModel *) getAdminAccount{
     if(adminAcctMdl == (id)[NSNull null] || adminAcctMdl == nil){
@@ -159,7 +239,7 @@
 }
 
 
--(NSString *) addReservation:(ReservationModel *) model PaymentRefKey:(NSString *) pymntRefKey{
+-(NSDictionary *) addReservation:(ReservationModel *) model PaymentRefKey:(NSString *) pymntRefKey{
     NSString *urlString =@"smSpace/addReservation";
     NSMutableDictionary *request = [NSMutableDictionary dictionary];
     [request setValue:pymntRefKey forKey:@"pymntRefKey"];
@@ -176,15 +256,7 @@
         NSException *e = [NSException exceptionWithName:@"UserException" reason:@"Error. Failed to update reservation" userInfo:nil];
         @throw e;
     }
-    NSString *statusStr = [result objectForKey:@"STATUS"]    ;
-     NSLog(@"%@",statusStr);
-    if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
-        return  statusStr;
-    }else{
-        NSLog(@"%@",[result objectForKey:@"ERRORMESSAGE"] );
-        NSException *e = [NSException exceptionWithName:@"UserException" reason:[result objectForKey:@"ERRORMESSAGE"] userInfo:nil];
-        @throw e;
-    }
+    return result;
     
 }
 
@@ -206,10 +278,44 @@
     
 }
 
--(NSString *) updateReservation:(ReservationModel *) model PaymentRefKey:(NSString *) pymntRefKey{
+-(NSString *) updatePlanForOrg:(NSNumber *) userId OrgId:(NSNumber *) orgId PlanIds:(NSNumber *) planIdList CustomerId:(NSString *) customerId SubscriptionId:(NSString *) subscriptionId PlanStartDate:(NSNumber *) planStartDate PlanEndDate:(NSNumber *) planEndDate PymntGateway:(NSString *) pymntGateway EventType:(NSString *) eventType EventId:(NSString *) eventId{
+    NSString *urlString =@"smSpace/updatePlanForOrg";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userId forKey:@"userId"];
+    [request setValue:orgId forKey:@"orgId"];
+    [request setValue:planIdList forKey:@"planIdList"];
+    [request setValue:customerId forKey:@"customerId"];
+    [request setValue:subscriptionId forKey:@"subscriptionId"];
+    [request setValue:planStartDate forKey:@"planStartDate"];
+    [request setValue:planEndDate forKey:@"planEndDate"];
+    [request setValue:pymntGateway forKey:@"pymntGateway"];
+    [request setValue:eventType forKey:@"eventType"];
+    [request setValue:eventId forKey:@"eventId"];
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request
+                                                       options:(NSJSONWritingOptions)    (NSJSONWritingPrettyPrinted)                                                 error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    NSString *statusStr = [result objectForKey:@"STATUS"]    ;
+    if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
+        return statusStr;
+    }else{
+        NSException *e = [NSException exceptionWithName:@"UserException" reason:[result objectForKey:@"ERRORMESSAGE"] userInfo:nil];
+        @throw e;
+    }
+
+}
+
+-(NSDictionary *) updateReservation:(ReservationModel *) model CardToken:(NSString *) cardToken TrialPeriod:(NSNumber *) trialPeriods AmountPaid:(NSNumber *) amountPaid GateWay:(NSString *) pymntGateway Agreed:(bool) agreedToPay;{
     NSString *urlString =@"smSpace/updateReservation";
     NSMutableDictionary *request = [NSMutableDictionary dictionary];
-    [request setValue:pymntRefKey forKey:@"pymntRefKey"];
+    [request setValue:cardToken forKey:@"cardToken"];
+    [request setValue:[NSNumber numberWithBool:agreedToPay] forKey:@"agreeToPay"];
+    [request setValue:trialPeriods forKey:@"trialPeriods"];
+    [request setValue:amountPaid forKey:@"paidAmount"];
+    [request setValue:pymntGateway forKey:@"gateWay"];
     [request setValue:[model convertObjectToJsonString:YES] forKey:@"ReservationModel"];
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request
@@ -218,17 +324,8 @@
     
     WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
     NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
-    if(result == nil || [result objectForKey:@"STATUS"]==nil){
-        NSException *e = [NSException exceptionWithName:@"UserException" reason:@"Error. Failed to update reservation" userInfo:nil];
-        @throw e;
-    }
-    NSString *statusStr = [result objectForKey:@"STATUS"]    ;
-    if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
-       return statusStr;
-    }else{
-        NSException *e = [NSException exceptionWithName:@"UserException" reason:[result objectForKey:@"ERRORMESSAGE"] userInfo:nil];
-        @throw e;
-    }
+    return result;
+    
 }
 
 
@@ -325,4 +422,110 @@
     }
     return resTypeArray;
 }
+
+-(NSDictionary *) updateReservationStatus:(ReservationModel *)model CardId:(NSString *)cardToken TrialPeriod:(NSNumber *)trialPeriods Amount:(NSNumber *)amountPaid Gateway:(NSString *)gateway{
+    NSString *urlString =@"smSpace/updateReservationStatus";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:trialPeriods forKey:@"trialPeriods"];
+    [request setValue:cardToken forKey:@"cardToken"];
+    [request setValue:amountPaid forKey:@"amountPaid"];
+    [request setValue:gateway forKey:@"pymntGateway"];
+    [request setValue:[model convertObjectToJsonString:YES] forKey:@"ReservationModel"];
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    return result;
+}
+-(NSDictionary *) getSubscriptionData:(NSNumber *)userId OrgId:(NSNumber *)orgId {
+    NSString *urlString =@"smSpace/getProfileData";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userId forKey:@"userId"];
+    [request setValue:orgId forKey:@"orgId"];
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    NSString *statusStr = [result objectForKey:@"STATUS"]    ;
+    if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
+         return result;
+    }else{
+        NSException *e = [NSException exceptionWithName:@"UserException" reason:[result objectForKey:@"ERRORMESSAGE"] userInfo:nil];
+        @throw e;
+    }
+
+   
+
+}
+-(NSDictionary *) requestCancelSubscription:(NSNumber *)userId OrgId:(NSNumber *)orgId CancelMeetingsToo:(BOOL )cancelMeetingsToo PlanIdList:(NSMutableArray *)planIdList AddonIds:(NSMutableArray *) addonIds{
+    NSString *urlString =@"custacct/requestCancelSubscription";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userId forKey:@"userId"];
+    [request setValue:orgId forKey:@"orgId"];
+    [request setValue:[NSNumber numberWithBool:cancelMeetingsToo] forKey:@"cancelMeetingsToo"];
+    [request setValue:planIdList forKey:@"planIdList"];
+    [request setValue:addonIds forKey:@"addonIds"];
+  
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    return result;
+
+}
+
+-(NSDictionary *) updateOrgUser:(NSArray *) userList{
+    NSString *urlString =@"smSpace/updateOrgUser";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userList forKey:@"UserList"];
+
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    return result;
+
+}
+-(NSDictionary *) deleteUsersFromOrg:(NSArray *) userList{
+    NSString *urlString =@"smSpace/deleteUsersFromOrg";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userList forKey:@"UserList"];
+    
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    return result;
+    
+}
+-(NSDictionary *) addUserToOrg:(NSString *)email OrgId:(NSNumber *)orgId AdminId:(NSNumber *)adminId{
+    NSString *urlString =@"smSpace/addUserToOrg";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:email forKey:@"email"];
+    [request setValue:orgId forKey:@"orgId"];
+    [request setValue:adminId forKey:@"adminId"];
+    
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    return result;
+    
+}
+
 @end
