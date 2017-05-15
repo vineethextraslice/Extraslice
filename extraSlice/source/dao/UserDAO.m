@@ -11,7 +11,7 @@
 #include <CommonCrypto/CommonDigest.h>
 #include <CommonCrypto/CommonHMAC.h>
 #import "WebServiceDAO.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 #import "Utilities.h"
 @implementation UserDAO
 
@@ -52,6 +52,10 @@
     if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
         NSDictionary *userDictionary =[result objectForKey:@"User"];
         userModel = [userModel initWithDictionary:userDictionary];
+         if([result objectForKey:@"WARNING"] != (id)[NSNull null] && [result objectForKey:@"WARNING"] != nil){
+             [utils setWarningMessage:[result objectForKey:@"WARNING"]];
+         }
+        
     }else{
         NSException *e = [NSException exceptionWithName:@"UserException" reason:[result objectForKey:@"ERRORMESSAGE"] userInfo:nil];
         @throw e;
@@ -228,6 +232,39 @@
     }else{
         return [result objectForKey:@"ERRORMESSAGE"];
     }
+
+}
+-(UserModel *) addGuestUser:(UserModel *)userModel{
+    NSString *urlString =@"user/addGuestUser";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    [request setValue:version forKey:@"versionCode"];
+    //float ver = [[[UIDevice currentDevice] systemVersion] floatValue];
+    //[request setValue:[NSString stringWithFormat:@"%f",ver] forKey:@"versionCode"];
+    [request setValue:@"iOS" forKey:@"deviceType"];
+    [request setValue:[userModel dictionaryWithPropertiesOfObject:userModel] forKey:@"User"];
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    if(result == nil || [result objectForKey:@"STATUS"]==nil){
+        NSException *e = [NSException exceptionWithName:@"UserException" reason:@"Error. Failed get user details" userInfo:nil];
+        @throw e;
+    }
+    NSString *statusStr = [result objectForKey:@"STATUS"]    ;
+    if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
+        NSDictionary *userDictionary =[result objectForKey:@"User"];
+        userModel = [userModel initWithDictionary:userDictionary];
+    }else{
+        NSException *e = [NSException exceptionWithName:@"UserException" reason:[result objectForKey:@"ERRORMESSAGE"] userInfo:nil];
+        @throw e;
+    }
+    return userModel;
 
 }
 /*public JSONObject deleteUserByName(String userName,String orgName)  throws CustomException{

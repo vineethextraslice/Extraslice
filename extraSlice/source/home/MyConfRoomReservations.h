@@ -21,4 +21,5 @@
 @property (weak, nonatomic) IBOutlet UIImageView *nextImage;
 @property (weak, nonatomic) IBOutlet UIImageView *previousImage;
 @property(strong,nonatomic) NSDate *selectedDate;
+@property(strong,nonatomic) NSString *selectedDayType;
 @end

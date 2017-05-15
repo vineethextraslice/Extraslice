@@ -7,25 +7,103 @@
 //
 
 #import "HomeScreen.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 #import "MenuController.h"
 
 
 @interface HomeScreen ()
-@property(strong,nonatomic) WnPConstants *wnpConst;
+@property(strong,nonatomic) ESliceConstants *wnpConst;
 @end
 
 @implementation HomeScreen
 
 - (void)viewDidLoad {
-    self.wnpConst = [[WnPConstants alloc]init];
+    self.wnpConst = [[ESliceConstants alloc]init];
     [super viewDidLoad];
+    
+    
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    CGFloat rowHeight = (screenRect.size.height-125)/3;
+    CGFloat rowWidth = screenRect.size.width-40;
+    
+    self.innerBorder1= [[UIView alloc] initWithFrame:CGRectMake(20, 20, rowWidth, rowHeight)];
+    self.innerBorder2= [[UIView alloc] initWithFrame:CGRectMake(20, (30+rowHeight), rowWidth, rowHeight)];
+    self.innerBoarder3= [[UIView alloc] initWithFrame:CGRectMake(20, (40+2*rowHeight), rowWidth, rowHeight)];
+    UIView *view1 =nil;
+    UIView *view2 =nil;
+    UIView *view3 =nil;
+    if(rowHeight <140){
+        view1= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth, 100)];
+        view2= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth, 100)];
+        view3= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth, 100)];
+        self.reserveText = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth, 30)];
+        self.supportText = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth, 30)];
+        self.wnpText = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth, 30)];
+        self.wnpImage = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-30, 0, 60, 60)];
+        self.supportImg = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-30, 0, 60, 60)];
+        self.reserveImg = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-30, 0, 60, 60)];
+
+    }else{
+        view1= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth, 120)];
+        view2= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth, 120)];
+        view3= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth, 120)];
+        
+        self.reserveText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
+        self.supportText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
+        self.wnpText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
+        
+        self.wnpImage = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
+        self.supportImg = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
+        self.reserveImg = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
+    }
+    [self.wnpImage setImage:[UIImage imageNamed:@"walknpay2.png"]];
+    [self.supportImg setImage:[UIImage imageNamed:@"headset.png"]];
+    [self.reserveImg setImage:[UIImage imageNamed:@"calendar.png"]];
+    
+    
+    self.reserveText.textAlignment=NSTextAlignmentCenter;
+    self.supportText.textAlignment=NSTextAlignmentCenter;
+    self.wnpText.textAlignment=NSTextAlignmentCenter;
+    
+    self.reserveText.textAlignment=NSTextAlignmentCenter;
+    self.supportText.textAlignment=NSTextAlignmentCenter;
+    self.wnpText.textAlignment=NSTextAlignmentCenter;
+
+
+    self.reserveText.text=@"Reserve a conference room";
+    self.supportText.text=@"Support";
+    self.wnpText.text=@"walkNPay store";
+    
+    [self.reserveText setFont:[UIFont boldSystemFontOfSize:17.0]];
+    [self.supportText setFont:[UIFont boldSystemFontOfSize:17.0]];
+    [self.wnpText setFont:[UIFont boldSystemFontOfSize:17.0]];
+    
+    [view1 addSubview:self.reserveImg];
+    [view2 addSubview:self.supportImg];
+    [view3 addSubview:self.wnpImage];
+    
+    [view1 addSubview:self.reserveText];
+    [view2 addSubview:self.supportText];
+    [view3 addSubview:self.wnpText];
+
+    
+    [self.innerBorder1 addSubview:view1];
+    [self.innerBorder2 addSubview:view2];
+    [self.innerBoarder3 addSubview:view3];
+    
+    
+    
+    [self.view addSubview:self.innerBorder1];
+    [self.view addSubview:self.innerBorder2];
+    [self.view addSubview:self.innerBoarder3];
     self.outerBorder.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
     self.outerBorder.layer.borderWidth = 1.0f;
     self.innerBorder1.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
     self.innerBorder1.layer.borderWidth = 1.0f;
     self.innerBorder2.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
     self.innerBorder2.layer.borderWidth = 1.0f;
+    self.innerBoarder3.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
+    self.innerBoarder3.layer.borderWidth = 1.0f;
     
     UITapGestureRecognizer *resevetap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(loadReservationPage:)];
     resevetap.numberOfTapsRequired = 1;
@@ -50,6 +128,18 @@
     supportTxtTap.numberOfTouchesRequired = 1;
     [self.supportText setUserInteractionEnabled:YES];
     [self.supportText addGestureRecognizer:supportTxtTap];
+    
+    UITapGestureRecognizer *wnpTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(loadWnpStorePage:)];
+    wnpTap.numberOfTapsRequired = 1;
+    wnpTap.numberOfTouchesRequired = 1;
+    [self.wnpImage setUserInteractionEnabled:YES];
+    [self.wnpImage addGestureRecognizer:wnpTap];
+    
+    UITapGestureRecognizer *wnpTextTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(loadWnpStorePage:)];
+    wnpTextTap.numberOfTapsRequired = 1;
+    wnpTextTap.numberOfTouchesRequired = 1;
+    [self.wnpText setUserInteractionEnabled:YES];
+    [self.wnpText addGestureRecognizer:wnpTextTap];
 }
 -(void)loadReservationPage:(UITapGestureRecognizer *) rec{
     UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
@@ -70,7 +160,15 @@
         [self presentViewController:viewCtrl animated:YES completion:nil];
     }
 }
-
+-(void)loadWnpStorePage:(UITapGestureRecognizer *) rec{
+    UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
+    MenuController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"MenuController"];
+    if(viewCtrl != nil){
+        viewCtrl.modalTransitionStyle=UIModalTransitionStyleFlipHorizontal;
+        viewCtrl.viewName=@"walkNpay store";
+        [self presentViewController:viewCtrl animated:YES completion:nil];
+    }
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

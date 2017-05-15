@@ -42,7 +42,7 @@
 @property(strong,nonatomic) NSNumber *trialEndsAt ;
 @property(strong,nonatomic) NSNumber *firstsubDate;
 @property(strong,nonatomic) NSNumber *noOFDaysInMoth ;
-@property(strong,nonatomic) NSNumber *message;
+@property(strong,nonatomic) NSString *message;
 @property(strong,nonatomic) NSNumber *noOfdaystoNextMonth;
 
 

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="14F1509" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
+    </dependencies>
+    <scenes>
+        <!--CouponPopup-->
+        <scene sceneID="MrY-1j-4aL">
+            <objects>
+                <viewController storyboardIdentifier="CouponPopup" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BvZ-Wd-OoK" userLabel="CouponPopup" customClass="CouponPopup" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="tbq-GF-e4X"/>
+                        <viewControllerLayoutGuide type="bottom" id="RkP-LR-kiv"/>
+                    </layoutGuides>
+                    <view key="view" opaque="NO" contentMode="scaleToFill" id="WAo-Qs-fR4">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" misplaced="YES" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lQ9-MH-RBJ">
+                                <rect key="frame" x="0.0" y="210" width="600" height="25"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="25" id="YCe-Vk-CJH"/>
+                                </constraints>
+                            </view>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" preservesSuperviewLayoutMargins="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="25" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="Y2S-hQ-nN3">
+                                <rect key="frame" x="0.0" y="235" width="600" height="100"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="B4P-EG-hqh"/>
+                                </constraints>
+                            </tableView>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Wn-Ss-QE3">
+                                <rect key="frame" x="330" y="350" width="110" height="30"/>
+                                <color key="backgroundColor" red="0.35962955990000001" green="0.48961308279999999" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="110" id="P3Q-NW-zcb"/>
+                                    <constraint firstAttribute="height" constant="30" id="Sig-Ym-dfh"/>
+                                </constraints>
+                                <state key="normal" title="Cancel">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="cancelPopup:" destination="BvZ-Wd-OoK" eventType="touchUpInside" id="DF3-CK-AbL"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M55-ZD-cGn">
+                                <rect key="frame" x="160" y="350" width="110" height="30"/>
+                                <color key="backgroundColor" red="0.35962955990000001" green="0.48961308279999999" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="110" id="63D-9H-52X"/>
+                                    <constraint firstAttribute="height" constant="30" id="RUg-by-D8t"/>
+                                </constraints>
+                                <state key="normal" title="Apply">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="addAppliedCoupons:" destination="BvZ-Wd-OoK" eventType="touchUpInside" id="45q-bD-lN7"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="lQ9-MH-RBJ" firstAttribute="leading" secondItem="WAo-Qs-fR4" secondAttribute="leading" id="3GO-TJ-pML"/>
+                            <constraint firstAttribute="trailing" secondItem="lQ9-MH-RBJ" secondAttribute="trailing" id="7C5-np-Imm"/>
+                            <constraint firstItem="8Wn-Ss-QE3" firstAttribute="top" secondItem="Y2S-hQ-nN3" secondAttribute="bottom" constant="15" id="DjB-69-HT7"/>
+                            <constraint firstItem="Y2S-hQ-nN3" firstAttribute="centerX" secondItem="WAo-Qs-fR4" secondAttribute="centerX" id="JmF-3c-RkW"/>
+                            <constraint firstItem="lQ9-MH-RBJ" firstAttribute="top" secondItem="tbq-GF-e4X" secondAttribute="bottom" id="cJw-6P-EHP"/>
+                            <constraint firstItem="Y2S-hQ-nN3" firstAttribute="top" secondItem="lQ9-MH-RBJ" secondAttribute="bottom" id="cle-TC-SIl"/>
+                            <constraint firstItem="Y2S-hQ-nN3" firstAttribute="centerY" secondItem="WAo-Qs-fR4" secondAttribute="centerY" constant="-15" id="kST-TV-2lW"/>
+                            <constraint firstItem="8Wn-Ss-QE3" firstAttribute="leading" secondItem="WAo-Qs-fR4" secondAttribute="centerX" constant="30" id="owm-uZ-Lie"/>
+                            <constraint firstAttribute="trailing" secondItem="Y2S-hQ-nN3" secondAttribute="trailing" id="wtT-gW-TEf"/>
+                            <constraint firstItem="lQ9-MH-RBJ" firstAttribute="centerX" secondItem="WAo-Qs-fR4" secondAttribute="centerX" id="x9M-t3-r17"/>
+                            <constraint firstItem="Y2S-hQ-nN3" firstAttribute="leading" secondItem="WAo-Qs-fR4" secondAttribute="leading" id="xmR-5f-orn"/>
+                            <constraint firstItem="M55-ZD-cGn" firstAttribute="trailing" secondItem="WAo-Qs-fR4" secondAttribute="centerX" constant="-30" id="xmS-94-E5D"/>
+                            <constraint firstItem="Y2S-hQ-nN3" firstAttribute="top" secondItem="lQ9-MH-RBJ" secondAttribute="bottom" id="yZz-WV-Mvl"/>
+                            <constraint firstItem="M55-ZD-cGn" firstAttribute="top" secondItem="Y2S-hQ-nN3" secondAttribute="bottom" constant="15" id="zd9-2C-Y6P"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="applyBtn" destination="M55-ZD-cGn" id="ZSk-cY-yf6"/>
+                        <outlet property="cancelBtn" destination="8Wn-Ss-QE3" id="QTC-VH-jdT"/>
+                        <outlet property="couponTable" destination="Y2S-hQ-nN3" id="Ooz-C9-9lt"/>
+                        <outlet property="headerView" destination="lQ9-MH-RBJ" id="Z6V-d3-TXS"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="2j8-XQ-sNc" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="156" y="390"/>
+        </scene>
+    </scenes>
+</document>

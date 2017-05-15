@@ -12,6 +12,7 @@
 #import <UIKit/UIKit.h>
 #import "UserModel.h"
 static UserModel *loggedinUser;
+static NSString *warningMessage;
 @interface Utilities : NSObject
 -(void) showErrorMessage:(UIView *) view contView: (UILabel *) label errorLabel:(NSString *) errorText;
 -(void)setViewMovedUp:(BOOL)movedUp ParentView:(UIView *)parentView CurrTextView:(UITextField *) currTF;
@@ -30,4 +31,13 @@ static UserModel *loggedinUser;
 -(UserModel *) getLoggedinUser;
 -(BOOL) isAfter:(NSDate *) fisrtDate CompareTo:(NSDate *)secondDat;
 -(BOOL) isBefore:(NSDate *) fisrtDate CompareTo:(NSDate *)secondDat;
+-(NSString *) getWarningMessage;
+-(void) setWarningMessage :(NSString *)msg;
+-(UIColor *) getThemeDarkBlue;
+-(UIColor *) getThemeLightBlue;
+-(UIColor *) getThemeGreen;
+-(UIColor *) getDarkGray;
+-(UIColor *) getLightGray;
+-(BOOL) isValidEmail:(NSString *)checkString;
+
 @end

@@ -9,6 +9,7 @@
 #import "ReservationModel.h"
 #import "objc/runtime.h"
 @implementation ReservationModel
+@synthesize description;
 - (instancetype)init
 {
     self = [super init];
@@ -27,6 +28,8 @@
          self.reservationId=@-1;
          self.reservedByUserName=@"";
          self.reservationName=@"";
+         self.resourceTypeId=@-1;
+         
          
      }
     return self;

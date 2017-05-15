@@ -15,6 +15,16 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *orgLytHeight;
 @property (weak, nonatomic) IBOutlet UIView *orgHeader;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *planScrViewHt;
+@property (weak, nonatomic) IBOutlet UIView *plnBenHeader;
+@property (weak, nonatomic) IBOutlet UIImageView *plnBenfExp;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *plnBenfDetlHt;
+
+@property (weak, nonatomic) IBOutlet UILabel *plnBenfHeader;
+@property (weak, nonatomic) IBOutlet UIScrollView *plnBenfDetl;
+
+
+
+
 
 @property (weak, nonatomic) IBOutlet UILabel *header;
 
@@ -31,10 +41,17 @@
 @property (weak, nonatomic) IBOutlet UIView *subscriptionHeaderLyt;
 @property (weak, nonatomic) IBOutlet UIView *userHeaderLyt;
 @property (weak, nonatomic) IBOutlet UIScrollView *planScrView;
-@property (nonatomic) BOOL *expandProfile;
+@property (nonatomic) BOOL expandPln;
+@property (nonatomic) BOOL expandPlnBen;
+@property (nonatomic) BOOL expandUsr;
+
 
 @property (weak, nonatomic) IBOutlet UIImageView *expandSubscView;
 @property (weak, nonatomic) IBOutlet UIImageView *expandUserView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *subscrHeaderHt;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *plnHeaderHt;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *userHeaderHt;
+
 
 
 

@@ -34,6 +34,7 @@
         self.userName=@"";
         self.password=@"";
         self.email=@"";
+        self.userType=@"";
         self.orgList=[[NSMutableArray alloc]init];
         
         

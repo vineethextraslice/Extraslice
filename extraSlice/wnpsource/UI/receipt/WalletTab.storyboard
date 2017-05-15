@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
+    </dependencies>
+    <scenes>
+        <!--Wallet Tab Controller-->
+        <scene sceneID="4ci-k3-gPe">
+            <objects>
+                <viewController storyboardIdentifier="WalletTab" useStoryboardIdentifierAsRestorationIdentifier="YES" id="D93-f7-Kug" customClass="WalletTabController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="FQu-8v-r0J"/>
+                        <viewControllerLayoutGuide type="bottom" id="4Pt-cU-1l6"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="VNd-eh-qUD">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" tag="200" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="My Cards" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hu6-42-syZ">
+                                <rect key="frame" x="300" y="1" width="300" height="45"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="45" id="pIh-0s-OOf"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gf0-Ih-IJV">
+                                <rect key="frame" x="0.0" y="46" width="600" height="547"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4T0-Is-TYX">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="1"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="1" id="6kj-rg-Rwb"/>
+                                </constraints>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" tag="100" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="My Receipts" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Wsa-CQ-Zwm">
+                                <rect key="frame" x="0.0" y="1" width="300" height="45"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="45" id="gcc-N9-mk3"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="Gf0-Ih-IJV" secondAttribute="trailing" id="6Od-gW-G2w"/>
+                            <constraint firstItem="Wsa-CQ-Zwm" firstAttribute="top" secondItem="4T0-Is-TYX" secondAttribute="bottom" id="8zg-UM-dKO"/>
+                            <constraint firstItem="Gf0-Ih-IJV" firstAttribute="leading" secondItem="VNd-eh-qUD" secondAttribute="leading" id="92m-rF-POL"/>
+                            <constraint firstItem="Wsa-CQ-Zwm" firstAttribute="leading" secondItem="VNd-eh-qUD" secondAttribute="leading" id="Le5-GR-22G"/>
+                            <constraint firstAttribute="trailing" secondItem="hu6-42-syZ" secondAttribute="trailing" id="MPf-ce-Srs"/>
+                            <constraint firstAttribute="trailing" secondItem="4T0-Is-TYX" secondAttribute="trailing" id="N4f-2n-9DV"/>
+                            <constraint firstItem="Gf0-Ih-IJV" firstAttribute="top" secondItem="hu6-42-syZ" secondAttribute="bottom" id="N9k-r8-nar"/>
+                            <constraint firstItem="hu6-42-syZ" firstAttribute="top" secondItem="4T0-Is-TYX" secondAttribute="bottom" id="QiZ-yZ-4AT"/>
+                            <constraint firstItem="hu6-42-syZ" firstAttribute="top" secondItem="4T0-Is-TYX" secondAttribute="bottom" id="XxZ-cN-qNF"/>
+                            <constraint firstItem="Gf0-Ih-IJV" firstAttribute="centerX" secondItem="VNd-eh-qUD" secondAttribute="centerX" id="YRA-77-ehB"/>
+                            <constraint firstItem="hu6-42-syZ" firstAttribute="leading" secondItem="VNd-eh-qUD" secondAttribute="centerX" id="kHW-t0-36w"/>
+                            <constraint firstItem="4T0-Is-TYX" firstAttribute="leading" secondItem="VNd-eh-qUD" secondAttribute="leading" id="lCe-jY-lpK"/>
+                            <constraint firstItem="4T0-Is-TYX" firstAttribute="top" secondItem="VNd-eh-qUD" secondAttribute="top" id="mKk-z6-2rg"/>
+                            <constraint firstItem="4Pt-cU-1l6" firstAttribute="top" secondItem="Gf0-Ih-IJV" secondAttribute="bottom" id="xBa-EH-YnD"/>
+                            <constraint firstItem="Wsa-CQ-Zwm" firstAttribute="trailing" secondItem="VNd-eh-qUD" secondAttribute="centerX" id="zaX-8F-D5Z"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="myCardTab" destination="hu6-42-syZ" id="SSK-xv-p5C"/>
+                        <outlet property="myRcpttab" destination="Wsa-CQ-Zwm" id="idX-QG-gtB"/>
+                        <outlet property="seperator" destination="4T0-Is-TYX" id="JOS-Fy-gJN"/>
+                        <outlet property="tabContentView" destination="Gf0-Ih-IJV" id="3Mc-bi-uBp"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gcE-I9-vIq" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="461" y="388"/>
+        </scene>
+    </scenes>
+</document>

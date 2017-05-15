@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="14F1509" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <scenes>
         <!--Menu Controller-->
@@ -35,7 +35,7 @@
                                         </constraints>
                                     </imageView>
                                 </subviews>
-                                <color key="backgroundColor" red="0.36078431370000003" green="0.67450980390000004" blue="0.90196078430000004" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="0FM-ac-TBc" secondAttribute="bottom" constant="5" id="4kc-Ru-fdg"/>
                                     <constraint firstAttribute="height" constant="65" id="CES-u2-pnF"/>
@@ -66,6 +66,7 @@
                     </view>
                     <connections>
                         <outlet property="containerFrame" destination="anQ-lG-gbg" id="NWQ-8D-sly"/>
+                        <outlet property="mainHeader" destination="yxp-NC-dkB" id="Ryr-XF-hXF"/>
                         <outlet property="menuIcon" destination="FU8-5N-v0M" id="mHd-QT-D6U"/>
                     </connections>
                 </viewController>
@@ -92,7 +93,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="extraslicelogo.png" width="269" height="51"/>
-        <image name="ic_drawer2.png" width="40" height="40"/>
+        <image name="extraslicelogo.png" width="288" height="71"/>
+        <image name="ic_drawer2.png" width="54" height="54"/>
     </resources>
 </document>

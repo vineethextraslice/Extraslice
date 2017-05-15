@@ -14,7 +14,7 @@
 #import "UserDAO.h"
 #import "Utilities.h"
 #import "LoginController.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 #import "STPPaymentCardTextField.h"
 #import "STPAPIClient.h"
 #import "Stripe.h"
@@ -22,6 +22,7 @@
 #import "StripePlanModel.h"
 #import "SmartSpaceDAO.h"
 #import "PlanOfferModel.h"
+#import "WnPUserDAO.h"
 
 static UIColor *SelectedCellBGColor ;
 static UIColor *NotSelectedCellBGColor;
@@ -32,6 +33,7 @@ static UIColor *NotSelectedCellBGColor;
 @property(nonatomic) BOOL individual;
 @property(nonatomic) BOOL isPaypal;
 @property(nonatomic) BOOL tcAccepted;
+@property(nonatomic) WnPUserDAO *wnPUserDAO;
 @property(strong,nonatomic) NSMutableArray *addOnAArray;
 
 @property(strong,nonatomic) UIView *previousRow;
@@ -44,7 +46,7 @@ static UIColor *NotSelectedCellBGColor;
 @property(strong,nonatomic) UITextField *crtOrgContactNo;
 @property(strong,nonatomic) UITextField *crtOrgDesc;
 @property(strong,nonatomic) UIView *crtOrgPopup;
-@property(strong,nonatomic) WnPConstants *wnpCont;
+@property(strong,nonatomic) ESliceConstants *wnpCont;
 @property(strong,nonatomic) UIButton *strpSubmitBtn;
 @property(strong,nonatomic) UIButton *strpCancelBtn;
 @property(strong,nonatomic) STPPaymentCardTextField *strpPymntTf;
@@ -68,8 +70,9 @@ UserModel *addedModel = nil;
     [super viewDidLoad];
     self.tcAccepted= FALSE;
     self.strpDAO = [[StripeDAO alloc]init];
-    self.wnpCont= [[WnPConstants alloc]init];
+    self.wnpCont= [[ESliceConstants alloc]init];
     self.utils = [[Utilities alloc]init];
+    self.wnPUserDAO =[[WnPUserDAO alloc]init];
     self.individualOrg =[[OrganizationModel alloc]init];
     self.smSpaceDAO = [[SmartSpaceDAO alloc]init];
     self.userDao = [[UserDAO alloc]init];
@@ -80,11 +83,21 @@ UserModel *addedModel = nil;
     self.contactNo.delegate =self;
     self.noOfSeats.delegate =self;
     self.makePayment=true;
+    
+    if([self.utils getLoggedinUser]  != (id)[NSNull null] && [self.utils getLoggedinUser] != nil){
+        self.email.text=[self.utils getLoggedinUser].userName;
+        self.password.text=[self.utils decode:[self.utils getLoggedinUser].password];
+        self.confPassword.text=[self.utils decode:[self.utils getLoggedinUser].password];
+    }
+    
+    self.headerText.textColor =[self.utils getThemeLightBlue];
+    self.joinNowBtn.backgroundColor=[self.utils getThemeLightBlue];
     [self.tcView bringSubviewToFront:self.tcChecbox];
     [self.tcChecbox setUserInteractionEnabled:TRUE];
     [self performBackgroundTask:@"INDIVIDUAL"];
     [self performBackgroundTask:@"ALLORG"];
-    NSDictionary *attrs =@{NSFontAttributeName:[UIFont boldSystemFontOfSize:16],NSForegroundColorAttributeName:[UIColor blueColor],NSUnderlineStyleAttributeName : @(NSUnderlineStyleSingle | NSUnderlinePatternSolid),NSUnderlineColorAttributeName:[UIColor blueColor] };
+     self.email.autocorrectionType = UITextAutocorrectionTypeNo;
+    NSDictionary *attrs =@{NSFontAttributeName:[UIFont boldSystemFontOfSize:16],NSForegroundColorAttributeName:[self.utils getThemeDarkBlue],NSUnderlineStyleAttributeName : @(NSUnderlineStyleSingle | NSUnderlinePatternSolid),NSUnderlineColorAttributeName:[self.utils getThemeDarkBlue] };
     NSDictionary *subAttrs =@{NSFontAttributeName:[UIFont systemFontOfSize:14],NSUnderlineStyleAttributeName: @(NSUnderlineStyleNone)};
     NSString *str = @"I accept the Terms and Conditions";
     NSRange theRange = NSMakeRange(13,20);
@@ -94,6 +107,7 @@ UserModel *addedModel = nil;
     if(self.selectedPlanArray != nil){
         self.selectedPlan = [self.selectedPlanArray objectAtIndex:0];
     }
+    self.paydescrText.textColor = [self.utils getThemeDarkBlue];
     self.addOnAArray = [[NSMutableArray alloc]init];
     
      if(self.selectedAddonIds != (id)[NSNull null] && self.selectedAddonIds != nil){
@@ -505,7 +519,7 @@ UserModel *addedModel = nil;
     self.view.userInteractionEnabled=false;
     self.crtOrgPopup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-95,270,220)];
      self.crtOrgPopup.backgroundColor = [UIColor whiteColor];
-    self.crtOrgPopup.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
+    self.crtOrgPopup.layer.borderColor = [self.utils getThemeLightBlue].CGColor;
     self.crtOrgPopup.layer.borderWidth = 1.0f;
     self.crtOrgPopup.alpha=1.0;
   //  [self.view addSubview:self.crtOrgPopup];
@@ -517,7 +531,7 @@ UserModel *addedModel = nil;
     UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
     headerLbl.font = txtFont;
     headerLbl.textColor=[UIColor whiteColor];
-    headerLbl.backgroundColor=[self.wnpCont getThemeBaseColor];
+    headerLbl.backgroundColor=[self.utils getThemeLightBlue];
     [self.crtOrgPopup addSubview:headerLbl];
     
     self.crtOrgError = [[UILabel alloc] initWithFrame:CGRectMake(10, 40 , 250, 30)];
@@ -528,19 +542,15 @@ UserModel *addedModel = nil;
         UILabel *descLabel =[[UILabel alloc] initWithFrame:CGRectMake(10,75,195,30)];
         descLabel.text=@"Onetime Payment for plan ";
         descLabel.textAlignment=NSTextAlignmentLeft;
-        // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
         descLabel.font = txtFont;
         descLabel.textColor=[UIColor blackColor];
-        // headerLbl.backgroundColor=[self.wnpCont getThemeBaseColor];
         [self.crtOrgPopup addSubview:descLabel];
         
         UILabel *amtLbl =[[UILabel alloc] initWithFrame:CGRectMake(210,75,50,30)];
         amtLbl.text=[NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:self.initilaPaymentAmount.doubleValue]];
         amtLbl.textAlignment=NSTextAlignmentLeft;
-        // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
         amtLbl.font = txtFont;
         amtLbl.textColor=[UIColor blackColor];
-        // headerLbl.backgroundColor=[self.wnpCont getThemeBaseColor];
         [self.crtOrgPopup addSubview:amtLbl];
     }
     
@@ -550,19 +560,15 @@ UserModel *addedModel = nil;
     UILabel *subDescLabel =[[UILabel alloc] initWithFrame:CGRectMake(10,110,195,30)];
     subDescLabel.text=@"Subscription for plan ";
     subDescLabel.textAlignment=NSTextAlignmentLeft;
-    // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
     subDescLabel.font = txtFont;
     subDescLabel.textColor=[UIColor blackColor];
-    // headerLbl.backgroundColor=[self.wnpCont getThemeBaseColor];
     [self.crtOrgPopup addSubview:subDescLabel];
     
     UILabel *subAmtLbl =[[UILabel alloc] initWithFrame:CGRectMake(210,110,50,30)];
     subAmtLbl.text=[NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:self.payableAmount.doubleValue]];
     subAmtLbl.textAlignment=NSTextAlignmentLeft;
-    // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
     subAmtLbl.font = txtFont;
     subAmtLbl.textColor=[UIColor blackColor];
-    // headerLbl.backgroundColor=[self.wnpCont getThemeBaseColor];
     [self.crtOrgPopup addSubview:subAmtLbl];
     
     self.strpPymntTf = [[STPPaymentCardTextField alloc] initWithFrame:CGRectMake(10,145,250,30)];
@@ -576,12 +582,10 @@ UserModel *addedModel = nil;
     self.strpSubmitBtn.enabled=FALSE;
     [self.strpSubmitBtn addTarget:self action:@selector(submitStripePayment:) forControlEvents: UIControlEventTouchUpInside];
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
-
     [self.crtOrgPopup addSubview:self.strpSubmitBtn];
-    
     self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(150,185,100,30)];
-    self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
-   // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
+    self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
+
     
     self.strpCancelBtn.userInteractionEnabled=TRUE;
     self.strpCancelBtn.enabled=TRUE;
@@ -668,6 +672,8 @@ UserModel *addedModel = nil;
     }
     if(self.email.text == nil || self.email.text.length == 0){
         return @"Please enter a valid email";
+    }else if (![self.utils isValidEmail:self.email.text]) {
+         return @"Please enter a valid email";
     }
     if(self.dedicatedPlan){
         if(self.noOfSeats.text == nil || self.noOfSeats.text.length == 0){
@@ -734,7 +740,7 @@ UserModel *addedModel = nil;
         if (![self.strpPymntTf isValid]) {
             self.crtOrgError.text= @"Invalid Card";
             self.crtOrgError.hidden=false;
-            self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+            self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
             // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
             
             self.strpCancelBtn.userInteractionEnabled=TRUE;
@@ -745,7 +751,7 @@ UserModel *addedModel = nil;
 
             self.crtOrgError.text= @"Invalid key";
             self.crtOrgError.hidden=false;
-            self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+            self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
             // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
             
             self.strpCancelBtn.userInteractionEnabled=TRUE;
@@ -757,7 +763,7 @@ UserModel *addedModel = nil;
             if (error) {
                 self.crtOrgError.text= error.description;
                 self.crtOrgError.hidden=false;
-                self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
                 // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
                 
                 self.strpCancelBtn.userInteractionEnabled=TRUE;
@@ -775,7 +781,7 @@ UserModel *addedModel = nil;
     }@catch(NSException *exception) {
         self.crtOrgError.text= exception.description;
         self.crtOrgError.hidden=false;
-        self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+        self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
         // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
         
         self.strpCancelBtn.userInteractionEnabled=TRUE;
@@ -801,7 +807,7 @@ UserModel *addedModel = nil;
     self.strpSubmitBtn.enabled = textField.isValid;
     if(textField.isValid){
         [self hideKeyBord];
-        self.strpSubmitBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+        self.strpSubmitBtn.backgroundColor=[self.utils getThemeLightBlue];
     }
     
 }
@@ -834,7 +840,7 @@ UserModel *addedModel = nil;
     [button setTitle:@"Close" forState:UIControlStateNormal];
     button.frame = CGRectMake(((screenRect.size.width/2)-55), screenRect.size.height-40, 110, 30);
     [button addTarget:self action:@selector(closeTC:) forControlEvents:UIControlEventTouchUpInside];
-    button.backgroundColor=[self.wnpCont getThemeBaseColor];
+    button.backgroundColor=[self.utils getThemeLightBlue];
     button.tag=65;
     [self.view addSubview:button];
     [self.view bringSubviewToFront:button];
@@ -946,11 +952,12 @@ UserModel *addedModel = nil;
 -(void )addUser:(NSString *)tokenId{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *error = nil;
-        NSString *status = nil;
+       // NSString *status = nil;
         UserModel *addedModel = nil;
          NSMutableArray *plnIdArray = [[NSMutableArray alloc]init];
         UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-        
+        NSString *planNames = nil;
+        NSString *addonnames = nil;
         
         indicator.frame = CGRectMake(0.0, 0.0, 80.0, 80.0);
         CGAffineTransform transform = CGAffineTransformMakeScale(2.0f, 2.0f);
@@ -985,7 +992,23 @@ UserModel *addedModel = nil;
             }
             for(PlanModel *pln in self.selectedPlanArray){
                 [plnIdArray addObject:pln.planId];
+                if(planNames == nil){
+                    planNames =pln.planName;
+                }else{
+                    planNames =[NSString stringWithFormat:@"%@ , %@",planNames,pln.planName];
+                }
             }
+            if(self.addOnAArray != (id)[NSNull null] && self.addOnAArray != nil){
+                for(ResourceTypeModel  *resTypeMdl in self.addonList){
+                    if(addonnames == nil){
+                        addonnames =resTypeMdl.resourceTypeName;
+                    }else{
+                        addonnames =[NSString stringWithFormat:@"%@ , %@",addonnames,resTypeMdl.resourceTypeName];
+                    }
+                }
+            }
+            
+
             addedModel = [self.userDao createUser:userModel OfferModel: self.selectedOffer AddOnList:self.addOnAArray UserRegCode:userCode CardToken:tokenId PlanIds:plnIdArray TrialEndsAt:self.trialEndsAt TrailDays:self.noOfdaystoSubsDate Gateway:@"STRIPE"] ;
 
             
@@ -1004,14 +1027,14 @@ UserModel *addedModel = nil;
                 self.crtOrgError.hidden=false;
                 //self.errorHieght.constant=30;
                // self.errorTop.constant=10;
-                self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
                 self.strpCancelBtn.userInteractionEnabled=TRUE;
                 self.strpCancelBtn.enabled=TRUE;
                 self.errorText.text=error;
                 self.errorLyt.hidden=false;
                 self.errorHieght.constant=30;
                 self.errorTop.constant=10;
-                self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
                 self.strpCancelBtn.userInteractionEnabled=TRUE;
                 self.strpCancelBtn.enabled=TRUE;
                 NSLog(error);
@@ -1021,6 +1044,7 @@ UserModel *addedModel = nil;
                     if(tokenId == nil){
                         [indicator stopAnimating];
                        [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
+                         [self updateWnPUser:addedModel];
                     }else{
                         NSLog(@"taking one time payment");
                         if(self.initilaPaymentAmount.doubleValue > 0){
@@ -1028,7 +1052,7 @@ UserModel *addedModel = nil;
                                 if (error) {
                                     self.crtOrgError.text= error.description;
                                     self.crtOrgError.hidden=false;
-                                    self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                                    self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
                                     // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
                                     
                                     self.strpCancelBtn.userInteractionEnabled=TRUE;
@@ -1039,7 +1063,7 @@ UserModel *addedModel = nil;
                                    
                                     self.strpDAO = [[StripeDAO alloc]init];
                                     @try{
-                                        NSString *status= [self.strpDAO doStripePayment:[NSNumber numberWithDouble:self.initilaPaymentAmount.doubleValue] ID:addedModel.userId CardToken:token.tokenId Currency:@"USD" Description:[NSString stringWithFormat:@"%s%@","One time payment for registering",self.email.text] IsDealerAccount:FALSE];
+                                        NSString *status= [self.strpDAO doStripePayment:[NSNumber numberWithDouble:self.initilaPaymentAmount.doubleValue] ID:addedModel.userId CardToken:token.tokenId Currency:@"USD" Description:[NSString stringWithFormat:@"%s%@","One time payment for registering",self.email.text] IsDealerAccount:FALSE PlanNames:planNames Addonnames:addonnames];
                                         NSLog(@"status one time payment");
                                          NSLog(@"%@",status);
                                         NSMutableDictionary *orgDic = [addedModel.orgList objectAtIndex:0];
@@ -1049,9 +1073,7 @@ UserModel *addedModel = nil;
                                         
                                         NSNumber *plnStart = [NSNumber numberWithLongLong:[startDate timeIntervalSince1970]*1000];
                                       
-                                        for(PlanModel *pln in self.selectedPlanArray){
-                                            [plnIdArray addObject:pln.planId];
-                                        }
+                                        
                                         [self.smSpaceDAO updatePlanForOrg:addedModel.userId OrgId:org.orgId PlanIds:plnIdArray CustomerId:@"Onetime payment" SubscriptionId:status PlanStartDate:plnStart PlanEndDate:self.firstsubDate PymntGateway:@"Stripe" EventType:@"onetimepayment" EventId:status];
                                         
                                         
@@ -1063,10 +1085,11 @@ UserModel *addedModel = nil;
                                         self.view.alpha=1.0;
                                         self.view.userInteractionEnabled=TRUE;
                                         [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
+                                         [self updateWnPUser:addedModel];
                                     }@catch(NSException *exp){
                                         self.errorText.text=exp.description;
                                         self.errorLyt.hidden=false;
-                                        self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                                        self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
                                         // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
                                         self.errorHieght.constant=30;
                                         self.errorTop.constant=10;
@@ -1085,6 +1108,7 @@ UserModel *addedModel = nil;
                             self.view.alpha=1.0;
                             self.view.userInteractionEnabled=TRUE;
                             [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
+                            [self updateWnPUser:addedModel];
                         }
 
                     }
@@ -1095,14 +1119,14 @@ UserModel *addedModel = nil;
                     self.errorLyt.hidden=false;
                     self.errorHieght.constant=30;
                     self.errorTop.constant=10;
-                    self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                    self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
                     self.strpCancelBtn.userInteractionEnabled=TRUE;
                     self.strpCancelBtn.enabled=TRUE;
                     self.errorText.text=@"Failed to add user";
                     self.errorLyt.hidden=false;
                     self.errorHieght.constant=30;
                     self.errorTop.constant=10;
-                    self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+                    self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
                     self.strpCancelBtn.userInteractionEnabled=TRUE;
                     self.strpCancelBtn.enabled=TRUE;
                 }
@@ -1110,5 +1134,19 @@ UserModel *addedModel = nil;
         });
     });
     
+}
+- (void)updateWnPUser:(UserModel *)userModel
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        @try{
+            [self.wnPUserDAO updateESliceUser:userModel];
+        }@catch(NSException *exp){
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+           
+        });
+    });
 }
 @end

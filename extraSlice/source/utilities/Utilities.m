@@ -123,14 +123,14 @@
 -(void)setViewMovedUp:(BOOL)movedUp ParentView:(UIView *)parentView CurrTextView:(UITextField *) currTF{
     [UIView beginAnimations:nil context:NULL];
     CGRect rect = parentView.frame;
-    float divisor = 222.0/568.0;
+    float divisor = 240.0/568.0;
     float keyBoardHeight = divisor*rect.size.height;
     if (movedUp)
     {
         
         if((currTF.frame.origin.y+currTF.frame.size.height) > (rect.size.height - (keyBoardHeight))){
              rect.origin.y -= ((currTF.frame.origin.y+currTF.frame.size.height) -(rect.size.height - (keyBoardHeight+5)));
-          // rect.size.height += ((currTF.frame.origin.y+currTF.frame.size.height) -kOFFSET_FOR_KEYBOARD);;
+           //rect.size.height += ((currTF.frame.origin.y+currTF.frame.size.height) -kOFFSET_FOR_KEYBOARD);;
         }
     }
     else
@@ -143,5 +143,36 @@
     parentView.frame = rect;
     [UIView commitAnimations];
 }
+-(NSString *) getWarningMessage{
+    return warningMessage;
+}
+-(void) setWarningMessage :(NSString *)msg{
+    warningMessage=msg;
+}
+-(UIColor *) getThemeDarkBlue{
+    return [UIColor colorWithRed:31.0/255.0 green:82.0/255.0 blue:105.0/255.0 alpha:1.0];
+}
+-(UIColor *) getThemeLightBlue{
+   return [UIColor colorWithRed:38.0/255.0 green:140.0/255.0 blue:171.0/255.0 alpha:1.0];
+}
+-(UIColor *) getThemeGreen{
+    return [UIColor colorWithRed:118.0/255.0 green:154.0/255.0 blue:32.0/255.0 alpha:1.0];
+}
+-(UIColor *) getDarkGray{
+    return [UIColor colorWithRed:170.0/255.0 green:170.0/255.0 blue:170.0/255.0 alpha:1.0];
+}
 
+-(UIColor *) getLightGray{
+    return [UIColor colorWithRed:230.0/255.0 green:230.0/255.0 blue:230.0/255.0 alpha:1.0];
+}
+
+-(BOOL) isValidEmail:(NSString *)checkString
+{
+    BOOL stricterFilter = NO;
+    NSString *stricterFilterString = @"^[A-Z0-9a-z\\._%+-]+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,4}$";
+    NSString *laxString = @"^.+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2}[A-Za-z]*$";
+    NSString *emailRegex = stricterFilter ? stricterFilterString : laxString;
+    NSPredicate *emailTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
+    return [emailTest evaluateWithObject:checkString];
+}
 @end

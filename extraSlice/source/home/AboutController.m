@@ -9,9 +9,9 @@
 #import "AboutController.h"
 #import "SmartSpaceDAO.h"
 #import "AdminAccountModel.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 @interface AboutController ()
-@property(strong,nonatomic) WnPConstants *wnpConst;
+@property(strong,nonatomic) ESliceConstants *wnpConst;
 @property(strong,nonatomic) AdminAccountModel *admModel;
 @end
 
@@ -28,7 +28,7 @@
     }@catch (NSException *exception) {
         
     }
-    self.wnpConst = [[WnPConstants alloc]init];
+    self.wnpConst = [[ESliceConstants alloc]init];
     UITapGestureRecognizer *showPPTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(showPP:)];
     showPPTap.numberOfTapsRequired = 1;
     showPPTap.numberOfTouchesRequired = 1;

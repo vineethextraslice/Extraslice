@@ -40,7 +40,7 @@ static NSMutableArray *offerList;
 -(NSMutableArray *) getAllOrganizationNames;
 -(NSDictionary *) updateReservationStatus:(ReservationModel *)model CardId:(NSString *)cardToken TrialPeriod:(NSNumber *)trialPeriods Amount:(NSNumber *)amountPaid Gateway:(NSString *)gateway;
 
--(NSString *) updatePlanForOrg:(NSNumber *) userId OrgId:(NSNumber *) orgId PlanIds:(NSNumber *) planIdList CustomerId:(NSString *) customerId SubscriptionId:(NSString *) subscriptionId PlanStartDate:(NSNumber *) planStartDate PlanEndDate:(NSNumber *) planEndDate PymntGateway:(NSString *) pymntGateway EventType:(NSString *) eventType EventId:(NSString *) eventId;
+-(NSString *) updatePlanForOrg:(NSNumber *) userId OrgId:(NSNumber *) orgId PlanIds:(NSMutableArray *) planIdList CustomerId:(NSString *) customerId SubscriptionId:(NSString *) subscriptionId PlanStartDate:(NSNumber *) planStartDate PlanEndDate:(NSNumber *) planEndDate PymntGateway:(NSString *) pymntGateway EventType:(NSString *) eventType EventId:(NSString *) eventId;
 
 -(NSDictionary *) getSubscriptionData:(NSNumber *)userId OrgId:(NSNumber *)orgId ;
 -(NSDictionary *) requestCancelSubscription:(NSNumber *)userId OrgId:(NSNumber *)orgId CancelMeetingsToo:(BOOL )cancelMeetingsToo PlanIdList:(NSMutableArray *)planIdList AddonIds:(NSMutableArray *) addonIds;

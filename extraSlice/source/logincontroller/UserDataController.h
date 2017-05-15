@@ -32,6 +32,7 @@
 
 @property (weak, nonatomic) IBOutlet UIView *goBackView;
 
+@property (weak, nonatomic) IBOutlet UILabel *headerText;
 @property (weak, nonatomic) IBOutlet UIImageView *selIndividual;
 @property (weak, nonatomic) IBOutlet UIImageView *selOrg;
 @property (weak, nonatomic) IBOutlet UILabel *paydescrText;

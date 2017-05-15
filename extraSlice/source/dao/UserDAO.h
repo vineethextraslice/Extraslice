@@ -21,5 +21,5 @@
 -(NSString *) addDedicatedMembershipRequest:(UserRequestModel *) userReqModel OfferModel: (PlanOfferModel *)offerModel AddOnList:(NSMutableArray *)addOnList;
 -(NSString *) deleteUser:(NSNumber *) userId OrgId:(NSNumber *) orgId;
 -(NSString *) getCustomerAccount:(NSNumber *) userId StrpAcct:(NSNumber *) strpAcct;
-
+-(UserModel *) addGuestUser:(UserModel *)userModel;
 @end

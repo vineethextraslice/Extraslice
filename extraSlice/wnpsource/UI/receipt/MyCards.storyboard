@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
+    </dependencies>
+    <scenes>
+        <!--My Cards-->
+        <scene sceneID="uAH-F2-Nlb">
+            <objects>
+                <viewController storyboardIdentifier="MyCards" useStoryboardIdentifierAsRestorationIdentifier="YES" id="43m-64-sVV" customClass="MyCards" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Lbg-is-gg1"/>
+                        <viewControllerLayoutGuide type="bottom" id="dQL-qA-1ID"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Fbc-pG-JUN">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Recharge" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iMo-M0-dwD">
+                                <rect key="frame" x="355" y="123" width="150" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="c8N-Y2-Ts6"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ROB-ij-qwT">
+                                <rect key="frame" x="84" y="50" width="433" height="23"/>
+                                <subviews>
+                                    <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="error.png" translatesAutoresizingMaskIntoConstraints="NO" id="iFu-Xr-OJ6">
+                                        <rect key="frame" x="94" y="2" width="20" height="20"/>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pZ7-wl-TtK">
+                                        <rect key="frame" x="114" y="1" width="220" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Available" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Je-Ce-CWF">
+                                <rect key="frame" x="200" y="123" width="150" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="ahY-gn-9GE"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="My Cards" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NkK-NN-uIi">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="XnZ-lk-KpV"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <color key="textColor" red="0.14901960780000001" green="0.54901960780000003" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="highlightedColor" red="0.14901960780000001" green="0.54901960780000003" blue="0.6705882353" alpha="1" colorSpace="calibratedRGB"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Prepaid balance" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2qj-he-GO0">
+                                <rect key="frame" x="172" y="85" width="255" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="iMo-M0-dwD" firstAttribute="leading" secondItem="Fbc-pG-JUN" secondAttribute="centerX" constant="55" id="1fp-v4-adC"/>
+                            <constraint firstItem="9Je-Ce-CWF" firstAttribute="trailing" secondItem="Fbc-pG-JUN" secondAttribute="centerX" constant="50" id="6mb-0U-ZRY"/>
+                            <constraint firstItem="2qj-he-GO0" firstAttribute="top" secondItem="ROB-ij-qwT" secondAttribute="bottom" constant="10" id="Djd-H5-lHR"/>
+                            <constraint firstAttribute="trailing" secondItem="NkK-NN-uIi" secondAttribute="trailing" id="FhX-G6-OBE"/>
+                            <constraint firstItem="ROB-ij-qwT" firstAttribute="centerX" secondItem="Fbc-pG-JUN" secondAttribute="centerX" id="KYc-LX-sik"/>
+                            <constraint firstItem="NkK-NN-uIi" firstAttribute="centerX" secondItem="Fbc-pG-JUN" secondAttribute="centerX" id="R7F-MN-c9l"/>
+                            <constraint firstItem="NkK-NN-uIi" firstAttribute="top" secondItem="Fbc-pG-JUN" secondAttribute="top" id="ZV8-Tc-AfK"/>
+                            <constraint firstItem="ROB-ij-qwT" firstAttribute="top" secondItem="NkK-NN-uIi" secondAttribute="bottom" constant="10" id="e0A-m7-fck"/>
+                            <constraint firstItem="NkK-NN-uIi" firstAttribute="leading" secondItem="Fbc-pG-JUN" secondAttribute="leading" id="fPz-HN-wwb"/>
+                            <constraint firstItem="9Je-Ce-CWF" firstAttribute="top" secondItem="2qj-he-GO0" secondAttribute="bottom" constant="10" id="wWl-nE-XCx"/>
+                            <constraint firstItem="2qj-he-GO0" firstAttribute="centerX" secondItem="Fbc-pG-JUN" secondAttribute="centerX" id="y9R-sf-GSa"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="availableLabel" destination="9Je-Ce-CWF" id="p63-Nt-l52"/>
+                        <outlet property="errorLabel" destination="pZ7-wl-TtK" id="BLk-TH-hcn"/>
+                        <outlet property="errorView" destination="ROB-ij-qwT" id="fCH-ZJ-6HN"/>
+                        <outlet property="rechargeLabel" destination="iMo-M0-dwD" id="hl2-3j-n71"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bhv-Dg-dLa" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="229" y="205"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="error.png" width="128" height="128"/>
+    </resources>
+</document>

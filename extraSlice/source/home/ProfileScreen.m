@@ -12,14 +12,18 @@
 #import "OrganizationModel.h"
 #import "PlanModel.h"
 #import "ResourceTypeModel.h"
-#import "WnpConstants.h"
+#import "ESliceConstants.h"
 #import "UserOrgModel.h"
 static UIColor *SelectedCellBGColor ;
 static UIColor *NotSelectedCellBGColor;
 int suscrHeight=0;
 int userLytHeight=0;
+int plnBenHeight=0;
 @interface ProfileScreen () <UITableViewDelegate, UITableViewDataSource,UITextFieldDelegate>
 
+@property(strong,nonatomic) UILabel *selMeetingText;
+@property(strong,nonatomic) UIImageView *selMeeting;
+@property(strong,nonatomic) UILabel *submitBtn;
 @property(strong,nonatomic) UITableView *pickQty;
 @property(strong,nonatomic) OrganizationModel *selectedOrg;
 @property(strong,nonatomic) NSMutableArray *orgArray;
@@ -27,10 +31,11 @@ int userLytHeight=0;
 @property(strong,nonatomic) NSMutableArray *chArray;
 @property(strong,nonatomic) NSMutableArray *userChArray;
 @property(strong,nonatomic) NSMutableDictionary *selectedUserMap;
-@property(strong,nonatomic)WnPConstants *wnpConst;
+@property(strong,nonatomic)ESliceConstants *wnpConst;
 @property(strong,nonatomic)SmartSpaceDAO *smDao;
 @property(strong,nonatomic)NSNumber *userId;
 @property(strong,nonatomic)NSArray *orgUserList;
+@property(strong,nonatomic)NSArray *plnBenArray;
 @property(nonatomic)BOOL cancelMeetings;
 @property(strong,nonatomic) UIView *alertView;
 @property(strong,nonatomic) UITextField *email;
@@ -48,14 +53,15 @@ int userLytHeight=0;
     [super viewDidLoad];
 
 self.pickerData = @[@"Admin", @"Member"];
-    self.wnpConst = [[WnPConstants alloc]init];
+    self.wnpConst = [[ESliceConstants alloc]init];
     self.smDao =[[SmartSpaceDAO alloc]init];
      self.utils= [[Utilities alloc]init];
     UserModel *userMdl = [self.utils getLoggedinUser];
     self.userChArray = [[NSMutableArray alloc]init];
     self.selectedUserMap= [[NSMutableDictionary alloc]init];
-    //self.orgDropdown.delegate = self;
-    //self.orgDropdown.dataSource = self;
+    self.expandPln=FALSE;
+    self.expandPlnBen=FALSE;
+    self.expandUsr=FALSE;
     self.userId =userMdl.userId;
     self.cancelMeetings=FALSE;
     SelectedCellBGColor=[UIColor grayColor];
@@ -63,8 +69,8 @@ self.pickerData = @[@"Admin", @"Member"];
     self.orgArray =[[NSMutableArray alloc]init];
     self.itemsArray = [[NSMutableArray alloc]init];
     self.chArray= [[NSMutableArray alloc]init];
-    self.header.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.7];
-    self.orgHeader.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.1];
+    self.header.backgroundColor = [self.utils getThemeLightBlue];
+    self.orgHeader.backgroundColor = [self.utils getLightGray];
     for(NSDictionary *orgDic in userMdl.orgList){
         OrganizationModel *orgModel = [[OrganizationModel alloc]init];
         orgModel = [orgModel initWithDictionary:orgDic];
@@ -84,34 +90,60 @@ self.pickerData = @[@"Admin", @"Member"];
     [self.expandUserView setUserInteractionEnabled:YES];
     [self.expandUserView addGestureRecognizer:expUsr];
     
+    UITapGestureRecognizer *expBen = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(expandSubScLyt:)];
+    expBen.numberOfTapsRequired = 1;
+    expBen.numberOfTouchesRequired = 1;
+    [self.plnBenfExp setUserInteractionEnabled:YES];
+    [self.plnBenfExp addGestureRecognizer:expBen];
+    
     
     //OrganizationModel *orgModel = [[OrganizationModel alloc]init];
    // orgModel.orgName=@"test";
     //[self.orgArray addObject:orgModel];
     if(self.orgArray.count ==0){
         self.errorText.text=@"You are not autherized to do this action";
+        self.errorText.numberOfLines = 0;
+        [self.errorText sizeToFit];
         self.errorLayout.hidden=false;
         self.errorLytHeight.constant=100;
-         self.orgLytHeight.constant=0;
+        self.orgLytHeight.constant=0;
         self.orgLyt.hidden=true;
+        self.orgLytHeight.constant=0;
+        self.plnBenfDetlHt.constant=0;
+        self.plnBenfDetl.hidden=true;
+        self.planScrViewHt.constant=0;
+        self.orgLytHeight.constant=0;
+        self.subscriptionHeaderLyt.hidden=true;
+        self.plnBenHeader.hidden=true;
+        self.userHeaderLyt.hidden=true;
+        self.userLyt.hidden=true;
+        self.subscrHeaderHt.constant=0;
+        self.plnHeaderHt.constant=0;
+        self.userHeaderHt.constant=0;
+        self.userLytHeight.constant=0;
     }else if(self.orgArray.count == 1){
         self.selectedOrg = [self.orgArray objectAtIndex:0];
         self.errorLayout.hidden=true;
         self.orgLyt.hidden=false;
         self.orgName.hidden=false;
         self.orgDropdown.hidden=true;
-         self.errorLytHeight.constant=0;
-        self.orgName.text=self.selectedOrg.orgName;
+        self.errorLytHeight.constant=0;
+        NSString *orgNm = self.selectedOrg.orgName;
+        if([self.selectedOrg.orgName.uppercaseString isEqualToString:@"INDIVIDUAL"]){
+            orgNm = [self.utils getLoggedinUser].userName;
+        }
+        self.orgName.text=orgNm;
     }else{
         self.errorLayout.hidden=true;
         self.errorLytHeight.constant=0;
         self.orgLyt.hidden=false;
         self.orgName.hidden=true;
         self.orgDropdown.hidden=false;
-        for(OrganizationModel *model in self.orgArray){
-            
-        }
+       
     }
+    self.plnBenfDetlHt.constant=0;
+    self.plnBenfDetl.hidden=true;
+    if(self.orgArray.count >0){
     @try{
         NSDictionary *subscData =[self.smDao getSubscriptionData:self.userId OrgId:self.selectedOrg.orgId];
         if(subscData != nil){
@@ -140,7 +172,7 @@ self.pickerData = @[@"Admin", @"Member"];
                     NSMutableDictionary *dic = [[NSMutableDictionary alloc]init];
                     [dic setValue:@"Plan" forKey:@"Type"];
                     [dic setValue:plnModel.planId forKey:@"Id"];
-                    [dic setValue:plnModel.planName forKey:@"Name"];
+                    [dic setValue:[NSString stringWithFormat:@"%@ ($%@)",plnModel.planName ,plnModel.planPrice ]  forKey:@"Name"];//plnModel.planName forKey:@"Name"];
                     [dic setValue:[NSNumber numberWithBool:false] forKey:@"Selected"];
                     [self.itemsArray addObject:dic];
                 }
@@ -151,14 +183,54 @@ self.pickerData = @[@"Admin", @"Member"];
                     NSMutableDictionary *dic = [[NSMutableDictionary alloc]init];
                     [dic setValue:@"Addon" forKey:@"Type"];
                     [dic setValue:resModel.resourceTypeId forKey:@"Id"];
-                    [dic setValue:resModel.resourceTypeName forKey:@"Name"];
+                     [dic setValue:[NSString stringWithFormat:@"%@ ($%@)",resModel.resourceTypeName ,resModel.planSplPrice ]  forKey:@"Name"];//[dic setValue:resModel.resourceTypeName forKey:@"Name"];
                     [dic setValue:[NSNumber numberWithBool:false] forKey:@"Selected"];
                     [self.itemsArray addObject:dic];
                 }
                 self.orgUserList = [subscData objectForKey:@"USERLIST"];
+                self.plnBenArray = [subscData objectForKey:@"ResourceTypeList"];
                 int top=0;
-                int scrWidth = self.view.frame.size.width-35;
+                int scrWidth = self.view.frame.size.width-31;
                 int index = 0;
+                
+                
+                UILabel *select =[[UILabel alloc] initWithFrame:CGRectMake(0,top+2,30,30)];
+                select.backgroundColor=[self.utils getLightGray];
+                [self.userScrView addSubview:select];
+
+                
+                UILabel *typeLbl =[[UILabel alloc] initWithFrame:CGRectMake(30,top+2,(scrWidth*0.55),30)];
+                typeLbl.text=@"Username";
+                UIFont *txtFont = [typeLbl.font fontWithSize:15];
+                typeLbl.font = txtFont;
+            
+                typeLbl.backgroundColor=[self.utils getLightGray];
+                typeLbl.tag=-1;
+                [self.userScrView addSubview:typeLbl];
+                
+                UILabel *role =[[UILabel alloc] initWithFrame:CGRectMake((scrWidth*0.55)+30,top+2,(scrWidth*0.25),30)];
+                role.backgroundColor=[self.utils getLightGray];
+                role.text=@"Role";
+         
+                UIFont *txtFont1 = [role.font fontWithSize:15];
+                role.font = txtFont1;
+                role.tag=index;
+                [self.userScrView addSubview:role];
+                
+                UILabel *status =[[UILabel alloc] initWithFrame:CGRectMake((scrWidth*0.8)+30,top+2,(scrWidth*0.2),30)];
+                 status.backgroundColor=[self.utils getLightGray];
+                status.text=@"Active";
+             
+                UIFont *txtFont2 = [status.font fontWithSize:15];
+                status.font = txtFont2;
+                status.tag=-1;
+                [self.userScrView addSubview:status];
+                
+                top = top+30;
+
+                
+                
+                
                 for(NSDictionary *userDic in self.orgUserList){
                     UserOrgModel *userMdl = [[UserOrgModel alloc]init];
                     userMdl = [userMdl initWithDictionary:userDic];
@@ -167,15 +239,16 @@ self.pickerData = @[@"Admin", @"Member"];
                     [select setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
                     [self.userScrView addSubview:select];
                     [self.userChArray addObject:select];
+                    select.hidden=true;
                     
-                    UILabel *typeLbl =[[UILabel alloc] initWithFrame:CGRectMake(30,top+2,(scrWidth*0.55),30)];
+                    UILabel *typeLbl =[[UILabel alloc] initWithFrame:CGRectMake(30,top+2,(scrWidth*0.53),30)];
                     typeLbl.text=userMdl.userName;
                     UIFont *txtFont = [typeLbl.font fontWithSize:15];
                     typeLbl.font = txtFont;
                     typeLbl.tag=-1;
                     [self.userScrView addSubview:typeLbl];
                     
-                    UILabel *role =[[UILabel alloc] initWithFrame:CGRectMake((scrWidth*0.55)+32,top+2,(scrWidth*0.3),30)];
+                    UILabel *role =[[UILabel alloc] initWithFrame:CGRectMake((scrWidth*0.55)+32,top+2,(scrWidth*0.25),30)];
                     
                     role.text=(userMdl.orgRoleId.intValue == 1 ? @"Admin":@"Member");
                     UIFont *txtFont1 = [role.font fontWithSize:15];
@@ -183,7 +256,7 @@ self.pickerData = @[@"Admin", @"Member"];
                     role.tag=index;
                     [self.userScrView addSubview:role];
                     
-                    UILabel *status =[[UILabel alloc] initWithFrame:CGRectMake((scrWidth*0.85)+34,top+2,(scrWidth*0.15),30)];
+                    UILabel *status =[[UILabel alloc] initWithFrame:CGRectMake((scrWidth*0.8)+34,top+2,(scrWidth*0.2),30)];
                     status.text=userMdl.userStatus;
                     UIFont *txtFont2 = [status.font fontWithSize:15];
                     status.font = txtFont2;
@@ -200,15 +273,17 @@ self.pickerData = @[@"Admin", @"Member"];
                     select.tag = index;
                     index++;
                 }
-                 self.userScrViewHt.constant=top=self.orgUserList.count*32;
-                suscrHeight=self.itemsArray.count*32 + 110;
-                userLytHeight=(self.orgUserList.count)*32+160;
                 
+                self.userScrViewHt.constant=top=(int)(self.orgUserList.count)*32+32;
+                suscrHeight=(int)(self.itemsArray.count)*32 + 110;
+                userLytHeight=(int)(self.orgUserList.count)*32+192;
+                 plnBenHeight=(int)(self.plnBenArray.count)*32+32;
+                self.userScrView.contentSize=CGSizeMake(scrWidth, userLytHeight);
                 self.userLytHeight.constant = userLytHeight;
                 [self.view bringSubviewToFront:self.userLyt];
                
                 float centerX = self.view.center.x;
-                if(userLimit > 1){
+               /* if(userLimit > 1){
                     UIButton *removeBtn = [[UIButton alloc] initWithFrame:CGRectMake(centerX-150,top+5,120,30)];
                     removeBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
                     [removeBtn setTitle: @"Remove User" forState: UIControlStateNormal];
@@ -218,7 +293,7 @@ self.pickerData = @[@"Admin", @"Member"];
                     [removeBtn addTarget:self action:@selector(removeUserFromOrg:) forControlEvents: UIControlEventTouchUpInside];
                     [self.userLyt addSubview:removeBtn];
                 
-                [self.userLyt bringSubviewToFront:removeBtn];
+                    [self.userLyt bringSubviewToFront:removeBtn];
                     UIButton *updateBtn = [[UIButton alloc] initWithFrame:CGRectMake(centerX+30,top+5,120,30)];
                     updateBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
                     [updateBtn setTitle: @"Update User" forState: UIControlStateNormal];
@@ -255,26 +330,96 @@ self.pickerData = @[@"Admin", @"Member"];
                         [addNewUsrBtn addTarget:self action:@selector(addUser:) forControlEvents: UIControlEventTouchUpInside];
                         [self.userLyt addSubview:addNewUsrBtn];
                     }
-                }
+                }*/
+                top =0;
+                float scrWidthpb = scrWidth+40;
+                UILabel *resName =[[UILabel alloc] initWithFrame:CGRectMake(0,top+2,(scrWidthpb*0.5)+5,30)];
+                resName.text=@" Resource";
+    
+                resName.backgroundColor=[self.utils getLightGray];
+               
+                UIFont *resNamefnt = [resName.font fontWithSize:15];
+                resName.font = resNamefnt;
+                resName.tag=-1;
+                [self.plnBenfDetl addSubview:resName];
                 
+                UILabel *limit =[[UILabel alloc] initWithFrame:CGRectMake((scrWidthpb*0.5)+5,top+2,(scrWidthpb*0.25)+5,30)];
+                
+                limit.text=@" Limit";
+                UIFont *limitfnt = [limit.font fontWithSize:15];
+                limit.backgroundColor=[self.utils getLightGray];
+
+                limit.font = limitfnt;
+                [self.plnBenfDetl addSubview:limit];
+                
+                UILabel *balance =[[UILabel alloc] initWithFrame:CGRectMake((scrWidthpb*0.75)+10,top+2,(scrWidthpb*0.25)+5,30)];
+                balance.text=@" Avl. bal.";
+                balance.backgroundColor=[self.utils getLightGray];
+                
+                UIFont *balancefnt = [balance.font fontWithSize:15];
+                balance.font = balancefnt;
+                balance.tag=-1;
+                [self.plnBenfDetl addSubview:balance];
+                top = top+30;
+                for(NSDictionary *plnRes in self.plnBenArray){
+                    ResourceTypeModel *resMdl = [[ResourceTypeModel alloc]init];
+                    resMdl = [resMdl initWithDictionary:plnRes];
+                    
+                    
+                    UILabel *typeLbl =[[UILabel alloc] initWithFrame:CGRectMake(5,top+2,(scrWidthpb*0.48),30)];
+                    typeLbl.text=resMdl.resourceTypeName;
+                    UIFont *txtFont = [typeLbl.font fontWithSize:15];
+                    typeLbl.font = txtFont;
+                    typeLbl.tag=-1;
+                    [self.plnBenfDetl addSubview:typeLbl];
+                    
+                    UILabel *role =[[UILabel alloc] initWithFrame:CGRectMake((scrWidthpb*0.5)+10,top+2,(scrWidthpb*0.25),30)];
+                    
+                    role.text=(resMdl.planLimit.doubleValue <0 ? @"Unlimited":[NSString stringWithFormat:@"%@ %@",resMdl.planLimit.stringValue,resMdl.planLimitUnit]);
+                    UIFont *txtFont1 = [role.font fontWithSize:15];
+                    role.font = txtFont1;
+                    role.tag=index;
+                    [self.plnBenfDetl addSubview:role];
+                    
+                    UILabel *status =[[UILabel alloc] initWithFrame:CGRectMake((scrWidthpb*0.75)+15,top+2,(scrWidthpb*0.25),30)];
+                    if(resMdl.currentUsage.doubleValue <0){
+                        status.text=@"Unlimited";
+                    }else{
+                        double bal = resMdl.planLimit.doubleValue -resMdl.currentUsage.doubleValue;
+                        if(bal < 0){
+                             status.text=[NSString stringWithFormat:@"%@ %@",@"0",resMdl.planLimitUnit];
+                        }else{
+                             status.text=[NSString stringWithFormat:@"%@ %@",[self.utils getNumberFormatter:bal],resMdl.planLimitUnit];
+                        }
+                    }
+                    
+                    UIFont *txtFont2 = [status.font fontWithSize:15];
+                    status.font = txtFont2;
+                    status.tag=-1;
+                    [self.plnBenfDetl addSubview:status];
+                    
+                    top = top+30;
+                }
+
                 top=0;
                 index = 0;
+                
                 self.planScrViewHt.constant=self.itemsArray.count*32;
                 self.orgLytHeight.constant=self.itemsArray.count*32 + 110;
                 for(NSDictionary *dic in self.itemsArray){
-                    UILabel *typeLbl =[[UILabel alloc] initWithFrame:CGRectMake(5,top+2,100,30)];
+                    UILabel *typeLbl =[[UILabel alloc] initWithFrame:CGRectMake(5,top+2,70,30)];
                     typeLbl.text=[dic objectForKey:@"Type"];
                     UIFont *txtFont = [typeLbl.font fontWithSize:15];
                     typeLbl.font = txtFont;
                     [self.planScrView addSubview:typeLbl];
                 
-                    UILabel *nameLbl =[[UILabel alloc] initWithFrame:CGRectMake(110,top+2,(scrWidth-top-110),30)];
+                    UILabel *nameLbl =[[UILabel alloc] initWithFrame:CGRectMake(80,top+2,(scrWidth-110),30)];
                     nameLbl.text=[dic objectForKey:@"Name"];
                     UIFont *txtFont1 = [nameLbl.font fontWithSize:15];
                     nameLbl.font = txtFont1;
-                    [self.planScrView addSubview:nameLbl];
+                   [self.planScrView addSubview:nameLbl];
                 
-                    UIImageView *select =[[UIImageView alloc] initWithFrame:CGRectMake((scrWidth-30),top+2,25,25)];
+                    UIImageView *select =[[UIImageView alloc] initWithFrame:CGRectMake((scrWidth-3),top+2,25,25)];
                     [select setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
                     [self.planScrView addSubview:select];
                     [self.chArray addObject:select];
@@ -291,32 +436,48 @@ self.pickerData = @[@"Admin", @"Member"];
                 
                 }
                
-                top = self.itemsArray.count*32+30;
+                top = (int)(self.itemsArray.count)*32+30;
                 
                 if(canUnsubscribe){
-                    UIImageView *selMeeting =[[UIImageView alloc] initWithFrame:CGRectMake(centerX-135,top+5,25,25)];
-                    [selMeeting setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
+                    self.selMeeting =[[UIImageView alloc] initWithFrame:CGRectMake(5,top+5,25,0)];
+                    [self.selMeeting setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
                     
                     UITapGestureRecognizer *selMeetingTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(selectMeetings:)];
                     selMeetingTap.numberOfTapsRequired = 1;
                     selMeetingTap.numberOfTouchesRequired = 1;
-                    [selMeeting setUserInteractionEnabled:YES];
-                    [selMeeting addGestureRecognizer:selMeetingTap];
-                    [self.orgLyt addSubview:selMeeting];
-                    UILabel *selMeetingText =[[UILabel alloc] initWithFrame:CGRectMake(centerX-100,top+5,200,30)];
-                    selMeetingText.text=@"Cancel reservations too";
-                    UIFont *txtFont1 = [selMeetingText.font fontWithSize:15];
-                    selMeetingText.font = txtFont1;
-                    [self.orgLyt addSubview:selMeetingText];
+                    [self.selMeeting setUserInteractionEnabled:YES];
+                    [self.selMeeting addGestureRecognizer:selMeetingTap];
+                    [self.orgLyt addSubview:self.selMeeting];
+                    self.selMeetingText =[[UILabel alloc] initWithFrame:CGRectMake(35,top+5,200,0)];
+                    
+                    self.selMeetingText.text=@"Cancel reservations too";
+                    UIFont *txtFont1 = [self.selMeetingText.font fontWithSize:15];
+                    self.selMeetingText.font = txtFont1;
+                    
+                   
+                    [self.orgLyt addSubview:self.selMeetingText];
                     top = top+30;
                     
-                    UIButton *submitBtn = [[UIButton alloc] initWithFrame:CGRectMake(centerX-75,top+5,150,30)];
-                    submitBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-                    [submitBtn setTitle: @"Unsubscribe" forState: UIControlStateNormal];
-                    submitBtn.userInteractionEnabled=TRUE;
-                    submitBtn.enabled=TRUE;
-                    [submitBtn addTarget:self action:@selector(submitCancelRequest:) forControlEvents: UIControlEventTouchUpInside];
-                    [self.orgLyt addSubview:submitBtn];
+                    self.submitBtn = [[UILabel alloc] initWithFrame:CGRectMake(centerX-75,top+5,150,0)];
+                    self.submitBtn.textColor=[self.utils getThemeDarkBlue];
+                    NSDictionary *underlineAttribute = @{NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle)};
+                    NSDictionary *attrs =@{NSFontAttributeName:[UIFont boldSystemFontOfSize:16],NSForegroundColorAttributeName:[self.utils getThemeDarkBlue],NSUnderlineStyleAttributeName : @(NSUnderlineStyleSingle | NSUnderlinePatternSolid),NSUnderlineColorAttributeName:[self.utils getThemeDarkBlue] };
+                    NSDictionary *subAttrs =@{NSFontAttributeName:[UIFont systemFontOfSize:14],NSUnderlineStyleAttributeName: @(NSUnderlineStyleNone)};
+                    NSString *str = @"Unsubscribe";
+                    NSRange theRange = NSMakeRange(0,11);
+                    NSMutableAttributedString *tcurl=[[NSMutableAttributedString alloc]initWithString:str attributes:subAttrs];
+                    [tcurl setAttributes:attrs range:theRange];
+                    self.submitBtn.attributedText = tcurl;
+
+                    self.submitBtn.userInteractionEnabled=TRUE;
+                    self.submitBtn.enabled=TRUE;
+                    UITapGestureRecognizer *cancSubTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(submitCancelRequest:)];
+                    cancSubTap.numberOfTapsRequired = 1;
+                    cancSubTap.numberOfTouchesRequired = 1;
+                    [self.submitBtn setUserInteractionEnabled:YES];
+                    [self.submitBtn addGestureRecognizer:cancSubTap];
+                    
+                    [self.orgLyt addSubview:self.submitBtn];
                 }else{
                      NSString *message =@"";
                     @try {
@@ -345,13 +506,28 @@ self.pickerData = @[@"Admin", @"Member"];
              
 
 
-                [self showView];
+                [self showView:0];
             }else{
                 self.errorText.text=[subscData objectForKey:@"ERRORMESSAGE"];;
+                self.errorText.numberOfLines = 0;
+                [self.errorText sizeToFit];
                 self.errorLayout.hidden=false;
                 self.errorLytHeight.constant=100;
                 self.orgLytHeight.constant=0;
                 self.orgLyt.hidden=true;
+                self.orgLytHeight.constant=0;
+                self.plnBenfDetlHt.constant=0;
+                self.plnBenfDetl.hidden=true;
+                self.planScrViewHt.constant=0;
+                self.orgLytHeight.constant=0;
+                self.subscriptionHeaderLyt.hidden=true;
+                self.plnBenHeader.hidden=true;
+                self.userHeaderLyt.hidden=true;
+                self.userLyt.hidden=true;
+                self.subscrHeaderHt.constant=0;
+                self.plnHeaderHt.constant=0;
+                self.userHeaderHt.constant=0;
+                self.userLytHeight.constant=0;
             }
         
         }else{
@@ -359,16 +535,32 @@ self.pickerData = @[@"Admin", @"Member"];
         }
     }@catch(NSException *exception) {
         self.errorText.text=exception.description;
+        self.errorText.numberOfLines = 0;
+        [self.errorText sizeToFit];
         self.errorLayout.hidden=false;
         self.errorLytHeight.constant=100;
         self.orgLytHeight.constant=0;
         self.orgLyt.hidden=true;
+        self.orgLytHeight.constant=0;
+        self.plnBenfDetlHt.constant=0;
+        self.plnBenfDetl.hidden=true;
+        self.planScrViewHt.constant=0;
+        self.orgLytHeight.constant=0;
+        self.subscriptionHeaderLyt.hidden=true;
+        self.plnBenHeader.hidden=true;
+        self.userHeaderLyt.hidden=true;
+        self.userLyt.hidden=true;
+        self.subscrHeaderHt.constant=0;
+        self.plnHeaderHt.constant=0;
+        self.userHeaderHt.constant=0;
+        self.userLytHeight.constant=0;
+    }
     }
 }
 
 
 
-- (IBAction)submitCancelRequest:(id)sender {
+- (IBAction)submitCancelRequest:(UITapGestureRecognizer *) rec{
     NSMutableArray *plnIdArray = [[NSMutableArray alloc]init];
     NSMutableArray *addOnIdArray = [[NSMutableArray alloc]init];
     
@@ -401,7 +593,7 @@ self.pickerData = @[@"Admin", @"Member"];
 
 }
 - (void)selectUser :(UITapGestureRecognizer *) rec{
-    int position = rec.view.tag;
+    int position = (int)rec.view.tag;
     NSDictionary *userDic =[self.orgUserList objectAtIndex:position];
     self.selectedUsrOrgMdl = [[UserOrgModel alloc]init];
     UIImageView *ch = [self.userChArray objectAtIndex:position];
@@ -553,12 +745,8 @@ self.pickerData = @[@"Admin", @"Member"];
 
 }
 - (void)expandSubScLyt :(UITapGestureRecognizer *) rec{
-    if(self.expandProfile){
-        self.expandProfile =FALSE;
-    }else{
-        self.expandProfile =TRUE;
-    }
-    [self showView];
+    
+    [self showView:((int)rec.view.tag)];
 }
 
 - (void)selectMeetings :(UITapGestureRecognizer *) rec{
@@ -575,16 +763,25 @@ self.pickerData = @[@"Admin", @"Member"];
 }
 - (void)selectItem :(UITapGestureRecognizer *) rec{
     UIImageView *iv = (UIImageView *)rec.view;
-    int index = iv.tag;
+    int index = (int)iv.tag;
     NSDictionary *dic = [self.itemsArray objectAtIndex:index];
     UIImageView *imv=[self.chArray objectAtIndex:index];
     NSNumber* selected = [dic objectForKey:@"Selected"];
     if ([selected boolValue] == YES){
         [imv setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
         [dic setValue:[NSNumber numberWithBool:false] forKey:@"Selected"];
+       // 5,top+5,25,0)];35,top+5,200,0
+        self.selMeetingText.frame = CGRectMake(35, self.selMeetingText.frame.origin.y, 200, 0);
+        self.selMeeting.frame = CGRectMake(5, self.selMeetingText.frame.origin.y, 25, 0);
+        self.submitBtn.frame = CGRectMake(self.submitBtn.frame.origin.x, self.submitBtn.frame.origin.y, 150, 0);
+
+
     }else{
         [imv setImage:[UIImage imageNamed:@"checkbox_sel.png"]];
         [dic setValue:[NSNumber numberWithBool:true] forKey:@"Selected"];
+        self.selMeetingText.frame = CGRectMake(35, self.selMeetingText.frame.origin.y, 200, 30);
+        self.selMeeting.frame = CGRectMake(5, self.selMeetingText.frame.origin.y, 25, 25);
+        self.submitBtn.frame = CGRectMake(self.submitBtn.frame.origin.x, self.submitBtn.frame.origin.y, 150, 30);
     }
     
     
@@ -699,7 +896,7 @@ self.pickerData = @[@"Admin", @"Member"];
 - (void)tapRow:(UITapGestureRecognizer *) rec{
 
     // [[tableView cellForRowAtIndexPath:indexPath] setBackgroundColor:SelectedCellBGColor];
-    int resId = rec.view.tag;
+    int resId = (int)rec.view.tag;
     if(resId==0){
         self.selectedRole.text=@"Admin";
         self.planCount.text=@"Admin";
@@ -718,7 +915,7 @@ self.pickerData = @[@"Admin", @"Member"];
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
    // [[tableView cellForRowAtIndexPath:indexPath] setBackgroundColor:SelectedCellBGColor];
-    int resId = tableView.tag;
+   // int resId = tableView.tag;
     if(indexPath.row ==0){
         self.selectedRole.text=@"Admin";
     }else{
@@ -775,24 +972,79 @@ self.pickerData = @[@"Admin", @"Member"];
     }
     [self.alertView removeFromSuperview];
 }
--(void) showView{
-    if(self.expandProfile){
-        self.userLytHeight.constant=0;
-        self.orgLytHeight.constant=suscrHeight;
-        self.userLyt.hidden=true;
-        self.orgLyt.hidden=false;
-        [self.expandSubscView setImage:[UIImage imageNamed:@"arrow_up.png"]];
-        [self.expandUserView setImage:[UIImage imageNamed:@"arrow_down.png"]];
-        
-    }else{
-        self.userLytHeight.constant=userLytHeight;
-        //self.userScrViewHt.constant=userLytHeight-160;
-        self.orgLytHeight.constant=0;
-        self.userLyt.hidden=false;
-        self.orgLyt.hidden=true;
-        [self.expandSubscView setImage:[UIImage imageNamed:@"arrow_down.png"]];
-        [self.expandUserView setImage:[UIImage imageNamed:@"arrow_up.png"]];
+-(void) showView:(int) selIndex{
+    switch (selIndex) {
+        case 0:
+            if(self.expandPln){
+                self.orgLyt.hidden=TRUE;
+                self.expandPln=FALSE;
+                [self.expandSubscView setImage:[UIImage imageNamed:@"arrow_down.png"]];
+                self.orgLytHeight.constant=0;
+            }else{
+                self.expandPln=TRUE;
+                self.expandPlnBen=FALSE;
+                self.expandUsr=FALSE;
+                self.orgLyt.hidden=false;
+                [self.expandSubscView setImage:[UIImage imageNamed:@"arrow_up.png"]];
+                self.orgLytHeight.constant=suscrHeight;
+            }
+            self.userLytHeight.constant=0;
+            self.userLyt.hidden=true;
+            self.plnBenfDetlHt.constant=0;
+            self.plnBenfDetl.hidden=true;
+            
+            [self.plnBenfExp setImage:[UIImage imageNamed:@"arrow_down.png"]];
+            [self.expandUserView setImage:[UIImage imageNamed:@"arrow_down.png"]];
+            break;
+        case 1:
+            if(self.expandPlnBen){
+                self.plnBenfDetl.hidden=TRUE;
+                self.expandPlnBen=FALSE;
+                [self.plnBenfExp setImage:[UIImage imageNamed:@"arrow_down.png"]];
+                self.plnBenfDetlHt.constant=0;
+            }else{
+                self.expandPln=FALSE;
+                self.expandPlnBen=TRUE;
+                self.expandUsr=FALSE;
+                self.plnBenfDetl.hidden=false;
+                [self.plnBenfExp setImage:[UIImage imageNamed:@"arrow_up.png"]];
+                self.plnBenfDetlHt.constant=plnBenHeight;
+            }
+            self.userLytHeight.constant=0;
+            self.userLyt.hidden=true;
+            self.orgLytHeight.constant=0;
+            self.orgLyt.hidden=true;
+            
+            [self.expandSubscView setImage:[UIImage imageNamed:@"arrow_down.png"]];
+            [self.expandUserView setImage:[UIImage imageNamed:@"arrow_down.png"]];
+            break;
+        case 2:
+            if(self.expandUsr){
+                self.userLyt.hidden=TRUE;
+                self.expandUsr=FALSE;
+                [self.expandUserView setImage:[UIImage imageNamed:@"arrow_down.png"]];
+                self.userLytHeight.constant=0;
+            }else{
+                self.expandPln=FALSE;
+                self.expandPlnBen=FALSE;
+                self.expandUsr=TRUE;
+                self.userLyt.hidden=false;
+                [self.expandUserView setImage:[UIImage imageNamed:@"arrow_up.png"]];
+                self.userLytHeight.constant=userLytHeight;
+            }
+            self.plnBenfDetlHt.constant=0;
+            self.plnBenfDetl.hidden=true;
+            self.orgLytHeight.constant=0;
+            self.orgLyt.hidden=true;
+            
+            [self.expandSubscView setImage:[UIImage imageNamed:@"arrow_down.png"]];
+            [self.plnBenfExp setImage:[UIImage imageNamed:@"arrow_down.png"]];
+            break;
+            
+        default:
+            break;
     }
+    
 }
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
     [textField resignFirstResponder];
@@ -810,7 +1062,7 @@ self.pickerData = @[@"Admin", @"Member"];
 }
 
 -(void) expandTable:(UITapGestureRecognizer *) rec{
-    int position = rec.view.tag;
+    int position = (int)rec.view.tag;
     for(UIView *sv in self.userScrView.subviews){
         if( [sv isKindOfClass:[UILabel class]] && sv.tag == position){
             self.selectedRole = (UILabel *) sv;

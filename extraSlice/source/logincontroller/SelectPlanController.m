@@ -13,15 +13,16 @@
 #import "AdminAccountModel.h"
 #import "OrganizationModel.h"
 #import "PlanModel.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 #import "ResourceTypeModel.h"
 #import "Utilities.h"
 #import "PlanDetails.h"
 #import "PlanOfferModel.h"
+#import "MenuController.h"
 
 int screenWidth=0;
 @interface SelectPlanController ()
-@property(strong,nonatomic) WnPConstants *wnpConst;
+@property(strong,nonatomic) ESliceConstants *wnpConst;
 @property(strong,nonatomic) SmartSpaceDAO *smartSpaceDAO;
 @property(strong,nonatomic) Utilities *utils;
 
@@ -38,8 +39,8 @@ int screenWidth=0;
     self.utils = [[Utilities alloc]init];
     CGRect screenRect = [[UIScreen mainScreen] bounds];
     screenWidth=screenRect.size.width;
-    self.wnpConst = [[WnPConstants alloc]init];
-    self.headerView.backgroundColor=[self.wnpConst getThemeBaseColor];
+    self.wnpConst = [[ESliceConstants alloc]init];
+    self.mainHeader.textColor=[self.utils getThemeLightBlue];
     self.errorViewHeight.constant = 0;
     self.errorText.text= @"";
     self.errorView.hidden = true;
@@ -85,7 +86,7 @@ int screenWidth=0;
     for(UIView *sv in self.planContainer.subviews){
         [sv removeFromSuperview];
     }
-    UIColor *bgColor =[self.wnpConst getThemeBaseColor];
+    UIColor *bgColor =[self.utils getThemeLightBlue];;
     NSMutableDictionary *planOfferMap =[[NSMutableDictionary alloc]init];
     for(PlanOfferModel *offerMdl in self.offerList){
         NSArray* foo = [offerMdl.applicableTo componentsSeparatedByString: @","];
@@ -107,9 +108,9 @@ int screenWidth=0;
         
         if(index%2 == 0){
             
-            bgColor =[self.wnpConst getThemeBaseColor];
+            bgColor =[self.utils getThemeLightBlue];
         }else{
-            bgColor=[self.wnpConst getThemeColorWithTransparency:0.5];
+            bgColor=[self.utils getDarkGray];
         }
         int detlWidth= (screenWidth-hedHeight);
         int detlStart= 5;
@@ -200,9 +201,25 @@ int screenWidth=0;
 */
 
 - (void)goBack:(UITapGestureRecognizer *) rec{
-    UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"LoginController" bundle:nil];
-    LoginController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"LoginController"];
-    [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
+    if([self.utils getLoggedinUser]  != (id)[NSNull null] && [self.utils getLoggedinUser] != nil){
+        UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
+        MenuController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"MenuController"];
+        if(viewCtrl != nil){
+            if([[self.utils getLoggedinUser].userType.lowercaseString isEqualToString:@"member"]){
+                viewCtrl.viewName=@"Home";
+            }else{
+                viewCtrl.viewName=@"walkNpay store";
+            }
+            viewCtrl.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
+            [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
+        }
+    
+    }else{
+        UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"LoginController" bundle:nil];
+        LoginController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"LoginController"];
+        [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
+        
+    }
     
 }
 - (void)loadRegisteredUserData:(UITapGestureRecognizer *) rec{

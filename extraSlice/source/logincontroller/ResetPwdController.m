@@ -10,12 +10,12 @@
 #import "UserModel.h"
 #import "UserDAO.h"
 #import "Utilities.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 #import "LoginController.h"
 
 @interface ResetPwdController ()
 @property(strong,nonatomic) Utilities *utils;
-@property(strong,nonatomic) WnPConstants *wnpConst;
+@property(strong,nonatomic) ESliceConstants *wnpConst;
 @end
 
 @implementation ResetPwdController
@@ -24,7 +24,9 @@
     [super viewDidLoad];
     self.email.delegate =self;
     self.utils = [[Utilities alloc]init];
-    self.wnpConst = [[WnPConstants alloc]init];
+    self.wnpConst = [[ESliceConstants alloc]init];
+    
+     self.email.autocorrectionType = UITextAutocorrectionTypeNo;
     
     UITapGestureRecognizer *gobackTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(goBack:)];
     gobackTap.numberOfTapsRequired = 1;
@@ -151,8 +153,7 @@
     header.text=title;//@"Your request processed successfully. Our community manager will contact you soon.";
     header.textAlignment=NSTextAlignmentCenter;
     header.numberOfLines=1;
-    header.backgroundColor=[self.wnpConst getThemeBaseColor];
-    header.textColor=[UIColor whiteColor];
+    header.textColor=[self.utils getThemeLightBlue];
     [alertView addSubview: header];
     
     
@@ -163,7 +164,7 @@
     messageText.numberOfLines=-1;
     [alertView addSubview: messageText];
     UIButton *closeBtn = [[UIButton alloc] initWithFrame:CGRectMake( 115,140 , 70, 30)];
-    closeBtn.backgroundColor=[self.wnpConst getThemeBaseColor];;
+    closeBtn.backgroundColor=[self.utils getThemeLightBlue];
     
     [closeBtn setTitle: @"Ok" forState: UIControlStateNormal];
     closeBtn.userInteractionEnabled=TRUE;

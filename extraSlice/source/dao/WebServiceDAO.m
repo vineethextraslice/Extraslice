@@ -7,7 +7,7 @@
 //
 
 #import "WebServiceDAO.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 
 @implementation WebServiceDAO
 -(NSDictionary *)getDataFromWebService:(NSString *)urlString requestJson:(NSString *)requestString{

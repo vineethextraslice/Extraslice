@@ -16,6 +16,7 @@
 @property(strong, nonatomic) NSString *endTime;
 @property(strong, nonatomic) NSNumber *duration;
 @property(strong, nonatomic) NSString *resourceType;
+@property(strong, nonatomic) NSNumber *resourceTypeId;
 @property(strong, nonatomic) NSNumber *resourceId;
 @property(strong, nonatomic) NSString *resourceName;
 @property(strong, nonatomic) NSNumber *smSpaceId;

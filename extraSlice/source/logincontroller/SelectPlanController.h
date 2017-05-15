@@ -25,6 +25,7 @@
 @property(strong,nonatomic) AdminAccountModel *adminAcctModel;
 @property (weak, nonatomic) IBOutlet UIView *planContainer;
 @property (weak, nonatomic) IBOutlet UIImageView *registeredUser;
+@property (weak, nonatomic) IBOutlet UILabel *mainHeader;
 
 @property(strong,nonatomic) NSMutableArray *planArray;
 @property(strong,nonatomic) NSMutableArray *addonList;

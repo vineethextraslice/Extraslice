@@ -9,7 +9,7 @@
 #import "PlanDetails.h"
 #import "ResourceTypeModel.h"
 #import "Utilities.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 #import "SelectPlanController.h"
 #import "UserDataController.h"
 
@@ -18,7 +18,7 @@ double totalAmountVal=0;
 double addonPrice=0;
 double offerPercent=0;
 @interface PlanDetails ()
-@property(strong,nonatomic) WnPConstants *wnpConst;
+@property(strong,nonatomic) ESliceConstants *wnpConst;
 @property(strong,nonatomic) Utilities *utils;
 @property(strong,nonatomic) PlanOfferModel *selectedOffer;
 @property(strong,nonatomic)  NSMutableSet *selectedAddonIds;
@@ -38,30 +38,31 @@ double offerPercent=0;
     int subIndex =0;
     float rowHeight=30;
     self.utils = [[Utilities alloc]init];
-    self.wnpConst = [[WnPConstants alloc]init];
+    self.wnpConst = [[ESliceConstants alloc]init];
     self.selectedPlnArray=[[NSMutableArray alloc]init];
     self.selectedAddonIds=[[NSMutableSet alloc]init];
     self.selectedPlnMap =[[NSMutableDictionary alloc]init];
     
-    self.headerView.backgroundColor=[self.wnpConst getThemeBaseColor];
-     self.planNameTV.backgroundColor=[self.wnpConst getThemeBaseColor];
-    self.planShortDesc.backgroundColor=[self.wnpConst getThemeBaseColor];
-    self.offerHeader.backgroundColor=[self.wnpConst getThemeBaseColor];
-    self.addonHeader.backgroundColor=[self.wnpConst getThemeBaseColor];
-    self.resourceMainHeader.backgroundColor=[self.wnpConst getThemeBaseColor];
-    self.resourceHeader.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.7];
+  
+     self.planNameTV.textColor=[self.utils getThemeLightBlue];
+    self.planShortDesc.backgroundColor=[self.utils getThemeLightBlue];
+    self.offerHeader.backgroundColor=[self.utils getThemeLightBlue];
+    self.addonHeader.backgroundColor=[self.utils getThemeLightBlue];
+    self.resourceMainHeader.backgroundColor=[self.utils getThemeLightBlue];
+    self.resourceHeader.backgroundColor=[self.utils getLightGray];
     
-    self.offerScrView.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
+    self.offerScrView.layer.borderColor = [self.utils getThemeLightBlue].CGColor;
     self.offerScrView.layer.borderWidth = 1.0f;
 
-    self.addonScrView.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
+    self.addonScrView.layer.borderColor = [self.utils getThemeLightBlue].CGColor;
     self.addonScrView.layer.borderWidth = 1.0f;
 
     
    
-    self.addToCartBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-    self.goBack.backgroundColor=[self.wnpConst getThemeBaseColor];
-    self.planCost.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.7];
+    self.addToCartBtn.backgroundColor=[self.utils getThemeLightBlue];
+
+    self.planCost.layer.borderColor=[self.utils getThemeLightBlue].CGColor;
+     self.planCost.layer.borderWidth = 1.0f;
     if(!self.selectedPlnModel.purchaseOnSpot){
         [self.addToCartBtn setTitle: @"Check availability" forState: UIControlStateNormal];
     }
@@ -85,24 +86,22 @@ double offerPercent=0;
     UILabel *resourceNameHead = [[UILabel alloc] initWithFrame:CGRectMake(0, 0 , ((screenWidth-10)*0.6)+1, 32)];
     resourceNameHead.layer.borderWidth=1;
     resourceNameHead.layer.borderColor=[UIColor whiteColor].CGColor;
-    resourceNameHead.textColor =[UIColor whiteColor];
     resourceNameHead.text = @" Resource name";
     [self.resourceHeader addSubview: resourceNameHead];
     
     UILabel *limit = [[UILabel alloc] initWithFrame:CGRectMake(((screenWidth-10)*0.6)+1, 0, ((screenWidth-10)*0.4)+1, 32)];
     limit.layer.borderWidth=1;
     limit.layer.borderColor=[UIColor whiteColor].CGColor;
-    limit.textColor =[UIColor whiteColor];
     limit.text = @" Usable limit";
     [self.resourceHeader addSubview: limit];
 
-    int totalLytHeight = self.selectedPlnModel.resourceTypeList.count*32;
-    int addOnHeight = (self.addonList.count*32)+(self.offerList.count*45)+(65+20+30+20+30+20+30+10+30+10+30+20+30+20);
+    int totalLytHeight = (int)(self.selectedPlnModel.resourceTypeList.count)*32;
+    int addOnHeight = (int)((self.addonList.count*32)+(self.offerList.count*45)+(65+20+30+20+30+20+30+10+30+10+30+20+30+20));
     if(screenHeight - addOnHeight<totalLytHeight){
         self.planDetlHieght.constant = screenHeight - addOnHeight;
         self.resorceHeaderHeight.constant=0;
         self.planDetlHieght.constant=35;
-        self.planDetlScrView.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
+        self.planDetlScrView.layer.borderColor = [self.utils getThemeLightBlue].CGColor;
         self.planDetlScrView.layer.borderWidth = 1.0;
         self.resourceHeader.hidden=true;
         float centerX = self.view.center.x;
@@ -149,13 +148,13 @@ double offerPercent=0;
                 resourceName.lineBreakMode=NSLineBreakByWordWrapping;
                 resourceName.text = [NSString stringWithFormat:@"%s%@"," ",resType.resourceTypeName];
                 resourceName.layer.borderWidth=1;
-                resourceName.layer.borderColor=[self.wnpConst getThemeBaseColor].CGColor;
+                resourceName.layer.borderColor=[self.utils getThemeLightBlue].CGColor;
                 [rowView addSubview: resourceName];
             
                 UILabel *limit = [[UILabel alloc] initWithFrame:CGRectMake(((screenWidth-10)*0.6)-1, 0, ((screenWidth-10)*0.4), rowHeight)];
                 limit.numberOfLines=-1;
                 limit.layer.borderWidth=1;
-                limit.layer.borderColor=[self.wnpConst getThemeBaseColor].CGColor;
+                limit.layer.borderColor=[self.utils getThemeLightBlue].CGColor;
                 [rowView addSubview: limit];
             
                 if([resType.allowUsageBy isEqualToString:@"free"] || resType.planLimit.intValue == -1){
@@ -173,7 +172,7 @@ double offerPercent=0;
                 resourceName.lineBreakMode=NSLineBreakByWordWrapping;
                 resourceName.text = [NSString stringWithFormat:@"%s%@"," ",resType.resourceDesc];
                 resourceName.layer.borderWidth=1;
-                resourceName.layer.borderColor=[self.wnpConst getThemeBaseColor].CGColor;
+                resourceName.layer.borderColor=[self.utils getThemeLightBlue].CGColor;
                 resourceName.textAlignment = NSTextAlignmentCenter;
                 [rowView addSubview: resourceName];
                 prevNameView=resourceName;
@@ -205,7 +204,6 @@ double offerPercent=0;
     UIView *prevView = nil;
     UIView *prevNameView = nil;
     CGRect screenRect = [[UIScreen mainScreen] bounds];
-    int screenHeight=screenRect.size.height;
     int screenWidth=screenRect.size.width;
     for(UIView *sv in self.offerScrView.subviews){
         [sv removeFromSuperview];
@@ -382,7 +380,7 @@ double offerPercent=0;
 }
 
 - (void)addAddOn:(UITapGestureRecognizer *) rec{
-    int resId = rec.view.tag;
+    int resId = (int)rec.view.tag;
     if(resId >=0 ){
         for(ResourceTypeModel *resTypeMdl in self.addonList){
             if(resTypeMdl.resourceTypeId.intValue == resId){
@@ -402,7 +400,7 @@ double offerPercent=0;
 }
 
 - (void)addOffer:(UITapGestureRecognizer *) rec{
-    int offerId = rec.view.tag;
+    int offerId = (int)rec.view.tag;
     
     if(offerId >=0 ){
         for(PlanOfferModel *offerMdl in self.offerList){
@@ -448,11 +446,10 @@ double offerPercent=0;
         subViews.alpha=0.2;
         subViews.userInteractionEnabled=false;
     }
-    float centerX = self.view.center.x;
     float centerY = self.view.center.y;
     CGRect screenRect = [[UIScreen mainScreen] bounds];
     int screenWidth=screenRect.size.width-10;
-    int toalHeight =self.selectedPlnModel.resourceTypeList.count*30+150;
+    int toalHeight =(int)(self.selectedPlnModel.resourceTypeList.count)*30+150;
     self.popup = [[UIView alloc] initWithFrame:CGRectMake(5, centerY-(toalHeight/2) , screenWidth, toalHeight)];
     self.popup.backgroundColor = [UIColor whiteColor];
     [self.view addSubview: self.popup];
@@ -461,7 +458,7 @@ double offerPercent=0;
     header.text=self.selectedPlnModel.planName;
     header.textAlignment=NSTextAlignmentCenter;
     header.numberOfLines=1;
-    header.backgroundColor=[self.wnpConst getThemeBaseColor];
+    header.backgroundColor=[self.utils getThemeLightBlue];
     header.textColor=[UIColor whiteColor];
     [self.popup addSubview: header];
     
@@ -470,7 +467,7 @@ double offerPercent=0;
     resourceNameHead.layer.borderColor=[UIColor whiteColor].CGColor;
     resourceNameHead.textColor =[UIColor whiteColor];
     resourceNameHead.text = @" Resource name";
-    resourceNameHead.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.7];
+    resourceNameHead.backgroundColor=[self.utils getLightGray];
     [self.popup addSubview: resourceNameHead];
     
     UILabel *limit = [[UILabel alloc] initWithFrame:CGRectMake(((screenWidth)*0.7), 30, ((screenWidth)*0.3), 30)];
@@ -478,7 +475,7 @@ double offerPercent=0;
     limit.layer.borderColor=[UIColor whiteColor].CGColor;
     limit.textColor =[UIColor whiteColor];
     limit.text = @" limit";
-    limit.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.7];
+    limit.backgroundColor=[self.utils getLightGray];
     [self.popup addSubview: limit];
     UIView *prevView = nil;
     UIView *prevNameView = nil;
@@ -506,13 +503,13 @@ double offerPercent=0;
             resourceName.lineBreakMode=NSLineBreakByWordWrapping;
             resourceName.text = [NSString stringWithFormat:@"%s%@"," ",resType.resourceTypeName];
             resourceName.layer.borderWidth=1;
-            resourceName.layer.borderColor=[self.wnpConst getThemeBaseColor].CGColor;
+            resourceName.layer.borderColor=[self.utils getThemeLightBlue].CGColor;
             [rowView addSubview: resourceName];
         
             UILabel *limit = [[UILabel alloc] initWithFrame:CGRectMake((screenWidth*0.7)-1, 0, (screenWidth*0.3), rowHeight)];
             limit.numberOfLines=-1;
             limit.layer.borderWidth=1;
-            limit.layer.borderColor=[self.wnpConst getThemeBaseColor].CGColor;
+            limit.layer.borderColor=[self.utils getThemeLightBlue].CGColor;
             [rowView addSubview: limit];
         
             if([resType.allowUsageBy isEqualToString:@"free"] || resType.planLimit.intValue == -1){
@@ -532,7 +529,7 @@ double offerPercent=0;
             resourceName.textAlignment = NSTextAlignmentCenter;
 
             resourceName.layer.borderWidth=1;
-            resourceName.layer.borderColor=[self.wnpConst getThemeBaseColor].CGColor;
+            resourceName.layer.borderColor=[self.utils getThemeLightBlue].CGColor;
             [rowView addSubview: resourceName];
             prevNameView=resourceName;
         }
@@ -548,7 +545,7 @@ double offerPercent=0;
 
     
     UIButton *closeBtn = [[UIButton alloc] initWithFrame:CGRectMake( (screenWidth)/2-50,toalHeight-45 , 100, 30)];
-    closeBtn.backgroundColor=[self.wnpConst getThemeBaseColor];;
+    closeBtn.backgroundColor=[self.utils getThemeLightBlue];
     
     [closeBtn setTitle: @"Close" forState: UIControlStateNormal];
     closeBtn.userInteractionEnabled=TRUE;

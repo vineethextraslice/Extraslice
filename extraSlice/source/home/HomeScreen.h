@@ -10,11 +10,14 @@
 
 @interface HomeScreen : UIViewController
 @property (weak, nonatomic) IBOutlet UIView *outerBorder;
-@property (weak, nonatomic) IBOutlet UIView *innerBorder1;
-@property (weak, nonatomic) IBOutlet UIView *innerBorder2;
-@property (weak, nonatomic) IBOutlet UIImageView *reserveImg;
-@property (weak, nonatomic) IBOutlet UILabel *reserveText;
-@property (weak, nonatomic) IBOutlet UIImageView *supportImg;
-@property (weak, nonatomic) IBOutlet UILabel *supportText;
+@property (strong, nonatomic) IBOutlet UIView *innerBorder1;
+@property (strong, nonatomic) IBOutlet UIView *innerBorder2;
+@property (strong, nonatomic) IBOutlet UIImageView *reserveImg;
+@property (strong, nonatomic) IBOutlet UILabel *reserveText;
+@property (strong, nonatomic) IBOutlet UIImageView *supportImg;
+@property (strong, nonatomic) IBOutlet UILabel *supportText;
+@property (strong, nonatomic) IBOutlet UIView *innerBoarder3;
+@property (strong, nonatomic) IBOutlet UIImageView *wnpImage;
+@property (strong, nonatomic) IBOutlet UILabel *wnpText;
 
 @end

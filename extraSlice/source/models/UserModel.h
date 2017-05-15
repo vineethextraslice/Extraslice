@@ -29,7 +29,7 @@
 @property(strong, nonatomic) NSString *state;
 @property(strong,nonatomic) NSMutableArray *orgList;
 
-
+@property(strong, nonatomic) NSString *userType;
 
 
 - (NSDictionary *) dictionaryWithPropertiesOfObject:(id)obj;

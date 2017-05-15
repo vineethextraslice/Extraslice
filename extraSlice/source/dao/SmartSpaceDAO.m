@@ -8,7 +8,7 @@
 
 #import "SmartSpaceDAO.h"
 #import "WebServiceDAO.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 #import "AdminAccountModel.h"
 #import "OrganizationModel.h"
 #import "PlanModel.h"
@@ -278,7 +278,7 @@
     
 }
 
--(NSString *) updatePlanForOrg:(NSNumber *) userId OrgId:(NSNumber *) orgId PlanIds:(NSNumber *) planIdList CustomerId:(NSString *) customerId SubscriptionId:(NSString *) subscriptionId PlanStartDate:(NSNumber *) planStartDate PlanEndDate:(NSNumber *) planEndDate PymntGateway:(NSString *) pymntGateway EventType:(NSString *) eventType EventId:(NSString *) eventId{
+-(NSString *) updatePlanForOrg:(NSNumber *) userId OrgId:(NSNumber *) orgId PlanIds:(NSMutableArray *) planIdList CustomerId:(NSString *) customerId SubscriptionId:(NSString *) subscriptionId PlanStartDate:(NSNumber *) planStartDate PlanEndDate:(NSNumber *) planEndDate PymntGateway:(NSString *) pymntGateway EventType:(NSString *) eventType EventId:(NSString *) eventId{
     NSString *urlString =@"smSpace/updatePlanForOrg";
     NSMutableDictionary *request = [NSMutableDictionary dictionary];
     [request setValue:userId forKey:@"userId"];

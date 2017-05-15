@@ -9,7 +9,7 @@
 #import "ReserveConfRoom.h"
 #import "SmartSpaceDAO.h"
 #import "SmartSpaceModel.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 #import "OrganizationModel.h"
 #import "ResourceModel.h"
 #import "Utilities.h"
@@ -27,7 +27,7 @@ static UIColor *NotSelectedCellBGColor;
 @property(strong,nonatomic) UIView *datepickerView;
 @property(strong,nonatomic) UIView *alertView;
 @property(strong,nonatomic) UILabel *selectedTimeLabel;
-@property(strong,nonatomic) WnPConstants *wnpConst;
+@property(strong,nonatomic) ESliceConstants *wnpConst;
 @property(strong,nonatomic) UIDatePicker *datepicker;
 @property(strong,nonatomic) NSNumber *duration;
 @property(strong,nonatomic) NSMutableArray *resourceList;
@@ -121,7 +121,7 @@ static UIColor *NotSelectedCellBGColor;
     SelectedCellBGColor=[UIColor grayColor];
     NotSelectedCellBGColor =[UIColor whiteColor];
     
-    self.wnpConst = [[WnPConstants alloc]init];
+    self.wnpConst = [[ESliceConstants alloc]init];
     self.utils = [[Utilities alloc]init];
     self.selectedStartDate=[self getCurrentLocalTime];
     self.selectedEndDate = [self.selectedStartDate dateByAddingTimeInterval:1800];
@@ -176,7 +176,7 @@ static UIColor *NotSelectedCellBGColor;
         [comp setDay:1];
         NSDate *firstDayOfMonthDate = [gregorian dateFromComponents:comp];
         comp = [gregorian components:NSCalendarUnitWeekday fromDate:firstDayOfMonthDate];
-        int weekday = [comp weekday];
+        int weekday = (int)[comp weekday];
         NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
         [dateComponents setDay:(-weekday+1)];
          NSDate *calStartDate = [gregorian dateByAddingComponents:dateComponents toDate:firstDayOfMonthDate options:0];
@@ -301,12 +301,12 @@ static UIColor *NotSelectedCellBGColor;
     tomorrow.textColor=[UIColor grayColor];
     today.textColor=[UIColor grayColor];
     pick.textColor=[UIColor grayColor];*/
-    today.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    todayBottom.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    tomorrowBottom.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    tomorrow.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    pickBottom.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    pick.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
+    //today.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
+    //todayBottom.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
+    //tomorrowBottom.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
+   // tomorrow.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
+   // pickBottom.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
+   // pick.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
     tomorrow.textColor=[UIColor blackColor];
     today.textColor=[UIColor blackColor];
     pick.textColor=[UIColor blackColor];
@@ -388,7 +388,7 @@ static UIColor *NotSelectedCellBGColor;
 
 -(void) bookNow:(id)sender{
     UIButton *btn = (UIButton *)sender;
-    int tag = btn.tag;
+    int tag = (int)btn.tag;
     self.resModel = [[ResourceModel alloc] init];
     self.resModel = [self.resModel initWithDictionary:[self.resourceList objectAtIndex:tag]];
     if(self.meetingName.text == nil || [self.meetingName.text isEqualToString:@""] ){
@@ -408,11 +408,16 @@ static UIColor *NotSelectedCellBGColor;
         [sbvs removeFromSuperview];
     }
     for(NSDictionary *resDic in self.smModel.resourceList){
+         NSString *resourceType = [resDic objectForKey:@"resourceType"];
+        if(![resourceType.uppercaseString isEqualToString:@"CONFERENCE ROOM"]){
+            continue;
+        }
         UIView *topView= [[UIView alloc] initWithFrame:CGRectMake(0 ,(index*160), scrWidth, 140)];
         UIView *headerView= [[UIView alloc] initWithFrame:CGRectMake(0 ,0, scrWidth, 38)];
         UILabel *meetingRoom = [[UILabel alloc] initWithFrame:CGRectMake(0 ,4, scrWidth-150, 30)];
-       headerView.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.25];
+       headerView.backgroundColor=[self.utils getThemeLightBlue];
         meetingRoom.text = [resDic objectForKey:@"resourceName"];
+       
         
         UIButton *bookNow = [[UIButton alloc] initWithFrame:CGRectMake(scrWidth-140 ,4,130 , 30)];
 
@@ -472,7 +477,7 @@ static UIColor *NotSelectedCellBGColor;
             }
             hourText.textAlignment=NSTextAlignmentLeft;
             UIView *hourView = [[UIScrollView alloc] initWithFrame:CGRectMake((i*60) ,21, 1, 60)];
-            hourView.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.3];
+            hourView.backgroundColor = [self.utils getLightGray];
             [hourScrView addSubview: hourView];
             [hourScrView addSubview: hourText];
         }
@@ -494,7 +499,7 @@ static UIColor *NotSelectedCellBGColor;
             roomDesc.text =@"Resource details not updated";
         }
         
-        roomDesc.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.3];
+        roomDesc.backgroundColor=[self.utils getLightGray];
         //roomDesc.backgroundColor=[self.wnpConst getThemeHeaderColor];
         roomDesc.textColor=[UIColor blackColor];
         roomDesc.textAlignment=NSTextAlignmentCenter;
@@ -549,7 +554,7 @@ static UIColor *NotSelectedCellBGColor;
             }
         }
         if(isAvl){
-            bookNow.backgroundColor=[self.wnpConst getThemeBaseColor];
+            bookNow.backgroundColor=[self.utils getThemeDarkBlue];
             bookNow.userInteractionEnabled=TRUE;
             bookNow.enabled=TRUE;
             [bookNow addTarget:self action:@selector(bookNow:) forControlEvents: UIControlEventTouchUpInside];
@@ -562,7 +567,7 @@ static UIColor *NotSelectedCellBGColor;
             [bookNow setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
             [bookNow setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
             [bookNow setTitle: @"Not available" forState: UIControlStateNormal];
-            bookNow.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.6];
+            bookNow.backgroundColor=[self.utils getThemeDarkBlue];
             bookNow.userInteractionEnabled=FALSE;
             bookNow.enabled=FALSE;
            
@@ -631,6 +636,7 @@ static UIColor *NotSelectedCellBGColor;
         
         self.resrvModel.startDate=[self.ymdhmFormatter stringFromDate:strtTm];
         self.resrvModel.endTime=[self.ymdhmFormatter stringFromDate:endTm];
+        self.resrvModel.description=@"" ;
         self.resrvModel.duration =self.duration;
         self.resrvModel.resourceType=self.resModel.resourceType;
         self.resrvModel.resourceId=self.resModel.resourceId;
@@ -729,7 +735,7 @@ static UIColor *NotSelectedCellBGColor;
 }
 
 -(void)setDateFromHorzBar:(UITapGestureRecognizer *)hhrTap{
-    int tag = hhrTap.view.tag;
+    int tag = (int)hhrTap.view.tag;
     NSDateFormatter *mdyhmFormatter = [[NSDateFormatter alloc] init];
     [mdyhmFormatter setDateFormat:@"MM/dd/yyyy HH:mm"];
     NSString *datStr =[NSString stringWithFormat:@"%@%s%@",self.startDate.text," ",[self.halfHoursForDay objectAtIndex:tag]];
@@ -864,7 +870,7 @@ static UIColor *NotSelectedCellBGColor;
     float centerY = self.view.center.y;
     
     self.view.userInteractionEnabled=false;
-    self.popup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-95,270,190)];
+    self.popup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-125,270,250)];
     self.popup.backgroundColor = [UIColor whiteColor];
     self.popup.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
     self.popup.layer.borderWidth = 1.0f;
@@ -886,31 +892,32 @@ static UIColor *NotSelectedCellBGColor;
     self.popupError.textColor=[UIColor redColor];
     [self.popup addSubview: self.popupError];
     
-    UILabel *descLabel =[[UILabel alloc] initWithFrame:CGRectMake(10,75,195,30)];
+    UILabel *descLabel =[[UILabel alloc] initWithFrame:CGRectMake(10,75,250,90)];
     descLabel.text=message;
-    descLabel.textAlignment=NSTextAlignmentLeft;
+    descLabel.textAlignment=NSTextAlignmentCenter;
+    descLabel.numberOfLines=-1;
     // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
     descLabel.font = txtFont;
     descLabel.textColor=[UIColor blackColor];
     // headerLbl.backgroundColor=[self.wnpConst getThemeBaseColor];
     [self.popup addSubview:descLabel];
     
-    UILabel *amtLbl =[[UILabel alloc] initWithFrame:CGRectMake(210,75,50,30)];
+   /* UILabel *amtLbl =[[UILabel alloc] initWithFrame:CGRectMake(210,75,50,30)];
     amtLbl.text=[NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:payable]];
     amtLbl.textAlignment=NSTextAlignmentLeft;
     // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
     amtLbl.font = txtFont;
     amtLbl.textColor=[UIColor blackColor];
     // headerLbl.backgroundColor=[self.wnpConst getThemeBaseColor];
-    [self.popup addSubview:amtLbl];
+    [self.popup addSubview:amtLbl];*/
     
     
     self.payableAmount = [NSNumber numberWithDouble:payable] ;
-    self.strpPymntTf = [[STPPaymentCardTextField alloc] initWithFrame:CGRectMake(10,110,250,30)];
+    self.strpPymntTf = [[STPPaymentCardTextField alloc] initWithFrame:CGRectMake(10,170,250,30)];
     self.strpPymntTf.delegate=self;
     [self.popup addSubview:self.strpPymntTf];
     
-    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(20,150,100,30)];
+    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(20,210,100,30)];
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
     [self.strpSubmitBtn setTitle: @"Submit" forState: UIControlStateNormal];
     self.strpSubmitBtn.userInteractionEnabled=TRUE;
@@ -920,7 +927,7 @@ static UIColor *NotSelectedCellBGColor;
     
     [self.popup addSubview:self.strpSubmitBtn];
     
-    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(150,150,100,30)];
+    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(150,210,100,30)];
     self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
     // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
     
@@ -943,7 +950,9 @@ static UIColor *NotSelectedCellBGColor;
     if(viewCtrl != nil){
         viewCtrl.modalTransitionStyle=UIModalTransitionStyleFlipHorizontal;
         viewCtrl.viewName=@"MyConfBookings";
+        viewCtrl.selectedDate= self.selectedStartDate;
         viewCtrl.currSchedules=self.currSchedules;
+        viewCtrl.selectedDayType=@"Day";
         [self presentViewController:viewCtrl animated:YES completion:nil];
     }
 }
@@ -981,9 +990,7 @@ static UIColor *NotSelectedCellBGColor;
             return;
         }
         if (![Stripe defaultPublishableKey]) {
-            NSError *error = [NSError errorWithDomain:StripeDomain code:STPInvalidRequestError
-                                             userInfo:@{
-                                                        NSLocalizedDescriptionKey: @"Please specify a Stripe Publishable Key in Constants.m"}];
+           
             self.popupError.text= @"Invalid key";
             self.popupError.hidden=false;
             self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
@@ -1021,12 +1028,19 @@ static UIColor *NotSelectedCellBGColor;
                     
                     NSString *statusStr = [result objectForKey:@"STATUS"]    ;
                     NSLog(@"%@",statusStr);
+                    [self.popup removeFromSuperview];
+                    for(UIView *subViews in self.view.subviews){
+                        subViews.alpha=1.0;
+                        subViews.userInteractionEnabled=TRUE;
+                    }
+                    self.view.alpha=1.0;
+                    self.view.userInteractionEnabled=TRUE;
                     if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
                         [self showPopup:@"Successful" Message:@"Reserved successfully."  CloseThis:NO];
                     }else{
                         [self showPopup:@"Failed" Message:[result objectForKey:@"ERRORMESSAGE"] CloseThis:YES];
                     }
-                    
+                   
                 }
                 @catch (NSException *exception) {
                     self.popupError.text= exception.description;
@@ -1209,7 +1223,7 @@ static UIColor *NotSelectedCellBGColor;
     }];
 }
 -(void)showMeetingReco:(UITapGestureRecognizer *) rec{
-    int tag = rec.view.tag;
+    int tag = (int)rec.view.tag;
     ReservationModel *selResModel = nil;
     for(ReservationModel *resModel in self.currSchedules){
         if(resModel.reservationId.intValue == tag){

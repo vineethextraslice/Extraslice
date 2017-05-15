@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="14F1509" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
-        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <scenes>
         <!--Home Screen-->
@@ -20,66 +19,7 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="O8o-K7-Wd0">
                                 <rect key="frame" x="10" y="10" width="580" height="580"/>
-                                <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zMa-Gr-cjK">
-                                        <rect key="frame" x="10" y="10" width="560" height="275"/>
-                                        <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Reserve a conference room" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0fB-DS-oSf">
-                                                <rect key="frame" x="164" y="157" width="231" height="21"/>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="calendar.png" translatesAutoresizingMaskIntoConstraints="NO" id="UsH-Lc-Huk">
-                                                <rect key="frame" x="240" y="82" width="80" height="80"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="80" id="37Q-0v-qQz"/>
-                                                    <constraint firstAttribute="height" constant="80" id="itA-Vi-CFc"/>
-                                                </constraints>
-                                            </imageView>
-                                        </subviews>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        <constraints>
-                                            <constraint firstItem="0fB-DS-oSf" firstAttribute="centerX" secondItem="zMa-Gr-cjK" secondAttribute="centerX" id="1o5-bb-zpU"/>
-                                            <constraint firstItem="UsH-Lc-Huk" firstAttribute="centerX" secondItem="zMa-Gr-cjK" secondAttribute="centerX" id="PAv-CZ-AtB"/>
-                                            <constraint firstItem="0fB-DS-oSf" firstAttribute="top" secondItem="zMa-Gr-cjK" secondAttribute="centerY" constant="20" id="Smx-bl-pNL"/>
-                                            <constraint firstItem="UsH-Lc-Huk" firstAttribute="centerY" secondItem="zMa-Gr-cjK" secondAttribute="centerY" constant="-15" id="unh-WZ-2m5"/>
-                                        </constraints>
-                                    </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3gJ-z4-Awx">
-                                        <rect key="frame" x="10" y="295" width="560" height="275"/>
-                                        <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Support" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Py7-XM-8o5">
-                                                <rect key="frame" x="228" y="171" width="104" height="21"/>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="headset.png" translatesAutoresizingMaskIntoConstraints="NO" id="zek-zH-zpV">
-                                                <rect key="frame" x="240" y="83" width="80" height="80"/>
-                                            </imageView>
-                                        </subviews>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        <constraints>
-                                            <constraint firstItem="Py7-XM-8o5" firstAttribute="centerY" secondItem="3gJ-z4-Awx" secondAttribute="centerY" constant="15" id="4q7-3N-ldY"/>
-                                            <constraint firstItem="zek-zH-zpV" firstAttribute="centerY" secondItem="3gJ-z4-Awx" secondAttribute="centerY" constant="-15" id="5It-Rw-dee"/>
-                                            <constraint firstItem="zek-zH-zpV" firstAttribute="centerX" secondItem="3gJ-z4-Awx" secondAttribute="centerX" id="Vpv-4s-88A"/>
-                                            <constraint firstItem="Py7-XM-8o5" firstAttribute="centerX" secondItem="3gJ-z4-Awx" secondAttribute="centerX" id="wuF-rI-Nzh"/>
-                                        </constraints>
-                                    </view>
-                                </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstItem="3gJ-z4-Awx" firstAttribute="centerX" secondItem="O8o-K7-Wd0" secondAttribute="centerX" id="2b1-Mm-CCo"/>
-                                    <constraint firstItem="3gJ-z4-Awx" firstAttribute="leading" secondItem="O8o-K7-Wd0" secondAttribute="leading" constant="10" id="5r9-wT-CMu"/>
-                                    <constraint firstItem="zMa-Gr-cjK" firstAttribute="leading" secondItem="O8o-K7-Wd0" secondAttribute="leading" constant="10" id="By3-Kq-a1i"/>
-                                    <constraint firstItem="zMa-Gr-cjK" firstAttribute="centerX" secondItem="O8o-K7-Wd0" secondAttribute="centerX" id="OQi-y3-R6f"/>
-                                    <constraint firstItem="zMa-Gr-cjK" firstAttribute="bottom" secondItem="O8o-K7-Wd0" secondAttribute="centerY" constant="-5" id="Q14-ZO-BZV"/>
-                                    <constraint firstItem="3gJ-z4-Awx" firstAttribute="top" secondItem="O8o-K7-Wd0" secondAttribute="centerY" constant="5" id="Uzt-4x-ZuF"/>
-                                    <constraint firstAttribute="trailing" secondItem="zMa-Gr-cjK" secondAttribute="trailing" constant="10" id="ds9-Qy-QYz"/>
-                                    <constraint firstAttribute="bottom" secondItem="3gJ-z4-Awx" secondAttribute="bottom" constant="10" id="lOq-xx-cTV"/>
-                                    <constraint firstAttribute="trailing" secondItem="3gJ-z4-Awx" secondAttribute="trailing" constant="10" id="rh1-e7-TBH"/>
-                                    <constraint firstItem="zMa-Gr-cjK" firstAttribute="top" secondItem="O8o-K7-Wd0" secondAttribute="top" constant="10" id="thW-zn-wpK"/>
-                                </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -93,13 +33,7 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="innerBorder1" destination="zMa-Gr-cjK" id="75V-Lo-u6D"/>
-                        <outlet property="innerBorder2" destination="3gJ-z4-Awx" id="Akn-b9-aMa"/>
                         <outlet property="outerBorder" destination="O8o-K7-Wd0" id="3pi-k5-9QM"/>
-                        <outlet property="reserveImg" destination="UsH-Lc-Huk" id="VVG-KC-kS1"/>
-                        <outlet property="reserveText" destination="0fB-DS-oSf" id="uEk-OA-0df"/>
-                        <outlet property="supportImg" destination="zek-zH-zpV" id="fEO-de-qiU"/>
-                        <outlet property="supportText" destination="Py7-XM-8o5" id="Owy-Hc-34B"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uxF-K6-cUa" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -107,8 +41,4 @@
             <point key="canvasLocation" x="497" y="247"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="calendar.png" width="48" height="48"/>
-        <image name="headset.png" width="48" height="48"/>
-    </resources>
 </document>

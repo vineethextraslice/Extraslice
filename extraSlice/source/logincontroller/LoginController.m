@@ -11,13 +11,14 @@
 #import "Utilities.h"
 #import "UserModel.h"
 #import "UserDAO.h"
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 #import "MenuController.h"
 #import "ResetPwdController.h"
+#import "GuestSignup.h"
 
 @interface LoginController ()
 @property(strong,nonatomic) Utilities *utils;
-@property(strong,nonatomic) WnPConstants *wnpCont;
+@property(strong,nonatomic) ESliceConstants *wnpCont;
 @property(nonatomic) BOOL rmChecked;
 @property(nonatomic,strong) UIView *popup;
 @property(nonatomic,strong) UILabel *popupError;
@@ -33,7 +34,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-     self.wnpCont = [[WnPConstants alloc]init];
+     self.wnpCont = [[ESliceConstants alloc]init];
      self.userDAO = [[UserDAO alloc]init];
      [self.wnpCont setColor:0];
     self.errorLyt.hidden = true;
@@ -41,7 +42,16 @@
     self.password.delegate =self;
     self.email.delegate =self;
     self.errorLytHeight.constant = 0;
-        
+    self.loginBtn.backgroundColor = [UIColor colorWithRed:31.0/255.0 green:82.0/255.0 blue:105.0/255.0 alpha:1.0];
+    self.signUp.backgroundColor   = [UIColor colorWithRed:38.0/255.0 green:140.0/255.0 blue:171.0/255.0 alpha:1.0];
+    self.guestSignup.backgroundColor   = [UIColor colorWithRed:118.0/255.0 green:154.0/255.0 blue:32.0/255.0 alpha:1.0];
+    self.email.autocorrectionType = UITextAutocorrectionTypeNo;
+    
+    UITapGestureRecognizer *guestTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(guestUserSignup:)];
+    guestTap.numberOfTapsRequired = 1;
+    guestTap.numberOfTouchesRequired = 1;
+    [self.guestSignup setUserInteractionEnabled:YES];
+    [self.guestSignup addGestureRecognizer:guestTap];
     UITapGestureRecognizer *signUpTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(selectPlans:)];
     signUpTap.numberOfTapsRequired = 1;
     signUpTap.numberOfTouchesRequired = 1;
@@ -165,17 +175,26 @@
                         [userDefaults setObject:userMdel.userName forKey:@"userName"];
                         [userDefaults setObject:userMdel.password forKey:@"password"];
                     }
-                    if(userMdel.verificationCode != (id)[NSNull null] && userMdel.verificationCode != nil && userMdel.verificationCode.length>0){
-                        [self showVerificationPopup];
-                    }else if(userMdel.usingTempPwd){
-                        [self showPasswordChangePopup];
+
+                    if([self.utils getWarningMessage] != (id)[NSNull null] && [self.utils getWarningMessage] != nil){
+                        [self showUpgradeAppPopup:[self.utils getWarningMessage]];
                     }else{
-                        UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
-                        MenuController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"MenuController"];
-                        if(viewCtrl != nil){
-                            viewCtrl.viewName=@"Home";
-                            viewCtrl.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
-                            [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
+                        if(userMdel.verificationCode != (id)[NSNull null] && userMdel.verificationCode != nil && userMdel.verificationCode.length>0){
+                            [self showVerificationPopup];
+                        }else if(userMdel.usingTempPwd){
+                            [self showPasswordChangePopup];
+                        }else{
+                            UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
+                            MenuController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"MenuController"];
+                            if(viewCtrl != nil){
+                                if([[self.utils getLoggedinUser].userType.lowercaseString isEqualToString:@"member"]){
+                                    viewCtrl.viewName=@"Home";
+                                }else{
+                                    viewCtrl.viewName=@"walkNpay store";
+                                }
+                                viewCtrl.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
+                                [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
+                            }
                         }
                     }
                 }
@@ -185,7 +204,11 @@
     //});
 }
 
-
+- (void)guestUserSignup:(UITapGestureRecognizer *) rec{
+    UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"GuestSignup" bundle:nil];
+    GuestSignup *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"GuestSignup"];
+    [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
+}
 - (void)selectPlans:(UITapGestureRecognizer *) rec{
     UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"SelectPlan" bundle:nil];
     SelectPlanController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"SelectPlan"];
@@ -265,6 +288,153 @@
     viewTap.numberOfTouchesRequired = 1;
     [self.self.popup setUserInteractionEnabled:YES];
     [self.self.popup addGestureRecognizer:viewTap];
+}
+
+
+-(void) upgradeNow:(id)sender{
+    //NSDictionary* infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    //   NSString* appID = infoDictionary[@"CFBundleIdentifier"];
+    NSURL* url =[NSURL URLWithString:@"itms-apps://itunes.com/apps/extraSliceInc"];
+    [[UIApplication sharedApplication] openURL:url];
+
+}
+-(void) skipNow:(UITapGestureRecognizer *) rec{
+    [self.popup removeFromSuperview];
+    for(UIView *subViews in self.view.subviews){
+        subViews.alpha=1.0;
+        subViews.userInteractionEnabled=TRUE;
+    }
+    self.view.alpha=1.0;
+    self.view.userInteractionEnabled=TRUE;
+    self.view.backgroundColor = [UIColor whiteColor];
+
+    if([self.utils getLoggedinUser].verificationCode != (id)[NSNull null] && [self.utils getLoggedinUser].verificationCode != nil && [self.utils getLoggedinUser].verificationCode.length>0){
+        [self showVerificationPopup];
+    }else if([self.utils getLoggedinUser].usingTempPwd){
+        [self showPasswordChangePopup];
+    }else{
+        UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"MenuController" bundle:nil];
+         MenuController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"MenuController"];
+         if(viewCtrl != nil){
+             if([[self.utils getLoggedinUser].userType.lowercaseString isEqualToString:@"member"]){
+                 viewCtrl.viewName=@"Home";
+             }else{
+                 viewCtrl.viewName=@"walkNpay store";
+             }
+             viewCtrl.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
+             [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
+         }
+    }
+}
+-(void) showUpgradeAppPopup:(NSString *) lastDate
+{
+    [self.utils setWarningMessage:nil];
+    NSDate * now = [NSDate date];
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"MM/dd/yyyy"];
+    [dateFormat setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"Local"]];
+    NSDate *expdate = [dateFormat dateFromString:lastDate];
+    NSTimeZone *tz = [NSTimeZone defaultTimeZone];
+    NSInteger seconds = [tz secondsFromGMTForDate: expdate];
+    expdate= [NSDate dateWithTimeInterval: seconds sinceDate: expdate];
+    NSComparisonResult result = [now compare:expdate];
+    BOOL haveTime=false;
+    switch (result) {
+        case NSOrderedAscending:
+           haveTime =TRUE;
+            break;
+            
+        case NSOrderedDescending:
+             haveTime =FALSE;
+            break;
+            
+        case NSOrderedSame:
+             haveTime =TRUE;
+            break;
+    }
+    
+    self.view.backgroundColor=[UIColor grayColor];
+    for(UIView *subViews in [self.view subviews]){
+        subViews.alpha=0.2;
+        subViews.userInteractionEnabled=false;
+    }
+    float centerX = self.view.center.x;
+    float centerY = self.view.center.y;
+    
+    self.view.userInteractionEnabled=false;
+    UILabel *info1 =[[UILabel alloc] initWithFrame:CGRectMake(5,75,260,90)];
+    info1.textAlignment=NSTextAlignmentCenter;
+    info1.textColor=[UIColor blackColor];
+    info1.numberOfLines=-1;
+    info1.text=[NSString stringWithFormat: @"%@%@%@", @"This version of extraSlice app will become obsolete on ",lastDate,@". Please upgrade to the latest version from App Store"];
+    UIButton *submitBtn = [[UIButton alloc] initWithFrame:CGRectMake(85,275,100,30)];
+    
+
+
+    if(haveTime){
+        self.popup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-157,270,315)];
+        UILabel *info2 =[[UILabel alloc] initWithFrame:CGRectMake(5,170,260,90)];
+        info2.textAlignment=NSTextAlignmentCenter;
+        info2.textColor=[UIColor blackColor];
+        info2.numberOfLines=-1;
+        info1.text = [NSString stringWithFormat: @"%@%@%@", @"This version of extraSlice app will become obsolete on ",lastDate,@". Please upgrade to the latest version from App Store"];
+        info2.text= [NSString stringWithFormat: @"%@%@%@", @"Your device date is ",[dateFormat stringFromDate:now],@". If this is incorrect please update your device date settings and restart extraSlice app"];
+        [self.popup addSubview:info2];
+        submitBtn = [[UIButton alloc] initWithFrame:CGRectMake(85,275,100,30)];
+        
+        UILabel *skip =[[UILabel alloc] initWithFrame:CGRectMake(195,275,70,30)];
+        skip.textAlignment=NSTextAlignmentCenter;
+        skip.textColor=[UIColor blackColor];
+        skip.numberOfLines=1;
+        skip.text=@"Skip";
+        UITapGestureRecognizer *skipTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(skipNow:)];
+        skipTap.numberOfTapsRequired = 1;
+        skipTap.numberOfTouchesRequired = 1;
+        [skip setUserInteractionEnabled:YES];
+        [skip addGestureRecognizer:skipTap];
+
+        
+        [self.popup addSubview:skip];
+
+    }else{
+         info1.text=[NSString stringWithFormat: @"%@%@%@", @"This version of extraSlice app became obsolete on ",lastDate,@". Please upgrade to the latest version from App Store"];
+        self.popup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-110,270,220)];
+        submitBtn = [[UIButton alloc] initWithFrame:CGRectMake(85,180,100,30)];
+    }
+    submitBtn.backgroundColor=[UIColor grayColor];
+    [submitBtn setTitle: @"Download" forState: UIControlStateNormal];
+    submitBtn.userInteractionEnabled=TRUE;
+    [submitBtn addTarget:self action:@selector(upgradeNow:) forControlEvents: UIControlEventTouchUpInside];
+    [self.popup addSubview:submitBtn];
+    submitBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+    [self.popup addSubview:info1];
+    self.popup.backgroundColor = [UIColor whiteColor];
+    self.popup.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
+    self.popup.layer.borderWidth = 1.0f;
+    self.popup.alpha=1.0;
+    //  [self.view addSubview:self.crtOrgPopup];
+    [[UIApplication sharedApplication].keyWindow addSubview:self.popup];
+    
+    UILabel *headerLbl =[[UILabel alloc] initWithFrame:CGRectMake(0,0,270,35)];
+    headerLbl.text=@"Upgrade app";
+    headerLbl.textAlignment=NSTextAlignmentCenter;
+    UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
+    headerLbl.font = txtFont;
+    headerLbl.textColor=[UIColor whiteColor];
+    headerLbl.backgroundColor=[self.wnpCont getThemeBaseColor];
+    [self.popup addSubview:headerLbl];
+    
+    self.popupError = [[UILabel alloc] initWithFrame:CGRectMake(35, 37 , 200, 55)];
+    self.popupError.hidden=true;
+    self.popupError.numberOfLines=-1;
+    self.popupError.textAlignment=NSTextAlignmentCenter;
+    [self.popup addSubview: self.popupError];
+    
+    
+
+    
+    
+   
 }
 -(void) showVerificationPopup
 {
@@ -392,7 +562,11 @@
                 self.view.userInteractionEnabled=TRUE;
                 self.view.backgroundColor = [UIColor whiteColor];
                 if(viewCtrl != nil){
-                    viewCtrl.viewName=@"Home";
+                     if([[self.utils getLoggedinUser].userType.lowercaseString isEqualToString:@"member"]){
+                         viewCtrl.viewName=@"Home";
+                     }else{
+                        viewCtrl.viewName=@"walkNpay store";
+                     }
                     viewCtrl.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
                     [self.utils loadViewControlleWithAnimation:self NextController:viewCtrl];
                 }
@@ -410,7 +584,7 @@
         [self.utils getLoggedinUser].verificationCode=@"";
         [self updateUser];
     }else{
-        self.popupError.text=@"Verification code does not match";
+        self.popupError.text=@"Invalid verification code";
         self.popupError.hidden=false;
     }
     

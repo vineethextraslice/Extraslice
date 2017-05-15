@@ -8,7 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "UserModel.h"
+#import "ProductModel.h"
+#import "WnPUserModel.h"
 
 static  NSMutableArray *purchasedProductsArray;
 static NSNumber *loggedInUserId;
@@ -16,13 +17,12 @@ static NSString *loggedInUserName;
 static NSNumber *selectedStoreId;
 static NSString *currencyCode;
 static NSString *currencySymbol;
-static UserModel *loggedInUserModel;
+static WnPUserModel *wnpUserModel;
 static NSNumber *numberOfStores;
-static NSString *urlStartsWith=@"https://extraslice.com/ExtraSliceWebService/jsonws/";
+//static NSString *wnpUrlStartsWith=@"http://walknpaydev01.cloudapp.net:8080/WalkNPayWebService/jsonws/";
 //static NSString *urlStartsWith=@"http://192.168.0.116:8181/WalkNPayWebService/jsonws/";
-//static NSString *urlStartsWith=@"http://walknpayservices.com/WalkNPayWebService/jsonws/";
-//static NSString *urlStartsWith=@"http://webservices.extraslice.com:8080/ExtraSliceWebService/jsonws/";
-static int fontSize=15;
+static NSString *wnpUrlStartsWith=@"https://extraslice.com/WalkNPayWebService/jsonws/";
+static int wnpFontSize=15;
 static UIColor *baseColor;
 static UIColor *headerColor;
 static double userLat;
@@ -32,8 +32,11 @@ static double userLong;
 -(void )setColor:(int) colorIndex;
 - (UIColor *)getThemeHeaderColor;
 - (UIColor *)getThemeBaseColor;
+- (void) addItemToArray:(ProductModel *) inputVal;
+- (NSMutableArray *) getItemsFromArray;
+- (void) removeItemFromArray:(ProductModel *) item;
 - (NSNumber *) getUserId;
-- (UIColor *)getThemeColorWithTransparency:(float) transparancy;
+- (void) clearItemsArray;
 - (void) setUserId:(NSNumber *) userId;
 
 - (NSNumber *) getSelectedStoreId;
@@ -61,8 +64,8 @@ static double userLong;
 
 -(UIColor * )getColor:(int) colorIndex;
 
-- (UserModel *) getUserModel;
-- (void) setUserModel:(UserModel *) userModel;
+- (WnPUserModel *) getUserModel;
+- (void) setUserModel:(WnPUserModel *) userModel;
 
 - (double ) getUserLat;
 - (double) getUserLong;

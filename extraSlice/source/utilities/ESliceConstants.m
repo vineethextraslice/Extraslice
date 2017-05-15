@@ -6,40 +6,40 @@
 //  Copyright © 2015 extraslice. All rights reserved.
 //
 
-#import "WnPConstants.h"
+#import "ESliceConstants.h"
 
-@implementation WnPConstants
+@implementation ESliceConstants
 
 -(void )setColor:(int) colorIndex{
     if(colorIndex==0){
-        baseColor =  [UIColor colorWithRed:92.0/255.0 green:172.0/255.0 blue:230.0/255.0 alpha:1.0];
-        headerColor=  [UIColor colorWithRed:92.0/255.0 green:172.0/255.0 blue:230.0/255.0 alpha:0.3];
-
+        baseColor = [UIColor colorWithRed:38.0/255.0 green:140.0/255.0 blue:171.0/255.0 alpha:1.0];
+        headerColor= [UIColor colorWithRed:230.0/255.0 green:230.0/255.0 blue:230.0/255.0 alpha:1.0];
+        
     }else if(colorIndex==1){
-        baseColor = [UIColor colorWithRed:45.0/255.0 green:134.0/255.0 blue:90.0/255.0 alpha:1.0];
-        headerColor= [UIColor colorWithRed:45.0/255.0 green:134.0/255.0 blue:90.0/255.0 alpha:0.3];
-
+        baseColor = [UIColor colorWithRed:38.0/255.0 green:140.0/255.0 blue:171.0/255.0 alpha:1.0];
+        headerColor= [UIColor colorWithRed:230.0/255.0 green:230.0/255.0 blue:230.0/255.0 alpha:1.0];
     }else{
-        baseColor = [UIColor colorWithRed:161.0/255.0 green:8.0/255.0 blue:8.0/255.0 alpha:1.0];
-        headerColor= [UIColor colorWithRed:161.0/255.0 green:8.0/255.0 blue:8.0/255.0 alpha:0.3];
-
+        baseColor = [UIColor colorWithRed:38.0/255.0 green:140.0/255.0 blue:171.0/255.0 alpha:1.0];
+        headerColor= [UIColor colorWithRed:230.0/255.0 green:230.0/255.0 blue:230.0/255.0 alpha:1.0];
+        
     }
+
 }
 
 -(UIColor * )getColor:(int) colorIndex{
     if(colorIndex==0){
-        return [UIColor colorWithRed:26.0/255.0 green:143.0/255.0 blue:189.0/255.0 alpha:1.0];
+        return [UIColor colorWithRed:38.0/255.0 green:140.0/255.0 blue:171.0/255.0 alpha:1.0];
     }else if(colorIndex==1){
-        return  [UIColor colorWithRed:45.0/255.0 green:134.0/255.0 blue:90.0/255.0 alpha:1.0];
+        return  [UIColor colorWithRed:38.0/255.0 green:140.0/255.0 blue:171.0/255.0 alpha:1.0];
     }else{
-        return [UIColor colorWithRed:112.0/255.0 green:18.0/255.0 blue:18.0/255.0 alpha:1.0];
+        return [UIColor colorWithRed:38.0/255.0 green:140.0/255.0 blue:171.0/255.0 alpha:1.0];
     }
 }
 - (UIColor *)getThemeHeaderColor{
     return headerColor;
 }
 - (UIColor *)getThemeColorWithTransparency:(float) transparancy{
-    return [UIColor colorWithRed:92.0/255.0 green:172.0/255.0 blue:230.0/255.0 alpha:transparancy];
+    return [UIColor colorWithRed:38.0/255.0 green:140.0/255.0 blue:171.0/255.0 alpha:transparancy];
 }
 - (UIColor *)getThemeBaseColor{
     return baseColor ;
@@ -119,10 +119,4 @@
     userLong=longitude;
 }
 
-- (NSNumber *) getNumberOfStores{
-    return numberOfStores;
-}
-- (void) setNumberOfStores:(NSNumber *) no{
-    numberOfStores = no;
-}
 @end
