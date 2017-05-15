@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "PayPalMobile.h"
-#import "STPPaymentCardTextField.h"
+#import "CardIO.h"
 #import "STPAPIClient.h"
 #import "Stripe.h"
 @class PaymentViewController;
@@ -18,7 +18,7 @@
 - (void)paymentViewController:(PaymentViewController *)controller didFinish:(NSError *)error;
 
 @end
-@interface PrepaidPopup : UIViewController<PayPalPaymentDelegate,STPPaymentCardTextFieldDelegate,UITableViewDelegate,UITableViewDataSource>
+@interface PrepaidPopup : UIViewController<PayPalPaymentDelegate,CardIOPaymentViewControllerDelegate,UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UIView *errorView;
 @property (weak, nonatomic) IBOutlet UILabel *errorLabel;
 - (IBAction)cancelPrepaid:(id)sender;

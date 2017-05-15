@@ -28,22 +28,27 @@
     self.utils=[[Utilities alloc]init];
     self.myRcpttab.backgroundColor=[self.wnpCont getThemeBaseColor];
     self.myCardTab.backgroundColor=[UIColor grayColor];
+    
     self.rcptTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(tapDetected:)];
     self.rcptTap.numberOfTapsRequired = 1;
     self.rcptTap.numberOfTouchesRequired = 1;
+    self.myRcpttab.tag=100;
     [self.myRcpttab setUserInteractionEnabled:YES];
     [self.myRcpttab addGestureRecognizer:self.rcptTap];
+    
     UITapGestureRecognizer *cartTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(tapDetected:)];
     cartTap.numberOfTapsRequired = 1;
     cartTap.numberOfTouchesRequired = 1;
     [self.myCardTab setUserInteractionEnabled:YES];
     [self.myCardTab addGestureRecognizer:cartTap];
+    
     self.seperator.backgroundColor=[self.wnpCont getThemeHeaderColor];
-    [self tapDetected:self.rcptTap];
+   
 
 }
--(void)viewWillAppear:(BOOL)animated{
+-(void)viewDidAppear:(BOOL)animated{
       [super viewWillAppear:animated];
+     [self tapDetected:self.rcptTap];
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -82,10 +87,5 @@
         self.previousController=viewController;
     }
 }
-
-
-
-
-
 
 @end

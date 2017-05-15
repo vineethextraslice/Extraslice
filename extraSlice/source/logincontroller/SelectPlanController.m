@@ -45,7 +45,7 @@ int screenWidth=0;
     self.errorText.text= @"";
     self.errorView.hidden = true;
     self.errorViewTop.constant=0;
-    
+    self.existingMmbrLyt.hidden=true;
     UITapGestureRecognizer *gobackTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(goBack:)];
     gobackTap.numberOfTapsRequired = 1;
     gobackTap.numberOfTouchesRequired = 1;
@@ -60,11 +60,11 @@ int screenWidth=0;
     [self.gobackView addGestureRecognizer:gobackViewTap];
     [self.view bringSubviewToFront:self.gobackView];
     
-    UITapGestureRecognizer *regUserTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(loadRegisteredUserData:)];
+    /*UITapGestureRecognizer *regUserTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(loadRegisteredUserData:)];
     regUserTap.numberOfTapsRequired = 1;
     regUserTap.numberOfTouchesRequired = 1;
     [self.registeredUser setUserInteractionEnabled:YES];
-    [self.registeredUser addGestureRecognizer:regUserTap];
+    [self.registeredUser addGestureRecognizer:regUserTap];*/
      self.scrollViewHeight.constant=0;
     if(self.adminAcctModel == nil || self.planArray == nil || self.addonList == nil){
         [self performBackgroundTask];
@@ -268,7 +268,7 @@ int screenWidth=0;
                 self.errorText.text= error;
                 self.errorView.hidden = false;
                 self.errorViewTop.constant=5;
-                self.existingMmbrLyt.hidden=true;
+                
             }else{
 
                 

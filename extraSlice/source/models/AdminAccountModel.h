@@ -19,6 +19,7 @@
 @property(strong, nonatomic) NSString *contactEmail;
 @property(strong, nonatomic) NSString *termsNCondUrl;
 @property(strong, nonatomic) NSString *privacyPolicyUrl;
+@property(strong, nonatomic) NSString *webserviceVersion;
 
 - (NSDictionary *) dictionaryWithPropertiesOfObject:(id)obj;
 -(NSString*) convertObjectToJsonString:(BOOL) prettyPrint;

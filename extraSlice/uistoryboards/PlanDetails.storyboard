@@ -81,7 +81,7 @@
                                 <color key="textColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fXz-hT-r4t">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fXz-hT-r4t">
                                 <rect key="frame" x="5" y="165" width="590" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="44" id="195-EY-hel"/>
@@ -118,13 +118,13 @@
                                     <constraint firstAttribute="height" constant="32" id="dj0-DH-piu"/>
                                 </constraints>
                             </view>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v13-F5-3C7">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" translatesAutoresizingMaskIntoConstraints="NO" id="v13-F5-3C7">
                                 <rect key="frame" x="5" y="259" width="590" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="xXU-Ro-cDR"/>
                                 </constraints>
                             </scrollView>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2m5-pV-75p">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2m5-pV-75p">
                                 <rect key="frame" x="5" y="375" width="590" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="uxE-Pg-a8g"/>

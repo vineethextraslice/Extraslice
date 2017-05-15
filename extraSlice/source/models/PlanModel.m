@@ -24,7 +24,15 @@
         self.purchaseOnSpot=TRUE;
         self.planDuaration=@"";
         self.subStartDay=@-1;
-       // self.resourceTypeList=NSMu
+        self.isSubPlan=FALSE;
+        self.haveSubPlan=FALSE;
+        
+        self.noOfPlans=@1;
+        self.noOfDesks=@1;
+        self.noOfMembers=@1;
+        self.parentPlanId=@-1;
+        
+      
     }
     return self;
 }

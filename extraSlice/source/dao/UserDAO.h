@@ -13,6 +13,7 @@
 #import "CustAcctModel.h"
 
 @interface UserDAO : NSObject
+-(NSString *) checkUserName:(NSString *)userName ;
 -(UserModel *) getUser:(NSString *)userName Password:(NSString *)password;
 -(UserModel *) createUser:(UserModel *)userModel OfferModel: (PlanOfferModel *)offerModel AddOnList:(NSMutableArray *)addOnList UserRegCode:(NSString *) userCode CardToken:(NSString *) cardToken PlanIds:(NSArray *) planIdList TrialEndsAt:(NSNumber *) trialEndAt TrailDays:(NSNumber *) trialDays Gateway:(NSString *) gateway;
 -(NSString *) resetPassword:(NSString *)userName;

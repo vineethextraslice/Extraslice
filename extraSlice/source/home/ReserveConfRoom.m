@@ -15,15 +15,14 @@
 #import "Utilities.h"
 #import "ReservationModel.h"
 #import "MenuController.h"
-#import "STPPaymentCardTextField.h"
 #import "STPAPIClient.h"
 #import "Stripe.h"
 #import "StripeDAO.h"
-#import "StripePlanModel.h"
+#import "CardIO.h"
 #define degreesToRadians(degrees) (M_PI * degrees / 180.0)
 static UIColor *SelectedCellBGColor ;
 static UIColor *NotSelectedCellBGColor;
-@interface ReserveConfRoom ()<STPPaymentCardTextFieldDelegate>
+@interface ReserveConfRoom ()<CardIOPaymentViewControllerDelegate>
 @property(strong,nonatomic) UIView *datepickerView;
 @property(strong,nonatomic) UIView *alertView;
 @property(strong,nonatomic) UILabel *selectedTimeLabel;
@@ -47,7 +46,6 @@ static UIColor *NotSelectedCellBGColor;
 @property(strong,nonatomic) UILabel *popupError;
 @property(strong,nonatomic) UIButton *strpSubmitBtn;
 @property(strong,nonatomic) UIButton *strpCancelBtn;
-@property(strong,nonatomic) STPPaymentCardTextField *strpPymntTf;
 @property(strong,nonatomic) NSNumber *payableAmount;
 @property(strong,nonatomic) StripeDAO *strpDAO;
 @property(nonatomic) BOOL isExpanded;
@@ -60,6 +58,15 @@ static UIColor *NotSelectedCellBGColor;
 @property(strong,nonatomic) NSDate *neStartDateSelection;
 @property(strong,nonatomic) NSMutableArray *halfHoursForDay;
 @property(strong,nonatomic) NSDictionary *jSonResult;
+@property(strong,nonatomic) UIView *scanCardView;
+@property(nonatomic) UIImageView *selCardImg;
+@property(strong,nonatomic) UILabel *selCardNum;
+@property(strong,nonatomic) UILabel *selectedCardExp;
+@property(strong,nonatomic) UILabel *selectedCardCVV;
+@property(strong,nonatomic) CardIOCreditCardInfo *ioCard;
+@property(strong,nonatomic) UILabel *scantxt;
+@property(nonatomic) BOOL *roomTypeExpanded;
+@property(strong,nonatomic) NSMutableArray *roomTypeArray;
 
 @end
 
@@ -68,10 +75,12 @@ static UIColor *NotSelectedCellBGColor;
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.isExpanded = false;
+    self.roomTypeExpanded=false;
+    self.selectedRoomType=nil;
     if(self.selectedDate == (id)[NSNull null] || self.selectedDate == nil){
         self.selectedDate = [self getCurrentLocalTime];
     }
-
+    self.roomTypeArray = [[NSMutableArray alloc]init];
     NSMutableArray *halfHours = [[NSMutableArray alloc]init];
     self.halfHoursForDay = [[NSMutableArray alloc]init];
     [halfHours addObject:@"00"];
@@ -113,17 +122,27 @@ static UIColor *NotSelectedCellBGColor;
    // [self.mdyFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
    
     
-    
+    self.wnpConst = [[ESliceConstants alloc]init];
+    self.utils = [[Utilities alloc]init];
+
 
     self.meetingName.delegate=self;
     self.orgTable.delegate = self;
     self.orgTable.dataSource = self;
+    self.roomType =[[UITableView alloc] initWithFrame:CGRectMake(110 ,70, 150, 160)];
+    [self.view addSubview:self.roomType];
+    self.roomType.userInteractionEnabled=false;
+    self.roomType.hidden=true;
+    self.roomType.delegate = self;
+    self.roomType.dataSource = self;
+    self.roomType.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
+    self.roomType.layer.borderWidth = 1.0f;
+    self.roomType.tableFooterView=[[UIView alloc] initWithFrame:CGRectZero];
+    
     SelectedCellBGColor=[UIColor grayColor];
     NotSelectedCellBGColor =[UIColor whiteColor];
     
-    self.wnpConst = [[ESliceConstants alloc]init];
-    self.utils = [[Utilities alloc]init];
-    self.selectedStartDate=[self getCurrentLocalTime];
+        self.selectedStartDate=[self getCurrentLocalTime];
     self.selectedEndDate = [self.selectedStartDate dateByAddingTimeInterval:1800];
     self.neStartDateSelection = self.selectedStartDate;
     self.endTime.text= [self.hmAmPmFormatter stringFromDate:self.selectedEndDate];
@@ -131,6 +150,9 @@ static UIColor *NotSelectedCellBGColor;
     self.startDate.text= [self.mdyFormatter stringFromDate:self.selectedStartDate];
     self.startTime.text= [self.hmAmPmFormatter stringFromDate:self.selectedStartDate];
     self.orgList = [[NSMutableArray alloc]init];
+    
+    self.roomTypeLbl.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
+    self.roomTypeLbl.layer.borderWidth = 1.0f;
     
     self.startTime.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
     self.startTime.layer.borderWidth = 1.0f;
@@ -233,11 +255,20 @@ static UIColor *NotSelectedCellBGColor;
         
     }
     
+    
+    
+    UITapGestureRecognizer *showRoomPopup = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(ShowRoomDropDown:)];
+    showRoomPopup.numberOfTapsRequired = 1;
+    showRoomPopup.numberOfTouchesRequired = 1;
+    [self.roomTypeLbl setUserInteractionEnabled:YES];
+    [self.roomTypeLbl addGestureRecognizer:showRoomPopup];
+    
     UITapGestureRecognizer *showOrgPopup = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(ShowDropDown:)];
     showOrgPopup.numberOfTapsRequired = 1;
     showOrgPopup.numberOfTouchesRequired = 1;
     [self.orgTable setUserInteractionEnabled:YES];
     [self.orgTable addGestureRecognizer:showOrgPopup];
+    
     
     UITapGestureRecognizer *pickDateTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(changeDate:)];
     pickDateTap.numberOfTapsRequired = 1;
@@ -262,7 +293,7 @@ static UIColor *NotSelectedCellBGColor;
    
 }
 -(void) viewDidAppear:(BOOL)animated{
-    [self loadConferenceRoom ];
+    [self loadConferenceRoom:self.selectedRoomType ];
 }
 -(void ) setSelectedDat:(NSString *)dateStr{
     for(UIView *sv in self.dayHeader.subviews){
@@ -366,7 +397,7 @@ static UIColor *NotSelectedCellBGColor;
     pickTap.numberOfTouchesRequired = 1;
     [pick setUserInteractionEnabled:YES];
     [pick addGestureRecognizer:pickTap];
-    [self loadConferenceRoom ];
+    [self loadConferenceRoom:self.selectedRoomType ];
 }
 
 -(void) ShowDropDown:(UITapGestureRecognizer *) rec{
@@ -378,6 +409,31 @@ static UIColor *NotSelectedCellBGColor;
         self.orgTableHeight.constant=35;
         self.isExpanded =true;
         self.orgTableBottom.constant=13;
+    }
+    
+}
+-(void) ShowRoomDropDown:(UITapGestureRecognizer *) rec{
+    if(self.roomTypeExpanded){
+        self.roomTypeExpanded=false;
+        self.roomType.hidden=true;
+        self.roomType.userInteractionEnabled=false;
+        for(UIView *subViews in [self.view subviews]){
+            subViews.alpha=1.0;
+            subViews.userInteractionEnabled=true;
+        }
+    }else{
+        self.roomTypeExpanded=true;
+        
+        for(UIView *subViews in [self.view subviews]){
+            subViews.alpha=0.2;
+            subViews.userInteractionEnabled=false;
+        }
+        self.roomType.hidden=false;
+        self.roomType.userInteractionEnabled=true;
+        self.roomType.alpha=1.0;
+        self.roomType.userInteractionEnabled=true;
+        self.roomTypeLbl.userInteractionEnabled=true;
+        self.roomTypeLbl.alpha=1.0;
     }
     
 }
@@ -400,16 +456,22 @@ static UIColor *NotSelectedCellBGColor;
     
         
 }
--(void) loadConferenceRoom{
+-(void) loadConferenceRoom:(NSString *)roomType{
     int index = 0;
+    int roomIndex=0;
     self.resourceList =self.smModel.resourceList;
     float scrWidth = self.view.frame.size.width;
+    self.roomTypeArray =[[NSMutableArray alloc]init];
     for(UIView *sbvs in self.confRoomLyt.subviews){
         [sbvs removeFromSuperview];
     }
     for(NSDictionary *resDic in self.smModel.resourceList){
          NSString *resourceType = [resDic objectForKey:@"resourceType"];
-        if(![resourceType.uppercaseString isEqualToString:@"CONFERENCE ROOM"]){
+        if(![self.roomTypeArray containsObject:[resDic objectForKey:@"resourceType"]]){
+            [self.roomTypeArray addObject:[resDic objectForKey:@"resourceType"]];
+        }
+        if(roomType!= nil && ![resourceType.uppercaseString isEqualToString:roomType.uppercaseString]){
+            roomIndex++;
             continue;
         }
         UIView *topView= [[UIView alloc] initWithFrame:CGRectMake(0 ,(index*160), scrWidth, 140)];
@@ -558,7 +620,7 @@ static UIColor *NotSelectedCellBGColor;
             bookNow.userInteractionEnabled=TRUE;
             bookNow.enabled=TRUE;
             [bookNow addTarget:self action:@selector(bookNow:) forControlEvents: UIControlEventTouchUpInside];
-            bookNow.tag=index;
+            bookNow.tag=roomIndex;
             [bookNow setTitle: @"Book now" forState: UIControlStateNormal];
             [bookNow setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
             [bookNow setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
@@ -581,15 +643,16 @@ static UIColor *NotSelectedCellBGColor;
         //[planImg setImage:[UIImage imageNamed:imgName]];
         
         //
-       [topView addSubview: roomDesc];
-       [topView addSubview: hourScrView];
-       [topView bringSubviewToFront:roomDesc];
-       [self.confRoomLyt addSubview:topView];
-       index++;
+        [topView addSubview: roomDesc];
+        [topView addSubview: hourScrView];
+        [topView bringSubviewToFront:roomDesc];
+        [self.confRoomLyt addSubview:topView];
+        index++;
+        roomIndex++;
         [self startFade:leftArrow];
         [self startFade:rightArrow];
     }
-
+    [self.roomType reloadData];
 }
 -(void) addReservation:(NSString *)pymntRefKey{
     
@@ -838,7 +901,7 @@ static UIColor *NotSelectedCellBGColor;
     }
     [self.datepickerView removeFromSuperview];
     [self.datepicker removeFromSuperview];
-    [self loadConferenceRoom ];
+    [self loadConferenceRoom:self.selectedRoomType ];
 }
 - (void)LabelChangeCancel:(id)sender{
     self.view.backgroundColor=[UIColor whiteColor];
@@ -870,7 +933,7 @@ static UIColor *NotSelectedCellBGColor;
     float centerY = self.view.center.y;
     
     self.view.userInteractionEnabled=false;
-    self.popup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-125,270,250)];
+    self.popup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-125-65,270,365)];
     self.popup.backgroundColor = [UIColor whiteColor];
     self.popup.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
     self.popup.layer.borderWidth = 1.0f;
@@ -901,23 +964,62 @@ static UIColor *NotSelectedCellBGColor;
     descLabel.textColor=[UIColor blackColor];
     // headerLbl.backgroundColor=[self.wnpConst getThemeBaseColor];
     [self.popup addSubview:descLabel];
-    
-   /* UILabel *amtLbl =[[UILabel alloc] initWithFrame:CGRectMake(210,75,50,30)];
-    amtLbl.text=[NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:payable]];
-    amtLbl.textAlignment=NSTextAlignmentLeft;
-    // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
-    amtLbl.font = txtFont;
-    amtLbl.textColor=[UIColor blackColor];
-    // headerLbl.backgroundColor=[self.wnpConst getThemeBaseColor];
-    [self.popup addSubview:amtLbl];*/
+
     
     
-    self.payableAmount = [NSNumber numberWithDouble:payable] ;
-    self.strpPymntTf = [[STPPaymentCardTextField alloc] initWithFrame:CGRectMake(10,170,250,30)];
-    self.strpPymntTf.delegate=self;
-    [self.popup addSubview:self.strpPymntTf];
     
-    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(20,210,100,30)];
+    self.scanCardView = [[UIView alloc] initWithFrame:CGRectMake(25,185,220,50)];
+    [self.popup addSubview:self.scanCardView];
+    UITapGestureRecognizer *scanCardTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(scanCard:)];
+    scanCardTap.numberOfTapsRequired = 1;
+    scanCardTap.numberOfTouchesRequired = 1;
+    [self.scanCardView setUserInteractionEnabled:YES];
+    [self.scanCardView addGestureRecognizer:scanCardTap];
+    self.scanCardView.layer.borderColor= [self.wnpConst getThemeBaseColor].CGColor;
+    self.scanCardView.layer.borderWidth = 1.0f;
+    self.scanCardView.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.2];
+    self.scantxt =[[UILabel alloc] initWithFrame:CGRectMake(57,5,150,40)];
+    self.scantxt.text=@"Scan your card";
+    self.scantxt.textAlignment=NSTextAlignmentCenter;
+    [self.scantxt setFont:[UIFont boldSystemFontOfSize:17.0]];
+    [self.scanCardView addSubview:self.scantxt];
+    self.scanCardView.layer.cornerRadius = 5;
+    self.scanCardView.layer.masksToBounds = YES;
+    UIImageView *scanImage =[[UIImageView alloc] initWithFrame:CGRectMake(12,5,40,40)];
+    [scanImage setImage:[UIImage imageNamed:@"camera_bl.png"]];
+    [self.scanCardView addSubview:scanImage];
+    
+    self.selCardImg=[[UIImageView alloc] initWithFrame:CGRectMake(25,245,40,30)];
+    
+    [self.popup addSubview:self.selCardImg];
+    
+    self.selCardNum=[[UILabel alloc] initWithFrame:CGRectMake(70,245,175,30)];
+    self.selCardNum.textAlignment=NSTextAlignmentRight;
+    self.selCardNum.textColor = [self.wnpConst getThemeBaseColor];
+    txtFont = [self.selCardNum.font fontWithSize:16];
+    self.selCardNum.font = txtFont;
+    [self.popup addSubview:self.selCardNum];
+    
+    self.selectedCardExp=[[UILabel alloc] initWithFrame:CGRectMake(30,285,80,30)];
+    self.selectedCardExp.textAlignment=NSTextAlignmentCenter;
+    txtFont = [self.selectedCardExp.font fontWithSize:16];
+    self.selectedCardExp.font = txtFont;
+    self.selectedCardExp.textColor = [self.wnpConst getThemeBaseColor];
+    [self.popup addSubview:self.selectedCardExp];
+    
+    self.selectedCardCVV=[[UILabel alloc] initWithFrame:CGRectMake(165,285,80,30)];
+    self.selectedCardCVV.textAlignment=NSTextAlignmentCenter;
+    self.selectedCardCVV.textColor = [self.wnpConst getThemeBaseColor];
+    txtFont = [self.selectedCardCVV.font fontWithSize:16];
+    self.selectedCardCVV.font = txtFont;
+    [self.popup addSubview:self.selectedCardCVV];
+
+    
+    
+    
+    
+    
+    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(15,325,100,30)];
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
     [self.strpSubmitBtn setTitle: @"Submit" forState: UIControlStateNormal];
     self.strpSubmitBtn.userInteractionEnabled=TRUE;
@@ -927,7 +1029,7 @@ static UIColor *NotSelectedCellBGColor;
     
     [self.popup addSubview:self.strpSubmitBtn];
     
-    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(150,210,100,30)];
+    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(155,325,100,30)];
     self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
     // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
     
@@ -942,6 +1044,7 @@ static UIColor *NotSelectedCellBGColor;
     viewTap.numberOfTouchesRequired = 1;
     [self.self.popup setUserInteractionEnabled:YES];
     [self.self.popup addGestureRecognizer:viewTap];
+   
 }
 
 - (IBAction)loadMyReservations:(id)sender {
@@ -952,7 +1055,7 @@ static UIColor *NotSelectedCellBGColor;
         viewCtrl.viewName=@"MyConfBookings";
         viewCtrl.selectedDate= self.selectedStartDate;
         viewCtrl.currSchedules=self.currSchedules;
-        viewCtrl.selectedDayType=@"Day";
+        viewCtrl.selectedDayType=@"List";
         [self presentViewController:viewCtrl animated:YES completion:nil];
     }
 }
@@ -962,11 +1065,20 @@ static UIColor *NotSelectedCellBGColor;
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
     self.strpSubmitBtn.userInteractionEnabled=FALSE;
     self.strpSubmitBtn.enabled=FALSE;
-    
+    self.scanCardView.userInteractionEnabled=false;
+    self.scantxt.text=@"Processing...";
     self.strpCancelBtn.backgroundColor=[UIColor grayColor];
     self.strpCancelBtn.userInteractionEnabled=FALSE;
     self.strpCancelBtn.enabled=FALSE;
     if(self.adminAcctModel.strpPubKey == (id)[NSNull null] || self.adminAcctModel.strpPubKey == nil){
+        
+        self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
+        // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
+        self.scanCardView.userInteractionEnabled=true;
+        [self.scantxt.layer removeAllAnimations];
+        self.scantxt.text=@"Scan you card";
+        self.strpCancelBtn.userInteractionEnabled=TRUE;
+        self.strpCancelBtn.enabled=TRUE;
         self.popupError.text= @"Invalid Stripe  account";
         self.popupError.hidden=false;
         return;
@@ -974,40 +1086,38 @@ static UIColor *NotSelectedCellBGColor;
     NSLog(@"%@",self.adminAcctModel.strpPubKey);
     NSLog(@"%@",self.adminAcctModel.strpSecKey);
     NSString *publicKey=[self.utils decode:self.adminAcctModel.strpPubKey];
+    STPCardParams *strpcardParams = [[STPCardParams alloc]init];
     @try{
         NSLog(@"%@",publicKey);
         STPAPIClient *strpClient = [[STPAPIClient alloc] initWithPublishableKey:publicKey];
         [Stripe setDefaultPublishableKey:publicKey];
-        NSLog(@"%@",strpClient.publishableKey);
-        if (![self.strpPymntTf isValid]) {
-            self.popupError.text= @"Invalid Card";
-            self.popupError.hidden=false;
-            self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-            // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-            
-            self.strpCancelBtn.userInteractionEnabled=TRUE;
-            self.strpCancelBtn.enabled=TRUE;
-            return;
-        }
+        strpcardParams.cvc=self.ioCard.cvv;
+        strpcardParams.number=self.ioCard.cardNumber;
+        strpcardParams.expMonth=self.ioCard.expiryMonth;
+        strpcardParams.expYear=self.ioCard.expiryYear;
+
         if (![Stripe defaultPublishableKey]) {
            
             self.popupError.text= @"Invalid key";
             self.popupError.hidden=false;
             self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
             // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-            
+            self.scanCardView.userInteractionEnabled=true;
+            [self.scantxt.layer removeAllAnimations];
+            self.scantxt.text=@"Scan you card";
             self.strpCancelBtn.userInteractionEnabled=TRUE;
             self.strpCancelBtn.enabled=TRUE;
             return;
         }
         
-        [strpClient createTokenWithCard:self.strpPymntTf.card completion:^(STPToken *token, NSError *error) {
+        [strpClient createTokenWithCard:strpcardParams completion:^(STPToken *token, NSError *error) {
             if (error) {
                 self.popupError.text= error.description;
                 self.popupError.hidden=false;
                 self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-                // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-                
+                self.scanCardView.userInteractionEnabled=true;
+                [self.scantxt.layer removeAllAnimations];
+                self.scantxt.text=@"Scan you card";
                 self.strpCancelBtn.userInteractionEnabled=TRUE;
                 self.strpCancelBtn.enabled=TRUE;
                 return;
@@ -1046,8 +1156,9 @@ static UIColor *NotSelectedCellBGColor;
                     self.popupError.text= exception.description;
                     self.popupError.hidden=false;
                     self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-                    // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-                    
+                    self.scanCardView.userInteractionEnabled=true;
+                    [self.scantxt.layer removeAllAnimations];
+                    self.scantxt.text=@"Scan you card";
                     self.strpCancelBtn.userInteractionEnabled=TRUE;
                     self.strpCancelBtn.enabled=TRUE;
                    
@@ -1060,8 +1171,9 @@ static UIColor *NotSelectedCellBGColor;
         self.popupError.text= exception.description;
         self.popupError.hidden=false;
         self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-        // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-        
+        self.scanCardView.userInteractionEnabled=true;
+        [self.scantxt.layer removeAllAnimations];
+        self.scantxt.text=@"Scan you card";
         self.strpCancelBtn.userInteractionEnabled=TRUE;
         self.strpCancelBtn.enabled=TRUE;
         return;
@@ -1082,78 +1194,116 @@ static UIColor *NotSelectedCellBGColor;
     self.view.alpha=1.0;
     self.view.userInteractionEnabled=TRUE;
 }
-- (void)paymentCardTextFieldDidChange:(nonnull STPPaymentCardTextField *)textField {
-    self.strpSubmitBtn.enabled = textField.isValid;
-    if(textField.isValid){
-        [self hideKeyBord];
-        self.strpSubmitBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-    }
-    
-}
+
 -(void) hideKeyBord{
-    [self.strpPymntTf resignFirstResponder];
     [self.view endEditing:YES];
 }
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return self.orgList.count;
+     if(tableView == self.orgTable){
+         return self.orgList.count;
+     }else{
+         return self.roomTypeArray.count+1;
+     }
 }
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    
     NSString *celId =@"Cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:celId];
     // if(cell == nil){
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:celId];
-    CGRect screenRect = [[UIScreen mainScreen] bounds];
-    CGFloat tableWidth = screenRect.size.width-10;
     
-    UILabel *code = [[UILabel alloc] initWithFrame:CGRectMake(0, 2 , (tableWidth), 30)];
-    UIFont *txtFont = [code.font fontWithSize:15.0];
-    code.font = txtFont;
-    [code setUserInteractionEnabled:TRUE];
-    [code setEnabled:YES];
-   // UITapGestureRecognizer *codeSel=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(setSeletedOrganization:)];
-   // [codeSel setNumberOfTapsRequired:1];
-  //  [code addGestureRecognizer:codeSel];
-    if(indexPath.item > 0){
-        OrganizationModel *orgModel =[[OrganizationModel alloc]init];
-        orgModel =[orgModel initWithDictionary:[self.orgList objectAtIndex:0]];
-        code.text=[NSString stringWithFormat:@"%s%@", "  ", orgModel.orgName];
-        NSLog(@"%@",orgModel.orgName);
-        if(self.orgModel.orgId.intValue == orgModel.orgId.intValue){
-            code.backgroundColor=[UIColor grayColor];
-        }else{
-            code.backgroundColor=[UIColor whiteColor];
+    if(tableView == self.orgTable){
+        CGRect screenRect = [[UIScreen mainScreen] bounds];
+        CGFloat tableWidth = screenRect.size.width-10;
+        
+        UILabel *code = [[UILabel alloc] initWithFrame:CGRectMake(0, 2 , (tableWidth), 30)];
+        UIFont *txtFont = [code.font fontWithSize:15.0];
+        code.font = txtFont;
+        [code setUserInteractionEnabled:TRUE];
+        [code setEnabled:YES];
+        // UITapGestureRecognizer *codeSel=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(setSeletedOrganization:)];
+        // [codeSel setNumberOfTapsRequired:1];
+        //  [code addGestureRecognizer:codeSel];
+        if(indexPath.item > 0){
+            OrganizationModel *orgModel =[[OrganizationModel alloc]init];
+            orgModel =[orgModel initWithDictionary:[self.orgList objectAtIndex:0]];
+            code.text=[NSString stringWithFormat:@"%s%@", "  ", orgModel.orgName];
+            NSLog(@"%@",orgModel.orgName);
+            if(self.orgModel.orgId.intValue == orgModel.orgId.intValue){
+                code.backgroundColor=[UIColor grayColor];
+            }else{
+                code.backgroundColor=[UIColor whiteColor];
+            }
+        }else if(indexPath.item ==0){
+            code.text=[NSString stringWithFormat:@"%s", "  Select organization"];
+        }else if(indexPath.item ==1){
+            code.text=[NSString stringWithFormat:@"%s", "  Add organization"];
         }
-    }else if(indexPath.item ==0){
-        code.text=[NSString stringWithFormat:@"%s", "  Select organization"];
-    }else if(indexPath.item ==1){
-        code.text=[NSString stringWithFormat:@"%s", "  Add organization"];
+        [cell addSubview:code];
+        [cell bringSubviewToFront:code];
+        
+        
+        UIView *seperator = [[UIView alloc] initWithFrame:CGRectMake(0, 31 , tableWidth, 1)];
+        [cell addSubview:seperator];
+    }else{
+        CGRect screenRect = [[UIScreen mainScreen] bounds];
+        CGFloat tableWidth = screenRect.size.width-10;
+        
+        UILabel *code = [[UILabel alloc] initWithFrame:CGRectMake(0, 2 , (tableWidth), 30)];
+        UIFont *txtFont = [code.font fontWithSize:15.0];
+        code.font = txtFont;
+        [code setUserInteractionEnabled:TRUE];
+        [code setEnabled:YES];
+        if(indexPath.item ==0){
+            code.text=@"All";
+        }else{
+            code.text=[self.roomTypeArray objectAtIndex:indexPath.item-1];
+        }
+        code.tag=indexPath.item;
+        UITapGestureRecognizer *selRoomTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(selectRoomType:)];
+        selRoomTap.numberOfTapsRequired = 1;
+        selRoomTap.numberOfTouchesRequired = 1;
+        [code setUserInteractionEnabled:YES];
+        [code addGestureRecognizer:selRoomTap];
+        
+        [cell addSubview:code];
+        [cell bringSubviewToFront:code];
+        
+        
+        UIView *seperator = [[UIView alloc] initWithFrame:CGRectMake(0, 31 , tableWidth, 1)];
+        [cell addSubview:seperator];
     }
-    [cell addSubview:code];
-    [cell bringSubviewToFront:code];
-    
-    
-    UIView *seperator = [[UIView alloc] initWithFrame:CGRectMake(0, 31 , tableWidth, 1)];
-    // [seperator setBackgroundColor:[self.wnpCont getThemeHeaderColor]];
-    [cell addSubview:seperator];
-    //self.storeSelector.rowHeight=35;
-    
-    //}
-    
-    
     
     return cell;
 }
 
+-(void) selectRoomType:(UITapGestureRecognizer *) rec{
+    int tag = rec.view.tag;
+    if(tag ==0){
+        self.selectedRoomType=nil;
+        self.roomTypeLbl.text=@"All";
+    }else{
+        self.selectedRoomType=[self.roomTypeArray objectAtIndex:tag-1];
+        self.roomTypeLbl.text=[self.roomTypeArray objectAtIndex:tag-1];
+    }
+    
+    [self ShowRoomDropDown:rec];
+    [self loadConferenceRoom:self.selectedRoomType];
+}
 
 - (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSIndexPath *currentSelectedIndexPath = [tableView indexPathForSelectedRow];
-    if (currentSelectedIndexPath != nil)
-    {
-        [[tableView cellForRowAtIndexPath:currentSelectedIndexPath] setBackgroundColor:NotSelectedCellBGColor];
+    if(tableView == self.orgTable){
+        NSIndexPath *currentSelectedIndexPath = [tableView indexPathForSelectedRow];
+        if (currentSelectedIndexPath != nil){
+            [[tableView cellForRowAtIndexPath:currentSelectedIndexPath] setBackgroundColor:NotSelectedCellBGColor];
+        }
+    }else{
+        NSIndexPath *currentSelectedIndexPath = [tableView indexPathForSelectedRow];
+        if (currentSelectedIndexPath != nil){
+            [[tableView cellForRowAtIndexPath:currentSelectedIndexPath] setBackgroundColor:NotSelectedCellBGColor];
+        }
+        
     }
-    
     return indexPath;
 }
 
@@ -1466,4 +1616,35 @@ static UIColor *NotSelectedCellBGColor;
         [self showPopup:@"Failed" Message:exp.description CloseThis:YES];
     }
 }
+- (void)userDidProvideCreditCardInfo:(CardIOCreditCardInfo *)info inPaymentViewController:(CardIOPaymentViewController *)paymentViewController {
+    self.ioCard=info;
+    self.strpSubmitBtn.enabled=true;
+    self.strpSubmitBtn.userInteractionEnabled=true;
+    self.strpSubmitBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
+    self.selCardNum.text=info.cardNumber;
+    self.selectedCardExp.text=[NSString stringWithFormat:@"%d/%d", (int)info.expiryMonth,(int) (info.expiryYear % 100)];
+    self.selectedCardCVV.text=info.cvv;
+    NSString *cardName = [CardIOCreditCardInfo displayStringForCardType:info.cardType usingLanguageOrLocale:@"en_US"];
+    [self.selCardImg setImage:[UIImage imageNamed:[NSString stringWithFormat:@"cio_ic_%@.png",cardName.lowercaseString ]]];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+
+- (void)userDidCancelPaymentViewController:(CardIOPaymentViewController *)paymentViewController {
+    NSLog(@"User cancelled scan");
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)scanCard:(UITapGestureRecognizer *)sender {
+    self.selCardNum.text=@"";
+    self.selectedCardExp.text=@"";
+    self.selectedCardCVV.text=@"";
+    [self.selCardImg setImage:nil];
+    CardIOPaymentViewController *scanViewController = [[CardIOPaymentViewController alloc] initWithPaymentDelegate:self];
+    scanViewController.modalPresentationStyle = UIModalPresentationFormSheet;
+    scanViewController.hideCardIOLogo=YES;
+    [self presentViewController:scanViewController animated:YES completion:nil];
+}
+
 @end

@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "PayPalMobile.h"
 #import "PrepaidPopup.h"
-#import "STPPaymentCardTextField.h"
 #import "STPAPIClient.h"
 #import "Stripe.h"
 #import "CouponModel.h"

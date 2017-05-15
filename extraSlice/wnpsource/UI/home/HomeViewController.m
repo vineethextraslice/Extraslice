@@ -58,51 +58,51 @@
     self.inner20= [[UIView alloc] initWithFrame:CGRectMake(10, (20+rowHeight), rowWidth, rowHeight)];
     self.inner21= [[UIView alloc] initWithFrame:CGRectMake(10, (20+rowHeight), rowWidth/2, rowHeight)];
     self.inner22= [[UIView alloc] initWithFrame:CGRectMake(9+rowWidth/2, (20+rowHeight), rowWidth/2, rowHeight)];
-    self.inner31= [[UIView alloc] initWithFrame:CGRectMake(10, (30+2*rowHeight), rowWidth/2, rowHeight)];
-    self.inner32= [[UIView alloc] initWithFrame:CGRectMake(9+rowWidth/2, (30+2*rowHeight), rowWidth/2, rowHeight)];
+    self.inner31= [[UIView alloc] initWithFrame:CGRectMake(10, (30+2*rowHeight), rowWidth, rowHeight)];
+   
     UIView *view1 =nil;
     UIView *view20 =nil;
     UIView *view21 =nil;
     UIView *view22 =nil;
     UIView *view31 =nil;
-    UIView *view32 =nil;
+
     if(rowHeight <140){
         view1= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth, 100)];
         view20= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth, 100)];
         view21= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth/2, 100)];
         view22= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth/2, 100)];
-        view31= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth/2, 100)];
-        view32= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth/2, 100)];
+        view31= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth, 100)];
+        
         
 
         self.storeTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth, 30)];
         self.scanTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth/2, 30)];
         self.cart1Txt = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth/2, 30)];
         self.cart2Txt = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth, 30)];
-        self.checkoutTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth/2, 30)];
-        self.walletTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth/2, 30)];
+        self.checkoutTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth, 30)];
+        
         
         self.store = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-30, 0, 60, 60)];
         self.scan = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/4)-30, 0, 60, 60)];
         self.cart1 = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/4)-30, 0, 60, 60)];
         self.cart2 = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-30, 0, 60, 60)];
-        self.checkout = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/4)-30, 0, 60, 60)];
-        self.wallet = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/4)-30, 0, 60, 60)];
+        self.checkout = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-30, 0, 60, 60)];
+        
         
     }else{
         view1= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth, 120)];
         view20= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth/2, 120)];
         view21= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth/2, 120)];
         view22= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth/2, 120)];
-        view31= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth/2, 120)];
-        view32= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth/2, 120)];
+        view31= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth, 120)];
+       
         
         self.storeTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
         self.scanTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth/2, 30)];
         self.cart1Txt = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth/2, 30)];
         self.cart2Txt = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
-        self.checkoutTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth/2, 30)];
-        self.walletTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth/2, 30)];
+        self.checkoutTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
+        
         /*self.reserveText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
         self.supportText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
         self.wnpText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
@@ -114,21 +114,21 @@
         self.scan = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/4)-40, 0, 80, 80)];
         self.cart1 = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/4)-40, 0, 80, 80)];
         self.cart2 = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
-        self.checkout = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/4)-40, 0, 80, 80)];
-        self.wallet = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/4)-40, 0, 80, 80)];
+        self.checkout = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
+       
    }
     [self showStoreSelectionPopup:FALSE];
     [self.scan setImage:[UIImage imageNamed:@"qr_scanner.png"]];
     [self.cart1 setImage:[UIImage imageNamed:@"cart.png"]];
     [self.cart2 setImage:[UIImage imageNamed:@"cart.png"]];
     [self.checkout setImage:[UIImage imageNamed:@"checkout.png"]];
-    [self.wallet setImage:[UIImage imageNamed:@"purse.png"]];
+   
     self.store.tag=0;
     self.scan.tag=1;
     self.cart1.tag=2;
     self.cart2.tag=2;
     self.checkout.tag=3;
-    self.wallet.tag=4;
+   
     
    
     
@@ -153,10 +153,7 @@
     [self.checkoutTxt setFont:[UIFont boldSystemFontOfSize:17.0]];
     [view31 addSubview:self.checkoutTxt];
     
-    self.walletTxt.textAlignment=NSTextAlignmentCenter;
-    self.walletTxt.text=@"Wallet";
-    [self.walletTxt setFont:[UIFont boldSystemFontOfSize:17.0]];
-    [view32 addSubview:self.walletTxt];
+   
     
     
     
@@ -165,7 +162,7 @@
     [view21 addSubview:self.scan];
     [view22 addSubview:self.cart1];
     [view31 addSubview:self.checkout];
-    [view32 addSubview:self.wallet];
+   
     
 
     [self.inner11 addSubview:view1];
@@ -173,7 +170,7 @@
     [self.inner21 addSubview:view21];
     [self.inner22 addSubview:view22];
     [self.inner31 addSubview:view31];
-    [self.inner32 addSubview:view32];
+    
     
     if([self.wnpCont getNumberOfStores].intValue> 1){
         [self.store setImage:[UIImage imageNamed:@"store_home.png"]];
@@ -197,7 +194,7 @@
     
     [self.containerView addSubview:self.inner11];
     [self.containerView addSubview:self.inner31];
-    [self.containerView addSubview:self.inner32];
+   
     
     self.inner11.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
     self.inner11.layer.borderWidth = 1.0f;
@@ -209,8 +206,7 @@
     self.inner22.layer.borderWidth = 1.0f;
     self.inner31.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
     self.inner31.layer.borderWidth = 1.0f;
-    self.inner32.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
-    self.inner32.layer.borderWidth = 1.0f;
+   
     
 
     
@@ -251,8 +247,7 @@
     UITapGestureRecognizer *singleTap5 = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(tapDetected:)];
     singleTap5.numberOfTapsRequired = 1;
     singleTap5.numberOfTouchesRequired = 1;
-    [self.wallet setUserInteractionEnabled:YES];
-    [self.wallet addGestureRecognizer:singleTap5];
+    
     
     self.resetPwdPopup.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
     self.resetPwdPopup.layer.borderWidth = 1.0f;

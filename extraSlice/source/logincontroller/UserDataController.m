@@ -15,18 +15,17 @@
 #import "Utilities.h"
 #import "LoginController.h"
 #import "ESliceConstants.h"
-#import "STPPaymentCardTextField.h"
+#import "CardIO.h"
 #import "STPAPIClient.h"
 #import "Stripe.h"
 #import "StripeDAO.h"
-#import "StripePlanModel.h"
 #import "SmartSpaceDAO.h"
 #import "PlanOfferModel.h"
 #import "WnPUserDAO.h"
 
 static UIColor *SelectedCellBGColor ;
 static UIColor *NotSelectedCellBGColor;
-@interface UserDataController ()<STPPaymentCardTextFieldDelegate>
+@interface UserDataController ()<CardIOPaymentViewControllerDelegate>
 @property(nonatomic) BOOL alreadyRegistered ;
 @property(nonatomic) BOOL makePayment ;
 @property(nonatomic) BOOL dedicatedPlan ;
@@ -49,7 +48,6 @@ static UIColor *NotSelectedCellBGColor;
 @property(strong,nonatomic) ESliceConstants *wnpCont;
 @property(strong,nonatomic) UIButton *strpSubmitBtn;
 @property(strong,nonatomic) UIButton *strpCancelBtn;
-@property(strong,nonatomic) STPPaymentCardTextField *strpPymntTf;
 @property(strong,nonatomic)  Utilities *utils ;
 @property(strong,nonatomic) StripeDAO *strpDAO;
 @property(strong,nonatomic)  UserDAO *userDao;
@@ -58,6 +56,15 @@ static UIColor *NotSelectedCellBGColor;
 @property(strong,nonatomic) NSNumber *initilaPaymentAmount;
 @property(strong,nonatomic) OrganizationModel *individualOrg;
 @property(strong,nonatomic) STPAPIClient *strpClient;
+@property(strong,nonatomic) UIView *scanCardView;
+@property(nonatomic) UIImageView *selCardImg;
+@property(strong,nonatomic) UILabel *selCardNum;
+@property(strong,nonatomic) UILabel *selectedCardExp;
+@property(strong,nonatomic) UILabel *selectedCardCVV;
+@property(strong,nonatomic) CardIOCreditCardInfo *ioCard;
+@property(strong,nonatomic) UILabel *scantxt;
+@property(nonatomic) BOOL userNameAvl;
+@property(nonatomic) BOOL sendVerCode;
 @end
 /*var payableAmount = document.getElementById('planamount').value;
 var onetimeAmount =(+payableAmount)*((+noOfdaystoNextMonth)/(+noOFDaysInMoth));
@@ -69,6 +76,7 @@ UserModel *addedModel = nil;
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.tcAccepted= FALSE;
+    self.userNameAvl=YES;
     self.strpDAO = [[StripeDAO alloc]init];
     self.wnpCont= [[ESliceConstants alloc]init];
     self.utils = [[Utilities alloc]init];
@@ -76,6 +84,7 @@ UserModel *addedModel = nil;
     self.individualOrg =[[OrganizationModel alloc]init];
     self.smSpaceDAO = [[SmartSpaceDAO alloc]init];
     self.userDao = [[UserDAO alloc]init];
+    self.sendVerCode=YES;
     self.userName.delegate =self;
     self.email.delegate =self;
     self.password.delegate =self;
@@ -85,6 +94,7 @@ UserModel *addedModel = nil;
     self.makePayment=true;
     
     if([self.utils getLoggedinUser]  != (id)[NSNull null] && [self.utils getLoggedinUser] != nil){
+        self.sendVerCode=NO;
         self.email.text=[self.utils getLoggedinUser].userName;
         self.password.text=[self.utils decode:[self.utils getLoggedinUser].password];
         self.confPassword.text=[self.utils decode:[self.utils getLoggedinUser].password];
@@ -369,16 +379,19 @@ UserModel *addedModel = nil;
 
 }
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
+     NSLog(@"textFieldShouldReturn: %@", textField.text);
     [textField resignFirstResponder];
     return YES;
 }
 -(void)textFieldDidBeginEditing:(UITextField *)textField{
+     NSLog(@"textFieldDidBeginEditing: %@", textField.text);
     UIImage *blueBGImg = [UIImage imageNamed:@"edt_bg_blue.png"];
     textField.background = blueBGImg;
     [self.utils setViewMovedUp:YES ParentView:self.view CurrTextView:textField];
 
 }
 -(void) textFieldDidEndEditing:(UITextField *)textField{
+    NSLog(@"textFieldDidEndEditing: %@", textField.text);
     [self.utils setViewMovedUp:NO ParentView:self.view CurrTextView:textField];
     UIImage *blueBGImg = [UIImage imageNamed:@"edt_bg_grey.png"];
     textField.background = blueBGImg;
@@ -454,6 +467,7 @@ UserModel *addedModel = nil;
     self.crtOrgError = [[UILabel alloc] initWithFrame:CGRectMake(25, 40 , 250, 30)];
     self.crtOrgError.hidden=true;
     self.crtOrgError.textColor=[UIColor redColor];
+    
     [self.crtOrgPopup addSubview: self.crtOrgError];
     
     self.crtOrgOrgName = [[UITextField alloc] initWithFrame:CGRectMake(25, 80 , 250, 30)];
@@ -517,7 +531,7 @@ UserModel *addedModel = nil;
     float centerY = self.view.center.y;
     
     self.view.userInteractionEnabled=false;
-    self.crtOrgPopup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-95,270,220)];
+    self.crtOrgPopup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-95,270,330)];
      self.crtOrgPopup.backgroundColor = [UIColor whiteColor];
     self.crtOrgPopup.layer.borderColor = [self.utils getThemeLightBlue].CGColor;
     self.crtOrgPopup.layer.borderWidth = 1.0f;
@@ -537,6 +551,7 @@ UserModel *addedModel = nil;
     self.crtOrgError = [[UILabel alloc] initWithFrame:CGRectMake(10, 40 , 250, 30)];
     self.crtOrgError.hidden=true;
     self.crtOrgError.textColor=[UIColor redColor];
+    
     [self.crtOrgPopup addSubview: self.crtOrgError];
     if(self.initilaPaymentAmount.doubleValue > 0){
         UILabel *descLabel =[[UILabel alloc] initWithFrame:CGRectMake(10,75,195,30)];
@@ -571,11 +586,66 @@ UserModel *addedModel = nil;
     subAmtLbl.textColor=[UIColor blackColor];
     [self.crtOrgPopup addSubview:subAmtLbl];
     
-    self.strpPymntTf = [[STPPaymentCardTextField alloc] initWithFrame:CGRectMake(10,145,250,30)];
-    self.strpPymntTf.delegate=self;
-    [self.crtOrgPopup addSubview:self.strpPymntTf];
     
-    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(20,185,100,30)];
+    
+    
+    
+    
+    self.scanCardView = [[UIView alloc] initWithFrame:CGRectMake(25,150,220,50)];
+    [self.crtOrgPopup addSubview:self.scanCardView];
+    UITapGestureRecognizer *scanCardTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(scanCard:)];
+    scanCardTap.numberOfTapsRequired = 1;
+    scanCardTap.numberOfTouchesRequired = 1;
+    [self.scanCardView setUserInteractionEnabled:YES];
+    [self.scanCardView addGestureRecognizer:scanCardTap];
+    self.scanCardView.layer.borderColor= [self.wnpCont getThemeBaseColor].CGColor;
+    self.scanCardView.layer.borderWidth = 1.0f;
+    self.scanCardView.backgroundColor=[self.wnpCont getThemeColorWithTransparency:0.2];
+    self.scantxt =[[UILabel alloc] initWithFrame:CGRectMake(57,5,150,40)];
+    self.scantxt.text=@"Scan your card";
+    self.scantxt.textAlignment=NSTextAlignmentCenter;
+    [self.scantxt setFont:[UIFont boldSystemFontOfSize:17.0]];
+    [self.scanCardView addSubview:self.scantxt];
+    self.scanCardView.layer.cornerRadius = 5;
+    self.scanCardView.layer.masksToBounds = YES;
+    UIImageView *scanImage =[[UIImageView alloc] initWithFrame:CGRectMake(12,5,40,40)];
+    [scanImage setImage:[UIImage imageNamed:@"camera_bl.png"]];
+    [self.scanCardView addSubview:scanImage];
+    
+    self.selCardImg=[[UIImageView alloc] initWithFrame:CGRectMake(25,210,40,30)];
+    
+    [self.crtOrgPopup addSubview:self.selCardImg];
+    
+    self.selCardNum=[[UILabel alloc] initWithFrame:CGRectMake(70,210,175,30)];
+    self.selCardNum.textAlignment=NSTextAlignmentRight;
+    self.selCardNum.textColor = [self.wnpCont getThemeBaseColor];
+    txtFont = [self.selCardNum.font fontWithSize:16];
+    self.selCardNum.font = txtFont;
+    [self.crtOrgPopup addSubview:self.selCardNum];
+    
+    self.selectedCardExp=[[UILabel alloc] initWithFrame:CGRectMake(30,250,80,30)];
+    self.selectedCardExp.textAlignment=NSTextAlignmentCenter;
+    txtFont = [self.selectedCardExp.font fontWithSize:16];
+    self.selectedCardExp.font = txtFont;
+    self.selectedCardExp.textColor = [self.wnpCont getThemeBaseColor];
+    [self.crtOrgPopup addSubview:self.selectedCardExp];
+    
+    self.selectedCardCVV=[[UILabel alloc] initWithFrame:CGRectMake(165,250,80,30)];
+    self.selectedCardCVV.textAlignment=NSTextAlignmentCenter;
+    self.selectedCardCVV.textColor = [self.wnpCont getThemeBaseColor];
+    txtFont = [self.selectedCardCVV.font fontWithSize:16];
+    self.selectedCardCVV.font = txtFont;
+    [self.crtOrgPopup addSubview:self.selectedCardCVV];
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(15,290,100,30)];
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
     [self.strpSubmitBtn setTitle: @"Submit" forState: UIControlStateNormal];
     self.strpSubmitBtn.userInteractionEnabled=TRUE;
@@ -583,7 +653,7 @@ UserModel *addedModel = nil;
     [self.strpSubmitBtn addTarget:self action:@selector(submitStripePayment:) forControlEvents: UIControlEventTouchUpInside];
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
     [self.crtOrgPopup addSubview:self.strpSubmitBtn];
-    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(150,185,100,30)];
+    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(155,290,100,30)];
     self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
 
     
@@ -598,6 +668,7 @@ UserModel *addedModel = nil;
     viewTap.numberOfTouchesRequired = 1;
     [self.self.crtOrgPopup setUserInteractionEnabled:YES];
     [self.self.crtOrgPopup addGestureRecognizer:viewTap];
+    [self scanCard:nil];
 }
 
 - (IBAction)closeOrgPopup:(id)sender {
@@ -638,29 +709,37 @@ UserModel *addedModel = nil;
     self.errorLyt.hidden=true;
     self.errorHieght.constant=0;
     self.errorTop.constant=0;
-    NSString *errorMsg = [self validateUserData];
-    
-   
-    if(errorMsg == nil){
-        if(self.dedicatedPlan){
-            
-            [self addDedicatedMembershipRequest];
-        }else{
-            if(self.makePayment){
-                [self showStripePopup];
+    if(self.userNameAvl == YES){
+        NSString *errorMsg = [self validateUserData];
+        
+        
+        if(errorMsg == nil){
+            if(self.dedicatedPlan){
+                
+                [self addDedicatedMembershipRequest];
             }else{
-                [self addUser:nil];
+                if(self.makePayment){
+                    [self showStripePopup];
+                }else{
+                    [self addUser:nil];
+                }
+                
+                
             }
-            
+        }else{
+            self.errorText.text=errorMsg;
+            self.errorLyt.hidden=false;
+            self.errorHieght.constant=30;
+            self.errorTop.constant=10;
             
         }
     }else{
-        self.errorText.text=errorMsg;
+        self.errorText.text=@"Email already registered";
         self.errorLyt.hidden=false;
         self.errorHieght.constant=30;
         self.errorTop.constant=10;
-
     }
+    
     
 }
 -(NSString *) validateUserData{
@@ -705,8 +784,8 @@ UserModel *addedModel = nil;
 - (IBAction)submitStripePayment:(id)sender {
 
 
-    self.crtOrgError.text= @"";
-    self.crtOrgError.hidden=true;
+    //self.crtOrgError.text= @"";
+    //self.crtOrgError.hidden=true;
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
     self.strpSubmitBtn.userInteractionEnabled=FALSE;
     self.strpSubmitBtn.enabled=FALSE;
@@ -715,42 +794,39 @@ UserModel *addedModel = nil;
     self.strpCancelBtn.userInteractionEnabled=FALSE;
     self.strpCancelBtn.enabled=FALSE;
    if(self.adminAcctModel.strpPubKey == (id)[NSNull null] || self.adminAcctModel.strpPubKey == nil){
+       [self.scantxt.layer removeAllAnimations];
+       self.scantxt.text=@"Scan your card";
+       self.scanCardView.userInteractionEnabled=true;
        self.crtOrgError.text= @"Invalid Stripe  account";
        self.crtOrgError.hidden=false;
-        //[self.delegate stripePaymentViewController:self didFinish:error];
-       /* for(UIView *subViews in [self.crtOrgPopup subviews]){
-            [subViews removeFromSuperview];
-        }
-        for(UIView *subViews in [[UIApplication sharedApplication].keyWindow subviews]){
-            subViews.alpha=1.0;
-            subViews.userInteractionEnabled=TRUE;
-        }
-        [self.crtOrgPopup removeFromSuperview];
-        self.view.alpha=1.0;
-        self.view.userInteractionEnabled=TRUE;*/
-        
+       
+       
+       self.scantxt.text=@"Scan your card";
+       self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
+       // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
+       
+       self.strpCancelBtn.userInteractionEnabled=TRUE;
+       self.strpCancelBtn.enabled=TRUE;
+       
         return;
     }
     NSString *publicKey=[self.utils decode:self.adminAcctModel.strpPubKey];
+    STPCardParams *strpcardParams = [[STPCardParams alloc]init];
     @try{
         NSLog(@"%@",publicKey);
         self.strpClient = [[STPAPIClient alloc] initWithPublishableKey:publicKey];
         [Stripe setDefaultPublishableKey:publicKey];
         NSLog(@"%@",self.strpClient.publishableKey);
-        if (![self.strpPymntTf isValid]) {
-            self.crtOrgError.text= @"Invalid Card";
-            self.crtOrgError.hidden=false;
-            self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
-            // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-            
-            self.strpCancelBtn.userInteractionEnabled=TRUE;
-            self.strpCancelBtn.enabled=TRUE;
-            return;
-        }
+        strpcardParams.cvc=self.ioCard.cvv;
+        strpcardParams.number=self.ioCard.cardNumber;
+        strpcardParams.expMonth=self.ioCard.expiryMonth;
+        strpcardParams.expYear=self.ioCard.expiryYear;
         if (![Stripe defaultPublishableKey]) {
-
             self.crtOrgError.text= @"Invalid key";
             self.crtOrgError.hidden=false;
+            [self.scantxt.layer removeAllAnimations];
+            self.scantxt.text=@"Scan your card";
+            self.scanCardView.userInteractionEnabled=true;
             self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
             // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
             
@@ -759,10 +835,13 @@ UserModel *addedModel = nil;
             return;
         }
         
-        [self.strpClient createTokenWithCard:self.strpPymntTf.card completion:^(STPToken *token, NSError *error) {
+        [self.strpClient createTokenWithCard:strpcardParams completion:^(STPToken *token, NSError *error) {
             if (error) {
+                [self.scantxt.layer removeAllAnimations];
+                self.scantxt.text=@"Scan your card";
                 self.crtOrgError.text= error.description;
                 self.crtOrgError.hidden=false;
+                self.scanCardView.userInteractionEnabled=true;
                 self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
                 // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
                 
@@ -782,8 +861,9 @@ UserModel *addedModel = nil;
         self.crtOrgError.text= exception.description;
         self.crtOrgError.hidden=false;
         self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
-        // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-        
+        [self.scantxt.layer removeAllAnimations];
+        self.scantxt.text=@"Scan your card";
+        self.scanCardView.userInteractionEnabled=true;
         self.strpCancelBtn.userInteractionEnabled=TRUE;
         self.strpCancelBtn.enabled=TRUE;
         return;
@@ -803,14 +883,7 @@ UserModel *addedModel = nil;
     self.view.alpha=1.0;
     self.view.userInteractionEnabled=TRUE;
 }
-- (void)paymentCardTextFieldDidChange:(nonnull STPPaymentCardTextField *)textField {
-    self.strpSubmitBtn.enabled = textField.isValid;
-    if(textField.isValid){
-        [self hideKeyBord];
-        self.strpSubmitBtn.backgroundColor=[self.utils getThemeLightBlue];
-    }
-    
-}
+
 - (void)checkTC:(UITapGestureRecognizer *) rec{
    
     if(self.tcAccepted){
@@ -853,7 +926,6 @@ UserModel *addedModel = nil;
     [[self.view viewWithTag:65] removeFromSuperview];
 }
 -(void) hideKeyBord{
-    [self.strpPymntTf resignFirstResponder];
     [self.view endEditing:YES];
 }
 - (void)performBackgroundTask:(NSString *)purpose
@@ -887,7 +959,9 @@ UserModel *addedModel = nil;
         dispatch_async(dispatch_get_main_queue(), ^{
             if([purpose isEqualToString:@"INDIVIDUAL"]){
                [indicator stopAnimating];
+                self.individualOrg.orgRoleId=@1;
                 self.selectedOrg=self.individualOrg;
+                
             }else{
                
             }
@@ -963,14 +1037,8 @@ UserModel *addedModel = nil;
         CGAffineTransform transform = CGAffineTransformMakeScale(2.0f, 2.0f);
         indicator.transform = transform;
         indicator.center = self.view.center;
-      //  if(tokenId == nil){
-            [self.view addSubview:indicator];
-            [indicator bringSubviewToFront:self.view];
-       // }else{
-           // [self.crtOrgPopup addSubview:indicator];
-           // [indicator bringSubviewToFront:self.crtOrgPopup];
-       // }
-        
+        [self.view addSubview:indicator];
+        [indicator bringSubviewToFront:self.view];
         [indicator startAnimating];
         @try{
             UserModel *userModel = [[UserModel alloc]init];
@@ -1021,40 +1089,41 @@ UserModel *addedModel = nil;
         dispatch_async(dispatch_get_main_queue(), ^{
             if(error != nil){
                 [indicator stopAnimating];
-                //self.errorText.text=error;
-               // self.errorLyt.hidden=false;
-                self.crtOrgError.text= error;
-                self.crtOrgError.hidden=false;
-                //self.errorHieght.constant=30;
-               // self.errorTop.constant=10;
-                self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
-                self.strpCancelBtn.userInteractionEnabled=TRUE;
-                self.strpCancelBtn.enabled=TRUE;
-                self.errorText.text=error;
                 self.errorLyt.hidden=false;
                 self.errorHieght.constant=30;
+                self.errorText.text=error;
                 self.errorTop.constant=10;
-                self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
-                self.strpCancelBtn.userInteractionEnabled=TRUE;
-                self.strpCancelBtn.enabled=TRUE;
-                NSLog(error);
-
+                [self.scantxt.layer removeAllAnimations];
+                [self cancelStripePayment:nil];
             }else{
                 if(addedModel != nil){
                     if(tokenId == nil){
                         [indicator stopAnimating];
-                       [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
-                         [self updateWnPUser:addedModel];
+                        if(self.sendVerCode==YES){
+                            [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
+                        }else{
+                            [self showPopup:@"Successful" Message:@"Successfully registered."];
+                        }
+                       
+                         //[self updateWnPUser:addedModel];
                     }else{
                         NSLog(@"taking one time payment");
+                        
                         if(self.initilaPaymentAmount.doubleValue > 0){
-                            [self.strpClient createTokenWithCard:self.strpPymntTf.card completion:^(STPToken *token, NSError *error) {
+                            STPCardParams *strpcardParams = [[STPCardParams alloc]init];
+                            strpcardParams.cvc=self.ioCard.cvv;
+                            strpcardParams.number=self.ioCard.cardNumber;
+                            strpcardParams.expMonth=self.ioCard.expiryMonth;
+                            strpcardParams.expYear=self.ioCard.expiryYear;
+                            [self.strpClient createTokenWithCard:strpcardParams completion:^(STPToken *token, NSError *error) {
                                 if (error) {
                                     self.crtOrgError.text= error.description;
                                     self.crtOrgError.hidden=false;
                                     self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
                                     // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-                                    
+                                    [self.scantxt.layer removeAllAnimations];
+                                    self.scantxt.text=@"Scan your card";
+                                    self.scanCardView.userInteractionEnabled=true;
                                     self.strpCancelBtn.userInteractionEnabled=TRUE;
                                     self.strpCancelBtn.enabled=TRUE;
                                     return;
@@ -1084,17 +1153,19 @@ UserModel *addedModel = nil;
                                         }
                                         self.view.alpha=1.0;
                                         self.view.userInteractionEnabled=TRUE;
-                                        [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
-                                         [self updateWnPUser:addedModel];
+                                        if(self.sendVerCode==YES){
+                                            [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
+                                        }else{
+                                            [self showPopup:@"Successful" Message:@"Successfully registered."];
+                                        }
+                                         //[self updateWnPUser:addedModel];
                                     }@catch(NSException *exp){
                                         self.errorText.text=exp.description;
                                         self.errorLyt.hidden=false;
-                                        self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
-                                        // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
                                         self.errorHieght.constant=30;
                                         self.errorTop.constant=10;
-                                        self.strpCancelBtn.userInteractionEnabled=TRUE;
-                                        self.strpCancelBtn.enabled=TRUE;
+                                        [self.scantxt.layer removeAllAnimations];
+                                        [self cancelStripePayment:nil];
                                     }
                                 }
                             }];
@@ -1107,8 +1178,12 @@ UserModel *addedModel = nil;
                             }
                             self.view.alpha=1.0;
                             self.view.userInteractionEnabled=TRUE;
-                            [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
-                            [self updateWnPUser:addedModel];
+                            if(self.sendVerCode==YES){
+                                [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
+                            }else{
+                                [self showPopup:@"Successful" Message:@"Successfully registered."];
+                            }
+                            //[self updateWnPUser:addedModel];
                         }
 
                     }
@@ -1119,22 +1194,58 @@ UserModel *addedModel = nil;
                     self.errorLyt.hidden=false;
                     self.errorHieght.constant=30;
                     self.errorTop.constant=10;
-                    self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
-                    self.strpCancelBtn.userInteractionEnabled=TRUE;
-                    self.strpCancelBtn.enabled=TRUE;
-                    self.errorText.text=@"Failed to add user";
-                    self.errorLyt.hidden=false;
-                    self.errorHieght.constant=30;
-                    self.errorTop.constant=10;
-                    self.strpCancelBtn.backgroundColor=[self.utils getThemeLightBlue];
-                    self.strpCancelBtn.userInteractionEnabled=TRUE;
-                    self.strpCancelBtn.enabled=TRUE;
+                    [self.scantxt.layer removeAllAnimations];
+                    [self cancelStripePayment:nil];
+                    
                 }
             }
         });
     });
     
 }
+
+-(void )checkUserName:(NSString *)emailId{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString *error = nil;
+        NSString *status = nil;
+        UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        indicator.frame = CGRectMake(0.0, 0.0, 80.0, 80.0);
+        CGAffineTransform transform = CGAffineTransformMakeScale(2.0f, 2.0f);
+        indicator.transform = transform;
+        indicator.center = self.view.center;
+        [self.view addSubview:indicator];
+        [indicator bringSubviewToFront:self.view];
+        [indicator startAnimating];
+        @try{
+            status = [self.userDao checkUserName:emailId] ;
+            
+            
+        }@catch(NSException *exp){
+            error = exp.description;
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if(error != nil){
+                self.userNameAvl=YES;
+            }else{
+                if([status isEqualToString:@"SUCCESS"]){
+                    self.userNameAvl=YES;
+                }else{
+                    self.userNameAvl=NO;
+                    self.errorText.text=@"Email already registered";
+                    self.errorLyt.hidden=false;
+                    self.errorHieght.constant=30;
+                    self.errorTop.constant=10;
+
+                }
+                
+            }
+            [indicator stopAnimating];
+        });
+    });
+    
+}
+
 - (void)updateWnPUser:(UserModel *)userModel
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -1148,5 +1259,57 @@ UserModel *addedModel = nil;
            
         });
     });
+}
+
+- (void)userDidProvideCreditCardInfo:(CardIOCreditCardInfo *)info inPaymentViewController:(CardIOPaymentViewController *)paymentViewController {
+    self.ioCard=info;
+    self.strpSubmitBtn.enabled=true;
+    self.strpSubmitBtn.userInteractionEnabled=true;
+    self.strpSubmitBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+    self.selCardNum.text=info.cardNumber;
+    self.scanCardView.userInteractionEnabled=false;
+    self.scantxt.text=@"Processing...";
+    
+    self.scantxt.alpha = 0;
+    [UIView animateWithDuration:0.75 delay:0.5 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
+        self.scantxt.alpha = 1;
+    } completion:nil];
+    self.selectedCardExp.text=[NSString stringWithFormat:@"%d/%d", (int)info.expiryMonth,(int) (info.expiryYear % 100)];
+    self.selectedCardCVV.text=info.cvv;
+    NSString *cardName = [CardIOCreditCardInfo displayStringForCardType:info.cardType usingLanguageOrLocale:@"en_US"];
+    [self.selCardImg setImage:[UIImage imageNamed:[NSString stringWithFormat:@"cio_ic_%@.png",cardName.lowercaseString ]]];
+     [self submitStripePayment:nil];
+    [self dismissViewControllerAnimated:YES completion:nil];
+   
+}
+
+- (BOOL) textFieldShouldEndEditing:(UITextField *)textField {
+    if(textField == self.email){
+        if([self.wnpCont getUserId].intValue>0){
+            [self checkUserName:textField.text];
+            NSLog(@"Lost Focus for content: %@", textField.text);
+        }
+        
+    }
+   
+    return YES;
+}
+
+- (void)userDidCancelPaymentViewController:(CardIOPaymentViewController *)paymentViewController {
+    NSLog(@"User cancelled scan");
+    [self dismissViewControllerAnimated:YES completion:nil];
+    [self cancelStripePayment:nil];
+    
+}
+
+- (IBAction)scanCard:(UITapGestureRecognizer *)sender {
+    self.selCardNum.text=@"";
+    self.selectedCardExp.text=@"";
+    self.selectedCardCVV.text=@"";
+    [self.selCardImg setImage:nil];
+    CardIOPaymentViewController *scanViewController = [[CardIOPaymentViewController alloc] initWithPaymentDelegate:self];
+    scanViewController.modalPresentationStyle = UIModalPresentationFormSheet;
+    scanViewController.hideCardIOLogo=YES;
+    [self presentViewController:scanViewController animated:YES completion:nil];
 }
 @end

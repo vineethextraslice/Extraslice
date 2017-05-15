@@ -29,6 +29,7 @@
 #import "StoreDAO.h"
 #import "WnPUserDAO.h"
 #import "SelectPlanController.h"
+#import "SelectRoomType.h"
 
 static UIViewController *newController;
 @interface MenuController ()
@@ -63,6 +64,7 @@ static UIViewController *newController;
         [self.navItems addObject:@"Home"];
         [self.navItems addObject:@"Reservation"];
         [self.navItems addObject:@"My Reservations"];
+        [self.navItems addObject:@"Wallet"];
         [self.navItems addObject:@"Support"];
         [self.navItems addObject:@"walkNpay store"];
         [self.navItems addObject:@"About"];
@@ -72,6 +74,7 @@ static UIViewController *newController;
         [self.navItemsImg addObject:@"home_black.png"];
         [self.navItemsImg addObject:@"calendar.png"];
         [self.navItemsImg addObject:@"mybookings.png"];
+        [self.navItemsImg addObject:@"purse.png"];
         [self.navItemsImg addObject:@"headset.png"];
         [self.navItemsImg addObject:@"walknpay2.png"];
         [self.navItemsImg addObject:@"about13.png"];
@@ -80,12 +83,14 @@ static UIViewController *newController;
     }else{
         [self.navItems addObject:@"walkNpay store"];
         [self.navItems addObject:@"Join extraSlice"];
+        [self.navItems addObject:@"Wallet"];
         [self.navItems addObject:@"Support"];
         [self.navItems addObject:@"About"];
         [self.navItems addObject:@"Logout"];
         
         [self.navItemsImg addObject:@"walknpay2.png"];
         [self.navItemsImg addObject:@"joinslice.png"];
+         [self.navItemsImg addObject:@"purse.png"];
         [self.navItemsImg addObject:@"headset.png"];
         [self.navItemsImg addObject:@"about13.png"];
         [self.navItemsImg addObject:@"logout_black.png"];
@@ -261,6 +266,18 @@ static UIViewController *newController;
         [self.containerFrame addSubview:viewCtrl.view];
         [viewCtrl didMoveToParentViewController:self];
         newController = viewCtrl;
+    }else if ([sender isEqualToString:@"ReserveNow"]) {
+        [self clearPreviousView:newController];
+        self.stryBrd = [UIStoryboard storyboardWithName:@"ReserveConfRoom" bundle:nil];
+        ReserveConfRoom *viewCtrl=[self.stryBrd instantiateViewControllerWithIdentifier:@"ReserveConfRoom"];
+        //viewCtrl.resetPwd =self.resetPwd;
+        [self addChildViewController:viewCtrl];
+        viewCtrl.selectedRoomType=self.selectedRoomType;
+        viewCtrl.view.frame = self.containerFrame.bounds ;
+        [self.containerFrame setClearsContextBeforeDrawing:TRUE];
+        [self.containerFrame addSubview:viewCtrl.view];
+        [viewCtrl didMoveToParentViewController:self];
+        newController = viewCtrl;
     }else if ([sender isEqualToString:@"Reservation"]) {
         BOOL isActivated = FALSE;
         if([self.utils getLoggedinUser].orgList !=nil){
@@ -279,6 +296,7 @@ static UIViewController *newController;
             ReserveConfRoom *viewCtrl=[self.stryBrd instantiateViewControllerWithIdentifier:@"ReserveConfRoom"];
             //viewCtrl.resetPwd =self.resetPwd;
             [self addChildViewController:viewCtrl];
+            viewCtrl.selectedRoomType=nil;
             viewCtrl.view.frame = self.containerFrame.bounds ;
             [self.containerFrame setClearsContextBeforeDrawing:TRUE];
             [self.containerFrame addSubview:viewCtrl.view];
@@ -353,7 +371,7 @@ static UIViewController *newController;
         self.stryBrd = [UIStoryboard storyboardWithName:@"MyConfReservations" bundle:nil];
         MyConfRoomReservations *viewCtrl=[self.stryBrd instantiateViewControllerWithIdentifier:@"MyConfReservations"];
 
-        viewCtrl.selectedDayType =@"Day";
+        viewCtrl.selectedDayType =@"List";
         [self addChildViewController:viewCtrl];
         viewCtrl.view.frame = self.containerFrame.bounds ;
         [self.containerFrame setClearsContextBeforeDrawing:TRUE];
@@ -450,6 +468,14 @@ static UIViewController *newController;
         [viewCtrl didMoveToParentViewController:self];
         newController = viewCtrl;
     }else if ([sender isEqualToString:@"Wallet"]) {
+        WnPConstants *wnpCont= [[WnPConstants alloc] init];
+        [wnpCont setColor:0];
+        if([self.storeCont getUserModel] == nil){
+            WnPUserDAO *wnpUsrDao = [[WnPUserDAO alloc]init];
+            [self.storeCont setUserModel:[wnpUsrDao authenticateESliceUser:[self.utils getLoggedinUser]]];
+            [self.storeCont setUserId:[self.storeCont getUserModel].userId];
+            [self.storeCont setUserName:[self.storeCont getUserModel].userName];
+        }
         [self clearPreviousView:newController];
         self.stryBrd = [UIStoryboard storyboardWithName:@"WalletTab" bundle:nil];
         MyReceipts *viewCtrl=[self.stryBrd instantiateViewControllerWithIdentifier:@"WalletTab"];

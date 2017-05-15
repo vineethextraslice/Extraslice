@@ -19,6 +19,8 @@
 @property(strong, nonatomic) NSNumber *planSplPrice ;
 @property(strong, nonatomic) NSNumber *orgId ;
 @property(strong, nonatomic) NSString *resourceDesc ;
+@property(strong, nonatomic) NSNumber *noOfAddOns ;
+
 
 - (NSDictionary *) dictionaryWithPropertiesOfObject:(id)obj;
 -(NSString*) convertObjectToJsonString:(BOOL) prettyPrint;

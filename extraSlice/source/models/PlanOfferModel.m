@@ -22,6 +22,9 @@
         self.offerValue = @0;
         self.commitmentType =@"";
         self.commitmentValue = @0;
+        self.monthsExcluded=@"";
+        self.validFrom=@"";
+        self.validTill=@"";
         
     }
     return self;

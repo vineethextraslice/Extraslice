@@ -20,7 +20,7 @@ static NSString *currencySymbol;
 static WnPUserModel *wnpUserModel;
 static NSNumber *numberOfStores;
 //static NSString *wnpUrlStartsWith=@"http://walknpaydev01.cloudapp.net:8080/WalkNPayWebService/jsonws/";
-//static NSString *urlStartsWith=@"http://192.168.0.116:8181/WalkNPayWebService/jsonws/";
+
 static NSString *wnpUrlStartsWith=@"https://extraslice.com/WalkNPayWebService/jsonws/";
 static int wnpFontSize=15;
 static UIColor *baseColor;
@@ -38,7 +38,7 @@ static double userLong;
 - (NSNumber *) getUserId;
 - (void) clearItemsArray;
 - (void) setUserId:(NSNumber *) userId;
-
+- (UIColor *)getThemeColorWithTransparency:(float) transparancy;
 - (NSNumber *) getSelectedStoreId;
 - (void) setSelectedStoreId:(NSNumber *) storeId;
 

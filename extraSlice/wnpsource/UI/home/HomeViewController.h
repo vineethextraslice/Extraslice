@@ -20,14 +20,14 @@
 @property (strong, nonatomic) IBOutlet UIView *inner21;
 @property (strong, nonatomic) IBOutlet UIView *inner22;
 @property (strong, nonatomic) IBOutlet UIView *inner31;
-@property (strong, nonatomic) IBOutlet UIView *inner32;
+
 
 @property (strong, nonatomic) IBOutlet UIImageView *store;
 @property (strong, nonatomic) IBOutlet UIImageView *scan;
 @property (strong, nonatomic) IBOutlet UIImageView *cart1;
 @property (strong, nonatomic) IBOutlet UIImageView *cart2;
 @property (strong, nonatomic) IBOutlet UIImageView *checkout;
-@property (strong, nonatomic) IBOutlet UIImageView *wallet;
+
 
 @property (weak, nonatomic) IBOutlet UILabel *count;
 @property(nonatomic) NSNumber *totalAmount;
@@ -43,6 +43,6 @@
 @property (strong, nonatomic) IBOutlet UILabel *cart1Txt;
 @property (strong, nonatomic) IBOutlet UILabel *cart2Txt;
 @property (strong, nonatomic) IBOutlet UILabel *checkoutTxt;
-@property (strong, nonatomic) IBOutlet UILabel *walletTxt;
+
 
 @end

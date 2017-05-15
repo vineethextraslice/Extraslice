@@ -11,7 +11,6 @@
 #import "WnPConstants.h"
 #import "Utilities.h"
 #import "PlanModel.h"
-#import "StripePlanModel.h"
 
 @implementation StripeDAO
 -(NSString *) doStripePayment:(NSNumber *)amount ID:(NSNumber *)strId CardToken:(NSString *) cardToken Currency:(NSString *) currency Description:(NSString *) description IsDealerAccount:(BOOL) isDealerAcct{
@@ -95,7 +94,78 @@
     }
     return refKey;
 }
+-(NSDictionary *) getStripeCardsForUser:(NSNumber *)userId{
+    NSString *urlString =@"custacct/getStripeCustomerDetailsForUser";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userId forKey:@"userId"];
 
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    return result;
+}
+-(NSDictionary *) deleteCard:(NSNumber *)userId CustId:(NSString *) custId TokenId:(NSString *) tokenId{
+    NSString *urlString =@"custacct/deleteCard";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userId forKey:@"userId"];
+    [request setValue:custId forKey:@"custId"];
+    [request setValue:tokenId forKey:@"cardId"];
 
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    return result;
+    
+
+}
+-(NSDictionary *) addCustomerAndCard:(NSNumber *)userId Email:(NSString *) email CustId:(NSString *) custId TokenId:(NSString *) tokenId NewCard:(BOOL) newcard DefaultCard:(BOOL) defaultCard{
+    NSString *urlString =@"custacct/addCustomerAndCard";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userId forKey:@"userId"];
+    [request setValue:email forKey:@"email"];
+    [request setValue:custId forKey:@"custId"];
+    [request setValue:tokenId forKey:@"cardId"];
+    if(newcard){
+        [request setValue:@"true" forKey:@"isNewCard"];
+    }else{
+        [request setValue:@"false" forKey:@"isNewCard"];
+    }
+    if(defaultCard){
+        [request setValue:@"true" forKey:@"isDefaultCard"];
+    }else{
+        [request setValue:@"false" forKey:@"isDefaultCard"];
+    }
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    return result;
+
+    
+}
+-(NSDictionary *) updateStripeCustomerForUser:(NSNumber *)userId OrgId:(NSNumber *) orgId{
+    NSString *urlString =@"custacct/updateStripeCustomerForUser";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userId forKey:@"userId"];
+    [request setValue:orgId forKey:@"orgId"];
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    return result;
+
+}
 
 @end

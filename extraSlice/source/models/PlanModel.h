@@ -21,7 +21,15 @@
 @property(strong, nonatomic) NSString *planDuaration;
 @property(strong, nonatomic) NSNumber *subStartDay;
 
+@property(nonatomic) BOOL isSubPlan;
+@property(nonatomic) BOOL haveSubPlan;
 
+@property(strong, nonatomic) NSNumber *noOfPlans;
+@property(strong, nonatomic) NSNumber *noOfDesks;
+@property(strong, nonatomic) NSNumber *noOfMembers;
+@property(strong, nonatomic) NSNumber *parentPlanId;
+
+@property(strong, nonatomic) NSMutableArray *subPlanList ;
 
 - (NSDictionary *) dictionaryWithPropertiesOfObject:(id)obj;
 -(NSString*) convertObjectToJsonString:(BOOL) prettyPrint;

@@ -25,10 +25,10 @@
 #import "CouponPopup.h"
 #import "DealerDAO.h"
 #import "DealerModel.h"
+#import "CardIO.h"
 
 
-
-@interface PaymentGateway ()<STPPaymentCardTextFieldDelegate>
+@interface PaymentGateway ()<CardIOPaymentViewControllerDelegate>
 @property (weak,nonatomic) NSString *resultText;
 @property(nonatomic, strong, readwrite) PayPalConfiguration *payPalConfig;
 @property(strong,nonatomic) TransactionModel *resultModel;
@@ -41,7 +41,6 @@
 @property(nonatomic) BOOL preRec_customSelected;
 @property(nonatomic) BOOL preRec_strpSelected;
 @property (weak,nonatomic) NSString *paymentFor;
-@property(strong,nonatomic) STPPaymentCardTextField *strpPymntTf;
 @property (strong, nonatomic) UIButton *strpSubmitBtn;
 @property (strong, nonatomic) UIButton *strpCancelBtn;
 @property(strong,nonatomic) WnPUtilities *utils ;
@@ -54,6 +53,13 @@
 @property(strong,nonatomic) NSNumberFormatter *formatter;
 @property(strong,nonatomic) UIView *topLayer;
 
+@property(strong,nonatomic) UIView *scanCardView;
+@property(nonatomic) UIImageView *selCardImg;
+@property(strong,nonatomic) UILabel *selCardNum;
+@property(strong,nonatomic) UILabel *selectedCardExp;
+@property(strong,nonatomic) UILabel *selectedCardCVV;
+@property(strong,nonatomic) CardIOCreditCardInfo *ioCard;
+@property(strong,nonatomic) UILabel *scantxt ;
 @end
 
 @implementation PaymentGateway
@@ -114,28 +120,28 @@
                 }
             }
         }
-        UITapGestureRecognizer *rechargeURL = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(showrechargePopup)];
-        rechargeURL.numberOfTapsRequired = 1;
-        rechargeURL.numberOfTouchesRequired = 1;
-        [self.rechargeLink setUserInteractionEnabled:YES];
-        [self.rechargeLink addGestureRecognizer:rechargeURL];
         
-        UITapGestureRecognizer *showCpn = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(showCouponView)];
-        showCpn.numberOfTapsRequired = 1;
-        showCpn.numberOfTouchesRequired = 1;
-        [self.showCpnDetl setUserInteractionEnabled:YES];
-        [self.showCpnDetl addGestureRecognizer:showCpn];
-        if (offerCoupons.count <=0) {
-            self.couponLyt.hidden=true;
-        }
     }
     @catch (NSException *exception) {
-        [self.utils showErrorMessage:self.errorView contView:self.errorLabel errorLabel:exception.description];
-        self.checkouBtn.userInteractionEnabled=false;
+        //[self.utils showErrorMessage:self.errorView contView:self.errorLabel errorLabel:exception.description];
+        //self.checkouBtn.userInteractionEnabled=false;
         self.couponLyt.hidden=true;
     }
     
+    UITapGestureRecognizer *rechargeURL = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(showrechargePopup)];
+    rechargeURL.numberOfTapsRequired = 1;
+    rechargeURL.numberOfTouchesRequired = 1;
+    [self.rechargeLink setUserInteractionEnabled:YES];
+    [self.rechargeLink addGestureRecognizer:rechargeURL];
     
+    UITapGestureRecognizer *showCpn = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(showCouponView)];
+    showCpn.numberOfTapsRequired = 1;
+    showCpn.numberOfTouchesRequired = 1;
+    [self.showCpnDetl setUserInteractionEnabled:YES];
+    [self.showCpnDetl addGestureRecognizer:showCpn];
+    if (offerCoupons.count <=0) {
+        self.couponLyt.hidden=true;
+    }
     
     
    
@@ -452,14 +458,7 @@
 }
 
 
-- (void)paymentCardTextFieldDidChange:(nonnull STPPaymentCardTextField *)textField {
-    self.strpSubmitBtn.enabled = textField.isValid;
-    if(textField.isValid){
-        [self hideKeyBord];
-        self.strpSubmitBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
-    }
-    
-}
+
 -(void) showStripePaymentPopup{
     self.view.alpha=0.0;
     for(UIView *subViews in [[UIApplication sharedApplication].keyWindow subviews]){
@@ -467,7 +466,7 @@
         subViews.userInteractionEnabled=FALSE;
     }
     self.view.userInteractionEnabled=false;
-    self.topLayer=[[UIView alloc] initWithFrame:CGRectMake(self.view.center.x-135,self.view.center.y-95,270,190)];
+    self.topLayer=[[UIView alloc] initWithFrame:CGRectMake(self.view.center.x-135,self.view.center.y-95,270,265)];
     self.topLayer.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
     self.topLayer.layer.borderWidth = 1.0f;
     self.topLayer.alpha=1.0;
@@ -503,11 +502,58 @@
     
     
     
-    self.strpPymntTf = [[STPPaymentCardTextField alloc] initWithFrame:CGRectMake(10,85,250,30)];
-    self.strpPymntTf.delegate=self;
-    [self.topLayer addSubview:self.strpPymntTf];
+   
+    self.scanCardView = [[UIView alloc] initWithFrame:CGRectMake(25,85,220,50)];
+    [self.topLayer addSubview:self.scanCardView];
+    UITapGestureRecognizer *scanCardTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(scanCard:)];
+    scanCardTap.numberOfTapsRequired = 1;
+    scanCardTap.numberOfTouchesRequired = 1;
+    [self.scanCardView setUserInteractionEnabled:YES];
+    [self.scanCardView addGestureRecognizer:scanCardTap];
+    self.scanCardView.layer.borderColor= [self.wnpCont getThemeBaseColor].CGColor;
+    self.scanCardView.layer.borderWidth = 1.0f;
+    self.scanCardView.backgroundColor=[self.wnpCont getThemeColorWithTransparency:0.2];
+    self.scantxt =[[UILabel alloc] initWithFrame:CGRectMake(57,5,150,40)];
+    self.scantxt.text=@"Scan your card";
+    self.scantxt.textAlignment=NSTextAlignmentCenter;
+    [self.scantxt setFont:[UIFont boldSystemFontOfSize:17.0]];
+    [self.scanCardView addSubview:self.scantxt];
+    self.scanCardView.layer.cornerRadius = 5;
+    self.scanCardView.layer.masksToBounds = YES;
+    UIImageView *scanImage =[[UIImageView alloc] initWithFrame:CGRectMake(12,5,40,40)];
+    [scanImage setImage:[UIImage imageNamed:@"camera_bl.png"]];
+    [self.scanCardView addSubview:scanImage];
     
-    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(20,150,100,30)];
+    self.selCardImg=[[UIImageView alloc] initWithFrame:CGRectMake(25,145,40,30)];
+    
+    [self.topLayer addSubview:self.selCardImg];
+    
+    self.selCardNum=[[UILabel alloc] initWithFrame:CGRectMake(70,145,175,30)];
+    self.selCardNum.textAlignment=NSTextAlignmentLeft;
+    self.selCardNum.textColor = [self.wnpCont getThemeBaseColor];
+    txtFont = [self.selCardNum.font fontWithSize:16];
+    self.selCardNum.font = txtFont;
+    [self.topLayer addSubview:self.selCardNum];
+    
+    self.selectedCardExp=[[UILabel alloc] initWithFrame:CGRectMake(30,185,80,30)];
+    self.selectedCardExp.textAlignment=NSTextAlignmentCenter;
+    txtFont = [self.selectedCardExp.font fontWithSize:16];
+    self.selectedCardExp.font = txtFont;
+    self.selectedCardExp.textColor = [self.wnpCont getThemeBaseColor];
+    [self.topLayer addSubview:self.selectedCardExp];
+    
+    self.selectedCardCVV=[[UILabel alloc] initWithFrame:CGRectMake(165,185,80,30)];
+    self.selectedCardCVV.textAlignment=NSTextAlignmentCenter;
+    self.selectedCardCVV.textColor = [self.wnpCont getThemeBaseColor];
+    txtFont = [self.selectedCardCVV.font fontWithSize:16];
+    self.selectedCardCVV.font = txtFont;
+    [self.topLayer addSubview:self.selectedCardCVV];
+    
+    
+    
+    
+    
+    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(15,225,100,30)];
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
     [self.strpSubmitBtn setTitle: @"Submit" forState: UIControlStateNormal];
     self.strpSubmitBtn.userInteractionEnabled=TRUE;
@@ -516,7 +562,7 @@
     
     [self.topLayer addSubview:self.strpSubmitBtn];
     
-    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(150,150,100,30)];
+    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(155,225,100,30)];
     self.strpCancelBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
     [self.strpCancelBtn setTitle: @"Cancel" forState: UIControlStateNormal];
     self.strpCancelBtn.userInteractionEnabled=TRUE;
@@ -530,6 +576,7 @@
     viewTap.numberOfTouchesRequired = 1;
     [self.self.topLayer setUserInteractionEnabled:YES];
     [self.self.topLayer addGestureRecognizer:viewTap];
+    [self scanCard:nil];
 }
 - (IBAction)submitStripePayment:(id)sender {
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
@@ -557,11 +604,12 @@
     }
     NSString *publicKey=[self.utils decode:self.selStrMdl.stripePublushKey];
     STPAPIClient *strpClient = [[STPAPIClient alloc] initWithPublishableKey:publicKey];
+    STPCardParams *strpcardParams = [[STPCardParams alloc]init];
     [Stripe setDefaultPublishableKey:publicKey];
-    if (![self.strpPymntTf isValid]) {
-        [self.utils showErrorMessage:self.errorView contView:self.errorLabel errorLabel:@"Invalid Card"];
-        return;
-    }
+    strpcardParams.cvc=self.ioCard.cvv;
+    strpcardParams.number=self.ioCard.cardNumber;
+    strpcardParams.expMonth=self.ioCard.expiryMonth;
+    strpcardParams.expYear=self.ioCard.expiryYear;
     
     if (![Stripe defaultPublishableKey]) {
 
@@ -582,7 +630,7 @@
         return;
     }
     
-    [strpClient createTokenWithCard:self.strpPymntTf.card completion:^(STPToken *token, NSError *error) {
+    [strpClient createTokenWithCard:strpcardParams completion:^(STPToken *token, NSError *error) {
         if (error) {
             [self.delegate stripePaymentViewController:self didFinish:error];
             [self.utils showErrorMessage:self.errorView contView:self.errorLabel errorLabel:error.description];
@@ -929,7 +977,6 @@
     [self.parentViewController touchesBegan:touches withEvent:event];
 }
 -(void) hideKeyBord{
-    [self.strpPymntTf resignFirstResponder];
     [self.view endEditing:YES];
 }
 - (NSMutableArray *)getOfferCoupons{
@@ -974,5 +1021,46 @@
 - (NSNumber *)getTotalAmountForOffer{
     return totalAmountForOffer;
     
+}
+
+-(void)userDidProvideCreditCardInfo:(CardIOCreditCardInfo *)info inPaymentViewController:(CardIOPaymentViewController *)paymentViewController {
+    self.ioCard=info;
+    self.scanCardView.userInteractionEnabled=false;
+    self.scantxt.text=@"Processing...";
+    
+    self.scantxt.alpha = 0;
+    [UIView animateWithDuration:0.75 delay:0.5 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
+        self.scantxt.alpha = 1;
+    } completion:nil];
+
+    self.strpSubmitBtn.enabled=true;
+    self.strpSubmitBtn.userInteractionEnabled=true;
+    self.strpSubmitBtn.backgroundColor=[self.wnpCont getThemeBaseColor];
+    self.selCardNum.text=info.cardNumber;
+    self.selectedCardExp.text=[NSString stringWithFormat:@"%d/%d", (int)info.expiryMonth,(int) (info.expiryYear % 100)];
+    self.selectedCardCVV.text=info.cvv;
+    NSString *cardName = [CardIOCreditCardInfo displayStringForCardType:info.cardType usingLanguageOrLocale:@"en_US"];
+    [self.selCardImg setImage:[UIImage imageNamed:[NSString stringWithFormat:@"cio_ic_%@.png",cardName.lowercaseString ]]];
+    [self submitStripePayment:nil];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+
+- (void)userDidCancelPaymentViewController:(CardIOPaymentViewController *)paymentViewController {
+    NSLog(@"User cancelled scan");
+    [self dismissViewControllerAnimated:YES completion:nil];
+    [self cancelStripePayment:nil];
+}
+
+- (IBAction)scanCard:(UITapGestureRecognizer *)sender {
+    self.selCardNum.text=@"";
+    self.selectedCardExp.text=@"";
+    self.selectedCardCVV.text=@"";
+    [self.selCardImg setImage:nil];
+    CardIOPaymentViewController *scanViewController = [[CardIOPaymentViewController alloc] initWithPaymentDelegate:self];
+    scanViewController.modalPresentationStyle = UIModalPresentationFormSheet;
+    scanViewController.hideCardIOLogo=YES;
+    [self presentViewController:scanViewController animated:YES completion:nil];
 }
 @end

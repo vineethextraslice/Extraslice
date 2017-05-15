@@ -14,7 +14,39 @@
 #import "ESliceConstants.h"
 #import "Utilities.h"
 @implementation UserDAO
+-(NSString *) checkUserName:(NSString *)userName{
+   
+    NSString *urlString =@"user/checkUserName";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userName forKey:@"email"];
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request
+                                                       options:(NSJSONWritingOptions)    (NSJSONWritingPrettyPrinted)                                                 error:&error];
+    
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    NSString *resultStr = nil;
+    
+    WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    @try {
+        NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+        if(result == nil || [result objectForKey:@"STATUS"]==nil){
+            resultStr =@"SUCCESS";
+        }
+        NSString *statusStr = [result objectForKey:@"STATUS"]    ;
+        if(statusStr != nil && [statusStr isEqual:@"SUCCESS"]){
+            resultStr =@"SUCCESS";
+        }else{
+            resultStr =@"Email already registered";
+        }
 
+    }@catch (NSException *exp) {
+        resultStr =@"SUCCESS";
+    }@catch (NSError *exp) {
+        resultStr =@"SUCCESS";
+    }
+        return resultStr;
+}
 -(UserModel *) getUser:(NSString *)userName Password:(NSString *)password{
     Utilities *utils=[[Utilities alloc]init];
     NSString *urlString =@"user/getUserByUserNameAndAppDetl";

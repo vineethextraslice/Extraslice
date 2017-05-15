@@ -33,4 +33,11 @@
 - (IBAction)loadMyReservations:(id)sender;
 @property(strong,nonatomic) AdminAccountModel *adminAcctModel;
 @property(strong,nonatomic) NSDate *selectedDate;
+@property(strong,nonatomic) NSString *selectedRoomType;
+@property (weak, nonatomic) IBOutlet UILabel *roomTypeLbl;
+@property (strong, nonatomic) IBOutlet UITableView *roomType;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *roomTypeHeight;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *roomBottom;
+
+
 @end

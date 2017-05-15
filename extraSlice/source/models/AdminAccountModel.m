@@ -23,6 +23,7 @@
         self.contactNo=@"";
         self.termsNCondUrl=@"";
         self.privacyPolicyUrl=@"";
+        self.webserviceVersion=@"";
     }
     return self;
 }

@@ -13,6 +13,8 @@
 #import "TransactionDAO.h"
 #import "CouponModel.h"
 #import "WnPUtilities.h"
+#import "Utilities.h"
+#import "EsliceTrxnDAO.h"
 
 @interface RecieptController ()
 
@@ -25,6 +27,7 @@
 @property(strong,nonatomic) NSNumberFormatter *formatter;
 @property(strong,nonatomic) WnPConstants *wnpCont;
 @property(strong,nonatomic) NSString *currSymb;
+@property(strong,nonatomic) Utilities *eUtils;
 
 @end
 
@@ -36,6 +39,7 @@
     [super viewDidLoad];
     self.wnpCont =[[WnPConstants alloc]init];
     WnPUtilities *utils = [[WnPUtilities alloc]init];
+    self.eUtils = [[Utilities alloc]init];
     self.formatter= [[NSNumberFormatter alloc] init];
     [self.formatter setPositiveFormat:@"0.##"];
     self.offerCpnArray = [[NSMutableArray alloc]init];
@@ -50,7 +54,7 @@
         self.currSymb=@"₹";
     }
     float viewSize = screenRect1.size.height-330;
-    if(self.reciept.couponList != nil && self.reciept.couponList.count > 0){
+    if(self.reciept.couponList != (id)[NSNull null]  && self.reciept.couponList.count > 0){
         for(NSMutableDictionary *cpnDic in self.reciept.couponList){
             CouponModel *model = [[CouponModel alloc]init];
             model = [model initWithDictionary:cpnDic];
@@ -177,6 +181,8 @@
             self.payMethod1.text=@"Prepaid";
             self.pay1Hip.text=@":";
             self.payAmount1.text=[NSString stringWithFormat:@"%@%@",self.currSymb,[self.formatter stringFromNumber:[NSNumber numberWithDouble:(self.prepaidAmount)]]];
+            
+           
             self.payMethod2.hidden=TRUE;
             self.payHip2.hidden=TRUE;
             self.payAmount2.hidden=TRUE;
@@ -184,7 +190,7 @@
             if(self.prepaidAmount <=0){
                 self.payMethod1.text=self.reciept.payMethod;
                 self.pay1Hip.text=@":";
-                self.payAmount1.text=[NSString stringWithFormat:@"%@%@",self.currSymb,[self.formatter numberFromString:self.reciept.payableTotal]];
+                self.payAmount1.text=[NSString stringWithFormat:@"%@%@",self.currSymb,[self.formatter stringFromNumber:[NSNumber numberWithDouble:self.reciept.payableTotal.doubleValue]]];
             
                 self.payMethod2.hidden=TRUE;
                 self.payHip2.hidden=TRUE;
@@ -196,7 +202,8 @@
             
                 self.payMethod2.text=self.reciept.payMethod;
                 self.payHip2.text=@":";
-                self.payAmount2.text=[NSString stringWithFormat:@"%@%@",self.currSymb,[self.formatter numberFromString:self.reciept.payableTotal]];
+                self.payAmount2.text=[NSString stringWithFormat:@"%@%@",self.currSymb,[self.formatter stringFromNumber:[NSNumber numberWithDouble:self.reciept.payableTotal.doubleValue]]];
+                //[self.formatter numberFromString:self.reciept.payableTotal]];
             }
         }
     }else{
@@ -217,7 +224,7 @@
     }
     self.totalCounts.text = [NSString stringWithFormat:@"%d", totalCnt];
     self.totalTaxView.text=[NSString stringWithFormat:@"%@%@",self.currSymb,[self.formatter stringFromNumber:[NSNumber numberWithDouble:self.reciept.totalTax.doubleValue]]];
-    self.subTotalAmt.text = [NSString stringWithFormat:@"%@%@",self.currSymb,self.reciept.subTotal];
+    self.subTotalAmt.text = [NSString stringWithFormat:@"%@%@",self.currSymb,[self.formatter stringFromNumber:[NSNumber numberWithDouble:self.reciept.subTotal.doubleValue]]];
     if(self.offerAmount > 0){
         self.discount.text = [NSString stringWithFormat:@"%s%@%@","-",self.currSymb,[self.formatter stringFromNumber:[NSNumber numberWithDouble:(self.offerAmount)]]];
     }else{
@@ -241,9 +248,15 @@
     [self.mailImg addGestureRecognizer:singleTap];
 }
 -(void)sendReceiptByEmail:(UIGestureRecognizer *)recognizer {
+    NSString *status =nil;
+    if([self.reciept.receiptFor.uppercaseString isEqualToString:@"WALKNPAY"]){
+        TransactionDAO *trxnDAO = [[TransactionDAO alloc] init];
+        status= [trxnDAO sendReceiptByEmail:[self.wnpCont getUserId] OrderId:self.reciept.orderId];
+    }else{
+        EsliceTrxnDAO *trxnDAO = [[EsliceTrxnDAO alloc] init];
+        status= [trxnDAO sendReceiptByEmail:[self.eUtils getLoggedinUser].userId OrderId:self.reciept.orderId];
+    }
     
-    TransactionDAO *trxnDAO = [[TransactionDAO alloc] init];
-    NSString *status = [trxnDAO sendReceiptByEmail:[self.wnpCont getUserId] OrderId:self.reciept.orderId];
     UIAlertAction *alert = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
     UIAlertController *controller = [UIAlertController alertControllerWithTitle:nil message:status preferredStyle:UIAlertControllerStyleAlert];
     [controller addAction:alert];

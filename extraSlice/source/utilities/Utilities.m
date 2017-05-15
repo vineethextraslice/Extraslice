@@ -20,7 +20,7 @@
 }
 -(BOOL) isAfter:(NSDate *) fisrtDate CompareTo:(NSDate *)secondDat{
     NSTimeInterval diff = [fisrtDate timeIntervalSinceDate:secondDat];
-    if(diff <0){
+    if(diff <=0){
         return FALSE;
     }else{
         return TRUE;
@@ -29,7 +29,7 @@
 }
 -(BOOL) isBefore:(NSDate *) fisrtDate CompareTo:(NSDate *)secondDat{
     NSTimeInterval diff = [secondDat timeIntervalSinceDate:fisrtDate];
-    if(diff <0){
+    if(diff <=0){
         return FALSE;
     }else{
         return TRUE;

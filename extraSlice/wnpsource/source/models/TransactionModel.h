@@ -24,6 +24,9 @@
 @property(strong,nonatomic) NSMutableArray *couponList;
 @property(strong,nonatomic) NSMutableArray *itemList;
 @property(strong,nonatomic) NSDictionary *recieptStore;
+@property(strong,nonatomic) NSString *deviceType;
+@property(strong,nonatomic) NSString *receiptFor;
+
 - (NSDictionary *) dictionaryWithPropertiesOfObject:(id)obj;
 -(NSString*) convertObjectToJsonString:(BOOL) prettyPrint;
 - (TransactionModel *)initWithDictionary:(NSDictionary*)dictionary;

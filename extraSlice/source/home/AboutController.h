@@ -13,5 +13,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *appVersion;
 @property (weak, nonatomic) IBOutlet UILabel *webSite;
 @property (weak, nonatomic) IBOutlet UILabel *privacyPolicy;
+@property (weak, nonatomic) IBOutlet UILabel *webserviceVersion;
 
 @end

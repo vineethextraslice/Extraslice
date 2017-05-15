@@ -1,23 +1,23 @@
 //
-//  StripePlanModel.m
 //  extraSlice
 //
 //  Created by Administrator on 24/06/16.
 //  Copyright © 2016 Extraslice Inc. All rights reserved.
 //
 
-#import "StripePlanModel.h"
+#import "StripeCardModel.h"
 #import "objc/runtime.h"
-@implementation StripePlanModel
+@implementation StripeCardModel
 - (instancetype)init
 {
     self = [super init];
     if (self) {
-        self.stripePlanId=@"";
-        self.eslicePlanId=@-1;
-        self.stripePlanName=@"";
-        self.resIds=@"";
-        self.id=@-1;
+        self.cardId=@"";
+        self.expMonth=@-1;
+        self.expYear=@-1;
+        self.last4=@"";
+        self.name=@"";
+        self.defaultCard=false;
     }
     return self;
 }
@@ -65,7 +65,7 @@
         return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
 }
-- (StripePlanModel *)initWithDictionary:(NSDictionary*)dictionary {
+- (StripeCardModel *)initWithDictionary:(NSDictionary*)dictionary {
     if (self = [super init]) {
         NSArray*keys=[dictionary allKeys];
         for (NSString* key in keys) {

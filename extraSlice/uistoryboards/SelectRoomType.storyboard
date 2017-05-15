@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+    </dependencies>
+    <scenes>
+        <!--Select Room Type-->
+        <scene sceneID="FE6-WW-n8f">
+            <objects>
+                <viewController storyboardIdentifier="SelectRoomType" useStoryboardIdentifierAsRestorationIdentifier="YES" id="jsg-Fm-t83" customClass="SelectRoomType" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Pci-UI-vww"/>
+                        <viewControllerLayoutGuide type="bottom" id="FAZ-5X-8Bw"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="SAj-Jf-rKt">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Reserve a training room" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F3T-FL-mxi">
+                                <rect key="frame" x="0.0" y="280" width="600" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="aMe-tY-jmy"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.1215686275" green="0.32156862749999998" blue="0.41176470590000003" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Reserve an event room" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FFY-Th-ce8">
+                                <rect key="frame" x="0.0" y="340" width="600" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="hFn-Uw-dEM"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.1215686275" green="0.32156862749999998" blue="0.41176470590000003" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" tag="1" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Reserve a conference room" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7Ds-3B-tfa">
+                                <rect key="frame" x="0.0" y="220" width="600" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="S3D-Xd-7KQ"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.1215686275" green="0.32156862749999998" blue="0.41176470590000003" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="F3T-FL-mxi" secondAttribute="trailing" id="0La-4x-zoc"/>
+                            <constraint firstItem="F3T-FL-mxi" firstAttribute="top" secondItem="7Ds-3B-tfa" secondAttribute="bottom" constant="20" id="2U8-ae-rQX"/>
+                            <constraint firstItem="7Ds-3B-tfa" firstAttribute="centerX" secondItem="SAj-Jf-rKt" secondAttribute="centerX" id="5t5-dM-vgu"/>
+                            <constraint firstItem="7Ds-3B-tfa" firstAttribute="leading" secondItem="SAj-Jf-rKt" secondAttribute="leading" id="FbY-g1-c4I"/>
+                            <constraint firstItem="FFY-Th-ce8" firstAttribute="top" secondItem="F3T-FL-mxi" secondAttribute="bottom" constant="20" id="IRj-i8-TEs"/>
+                            <constraint firstItem="F3T-FL-mxi" firstAttribute="leading" secondItem="SAj-Jf-rKt" secondAttribute="leading" id="VLU-GL-pqP"/>
+                            <constraint firstAttribute="trailing" secondItem="7Ds-3B-tfa" secondAttribute="trailing" id="Y2S-cc-Qcp"/>
+                            <constraint firstItem="F3T-FL-mxi" firstAttribute="centerY" secondItem="SAj-Jf-rKt" secondAttribute="centerY" id="gPd-me-WUO"/>
+                            <constraint firstAttribute="trailing" secondItem="FFY-Th-ce8" secondAttribute="trailing" id="oIQ-Bw-W8n"/>
+                            <constraint firstItem="F3T-FL-mxi" firstAttribute="centerX" secondItem="SAj-Jf-rKt" secondAttribute="centerX" id="owH-R9-wTp"/>
+                            <constraint firstItem="FFY-Th-ce8" firstAttribute="leading" secondItem="SAj-Jf-rKt" secondAttribute="leading" id="qHb-2v-omq"/>
+                            <constraint firstItem="FFY-Th-ce8" firstAttribute="centerX" secondItem="SAj-Jf-rKt" secondAttribute="centerX" id="qIR-pY-HGh"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="confRoom" destination="7Ds-3B-tfa" id="YEb-YO-9Oi"/>
+                        <outlet property="eventRoom" destination="FFY-Th-ce8" id="qRy-Bj-xmG"/>
+                        <outlet property="trainingRoom" destination="F3T-FL-mxi" id="Dzh-Ww-HlM"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="TFh-tj-hXM" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="323" y="193"/>
+        </scene>
+    </scenes>
+</document>

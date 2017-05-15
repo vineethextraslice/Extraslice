@@ -59,6 +59,7 @@
     trxnModel.orderDate=@"";
     trxnModel.storeName=@"";
     trxnModel.couponList=couponDictionaryList;
+    trxnModel.deviceType=@"iOS";
     trxnModel.recieptStore=[[NSDictionary alloc]init];
     NSLog(@"%@",trxnModel);
     NSString *urlString =@"transaction/addTransaction";
@@ -254,6 +255,21 @@
     }
     
 }
-
+-(NSDictionary *) getAllWnpReceipts:(NSNumber *)userId StartDate:(NSString *)startDate EndDate:(NSString *)endDate{
+    NSString *urlString =@"transaction/getAllTransactionForUserForPeriod";
+    NSMutableDictionary *request = [NSMutableDictionary dictionary];
+    [request setValue:userId forKey:@"userId"];
+    [request setValue:startDate forKey:@"startDate"];
+    [request setValue:endDate forKey:@"endDate"];
+    
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:(NSJSONWritingOptions) (NSJSONWritingPrettyPrinted) error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    WnPWebServiceDAO *wbDAO = [[WnPWebServiceDAO alloc]init];
+    NSDictionary *result =[wbDAO getDataFromWebService:urlString requestJson:jsonString];
+    return result;
+}
 
 @end

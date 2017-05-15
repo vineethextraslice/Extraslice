@@ -19,5 +19,8 @@
 @property (strong, nonatomic) IBOutlet UIView *innerBoarder3;
 @property (strong, nonatomic) IBOutlet UIImageView *wnpImage;
 @property (strong, nonatomic) IBOutlet UILabel *wnpText;
+@property (strong, nonatomic) IBOutlet UIView *innerBoarder32;
+@property (strong, nonatomic) IBOutlet UIImageView *wallet;
+@property (strong, nonatomic) IBOutlet UILabel *walletTxt;
 
 @end

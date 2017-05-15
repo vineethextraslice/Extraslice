@@ -16,4 +16,8 @@
 -(NSString *) sendReceiptByEmail:(NSNumber *)userId OrderId:(NSNumber *)orderId;
 -(NSDictionary *) getAllRecieptsForuser:(NSNumber *)userId SoreId:(NSNumber *)storeId;
 -(NSDictionary *) getAllRecieptsForuserWithOffset:(NSNumber *)userId StoreId:(NSNumber *)storeId Limit:(int) limit Offset:(int ) offset;
+-(NSDictionary *) getAllWnpReceipts:(NSNumber *)userId StartDate:(NSString *)startDate EndDate:(NSString *)endDate ;
+
+
+
 @end

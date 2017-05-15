@@ -10,7 +10,31 @@
 #import "objc/runtime.h"
 
 @implementation TransactionModel
-
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.orderId=@-1;
+        self.userName=@"";
+        self.subTotal=@"";
+        self.storeId=@-1;
+        self.userId=@-1;
+        self.grossTotal=@"";
+        self.totalTax=@"";
+        self.offerTotal=@"";
+        self.payableTotal=@"";
+        self.orderDate=@"";
+        self.storeName=@"";
+        self.payMethod=@"";
+        //self.couponList;
+        //self.itemList;
+       // self.recieptStore=@"";
+        self.deviceType=@"";
+        self.receiptFor=@"";
+        
+    }
+    return self;
+}
 - (NSDictionary *) dictionaryWithPropertiesOfObject:(id)obj
 {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];

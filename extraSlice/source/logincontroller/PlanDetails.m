@@ -42,14 +42,16 @@ double offerPercent=0;
     self.selectedPlnArray=[[NSMutableArray alloc]init];
     self.selectedAddonIds=[[NSMutableSet alloc]init];
     self.selectedPlnMap =[[NSMutableDictionary alloc]init];
-    
+    totalAmountVal=0;
+    addonPrice=0;
+    offerPercent=0;
   
      self.planNameTV.textColor=[self.utils getThemeLightBlue];
     self.planShortDesc.backgroundColor=[self.utils getThemeLightBlue];
     self.offerHeader.backgroundColor=[self.utils getThemeLightBlue];
     self.addonHeader.backgroundColor=[self.utils getThemeLightBlue];
     self.resourceMainHeader.backgroundColor=[self.utils getThemeLightBlue];
-    self.resourceHeader.backgroundColor=[self.utils getLightGray];
+    self.resourceHeader.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.3];
     
     self.offerScrView.layer.borderColor = [self.utils getThemeLightBlue].CGColor;
     self.offerScrView.layer.borderWidth = 1.0f;
@@ -57,7 +59,12 @@ double offerPercent=0;
     self.addonScrView.layer.borderColor = [self.utils getThemeLightBlue].CGColor;
     self.addonScrView.layer.borderWidth = 1.0f;
 
-    
+    UITapGestureRecognizer *viewTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(hideKeyBord)];
+    viewTap.numberOfTapsRequired = 1;
+    viewTap.numberOfTouchesRequired = 1;
+    [self.view setUserInteractionEnabled:YES];
+    [self.view addGestureRecognizer:viewTap];
+
    
     self.addToCartBtn.backgroundColor=[self.utils getThemeLightBlue];
 
@@ -74,7 +81,7 @@ double offerPercent=0;
     [self.goBack addGestureRecognizer:goBackTap];
     
     self.planCost.text=[NSString stringWithFormat:@"%s%@" ,"Plan cost : $",[self.utils getNumberFormatter:self.selectedPlnModel.planPrice.doubleValue]];
-    totalAmountVal=self.selectedPlnModel.planPrice.doubleValue;
+
     UIView *prevView = nil;
     UIView *prevNameView = nil;
     //int screenplanHt=screenHeight-(headerHieght+cartHeight+addonHeight);
@@ -94,7 +101,9 @@ double offerPercent=0;
     limit.layer.borderColor=[UIColor whiteColor].CGColor;
     limit.text = @" Usable limit";
     [self.resourceHeader addSubview: limit];
-
+    for(ResourceTypeModel *resModel in self.addonList){
+        resModel.noOfAddOns=[NSNumber numberWithInt:1];
+    }
     int totalLytHeight = (int)(self.selectedPlnModel.resourceTypeList.count)*32;
     int addOnHeight = (int)((self.addonList.count*32)+(self.offerList.count*45)+(65+20+30+20+30+20+30+10+30+10+30+20+30+20));
     if(screenHeight - addOnHeight<totalLytHeight){
@@ -208,7 +217,7 @@ double offerPercent=0;
     for(UIView *sv in self.offerScrView.subviews){
         [sv removeFromSuperview];
     }
-    offerPercent=0;
+
     for(PlanOfferModel *offerMdl in self.offerList){
         NSArray *applicableTo = [offerMdl.applicableTo componentsSeparatedByString:@","];
         NSString *plnId=[NSString stringWithFormat:@"%d",self.selectedPlnModel.planId.intValue];
@@ -238,12 +247,11 @@ double offerPercent=0;
       
         
         
-        if(self.selectedOffer != nil &&  self.selectedOffer.offerId.intValue == offerMdl.offerId.intValue){
+        /*if(self.selectedOffer != nil &&  self.selectedOffer.offerId.intValue == offerMdl.offerId.intValue){
             [selectAddOn setImage:[UIImage imageNamed:@"checkbox_sel.png"]];
-            offerPercent = offerMdl.offerValue.doubleValue/100.00;
         }else{
             [selectAddOn setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
-        }
+        }*/
         
         [rowView addSubview: selectAddOn];
         
@@ -283,10 +291,6 @@ double offerPercent=0;
         self.offerHeaderHeight.constant=0;
         self.offerScrHeight.constant=0;
     }
-    totalAmountVal=(self.selectedPlnModel.planPrice.doubleValue+addonPrice);
-    totalAmountVal = totalAmountVal - (totalAmountVal*offerPercent);
-
-    self.planCost.text=[NSString stringWithFormat:@"%s%@" ,"Plan cost : $",[self.utils getNumberFormatter:totalAmountVal]];
 }
 
 
@@ -300,6 +304,22 @@ double offerPercent=0;
     for(UIView *sv in self.addonScrView.subviews){
         [sv removeFromSuperview];
     }
+    UIView *rowView = [[UIView alloc] initWithFrame:CGRectMake(0, 1 , (screenWidth), 30)];
+    rowView.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.3];
+    UILabel *resourceName = [[UILabel alloc] initWithFrame:CGRectMake(2, 2 , ((screenWidth-40)*0.40)+27, rowHeight)];
+    resourceName.text = @"Name";
+    [rowView addSubview: resourceName];
+    UILabel *price = [[UILabel alloc] initWithFrame:CGRectMake(36+((screenWidth-40)*0.45), 2, ((screenWidth-35)*0.25), 30)];
+    price.text = @"Price";
+    [rowView addSubview: price];
+    UITextField *cnt = [[UITextField alloc] initWithFrame:CGRectMake(38+((screenWidth-40)*0.65), 2, ((screenWidth-35)*0.125), 30)];
+    cnt.text=@"Qty";
+    [rowView addSubview: cnt];
+    UILabel *torPrice = [[UILabel alloc] initWithFrame:CGRectMake(40+((screenWidth-40)*0.8), 2, ((screenWidth-35)*0.225), 30)];
+    torPrice.text =@"Total";
+    torPrice.textAlignment=NSTextAlignmentCenter;
+    [rowView addSubview: torPrice];
+    [self.addonScrView addSubview:rowView];
     NSMutableSet *selectedPlansResIds =[[NSMutableSet alloc]init];
     
     for(NSDictionary  *resTypeObj in self.selectedPlnModel.resourceTypeList){
@@ -309,12 +329,12 @@ double offerPercent=0;
             [selectedPlansResIds addObject:resType.resourceTypeId];
         }
     }
-    addonPrice =0;
+
     for(ResourceTypeModel *resType in self.addonList){
         if([selectedPlansResIds containsObject:resType.resourceTypeId]){
             continue;
         }
-        UIView *rowView = [[UIView alloc] initWithFrame:CGRectMake(0, 5 , (screenWidth), rowHeight)];
+        UIView *rowView = [[UIView alloc] initWithFrame:CGRectMake(0, 32 , (screenWidth), rowHeight)];
         if(prevView !=nil){
             CGSize lastRect = [prevNameView sizeThatFits: prevNameView.frame.size];
             float lastHeight = rowHeight;
@@ -327,19 +347,22 @@ double offerPercent=0;
         [rowView sizeToFit];
         UIImageView *selectAddOn = [[UIImageView alloc] initWithFrame:CGRectMake(2, 2 , 25, 25)];
         [selectAddOn setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
-        double currAddonPrice = resType.planSplPrice.doubleValue;
-        
-        
+
         if([self.selectedAddonIds containsObject:resType.resourceTypeId]){
             [selectAddOn setImage:[UIImage imageNamed:@"checkbox_sel.png"]];
-            addonPrice = addonPrice+currAddonPrice;
         }else{
             [selectAddOn setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
         }
-        
+        selectAddOn.hidden = false;
+        selectAddOn.tag=resType.resourceTypeId.intValue;
+        UITapGestureRecognizer *selAddOnTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(addAddOn:)];
+        selAddOnTap.numberOfTapsRequired = 1;
+        selAddOnTap.numberOfTouchesRequired = 1;
+        [selectAddOn setUserInteractionEnabled:YES];
+        [selectAddOn addGestureRecognizer:selAddOnTap];
         [rowView addSubview: selectAddOn];
         
-        UILabel *resourceName = [[UILabel alloc] initWithFrame:CGRectMake(32, 2 , ((screenWidth-35)*0.75), rowHeight)];
+        UILabel *resourceName = [[UILabel alloc] initWithFrame:CGRectMake(32, 2 , ((screenWidth-40)*0.40), rowHeight)];
         resourceName.numberOfLines=0;
         resourceName.lineBreakMode=NSLineBreakByWordWrapping;
         resourceName.text = resType.resourceTypeName;
@@ -348,17 +371,40 @@ double offerPercent=0;
         [rowView addSubview: resourceName];
         
        
-        UILabel *price = [[UILabel alloc] initWithFrame:CGRectMake(36+((screenWidth-35)*0.75), 2, ((screenWidth-35)*0.25), rowHeight)];
-        price.text = [NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:resType.planSplPrice.doubleValue]];
-        selectAddOn.hidden = false;
-        selectAddOn.tag=resType.resourceTypeId.intValue;;
-        UITapGestureRecognizer *selAddOnTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(addAddOn:)];
-        selAddOnTap.numberOfTapsRequired = 1;
-        selAddOnTap.numberOfTouchesRequired = 1;
-        [selectAddOn setUserInteractionEnabled:YES];
-        [selectAddOn addGestureRecognizer:selAddOnTap];
-     
-        [rowView addSubview: price];
+        UILabel *price = [[UILabel alloc] initWithFrame:CGRectMake(36+((screenWidth-40)*0.45), 2, ((screenWidth-40)*0.25), rowHeight)];
+        double addonPrice =resType.planSplPrice.doubleValue;
+        if(self.selectedOffer != nil){
+            addonPrice = addonPrice - (addonPrice*self.selectedOffer.offerValue.doubleValue/100.00);
+        }
+        price.text = [NSString stringWithFormat:@"$%@/%@",[self.utils getNumberFormatter:addonPrice],resType.planLimitUnit];
+         [rowView addSubview: price];
+        
+        
+        UITextField *cnt = [[UITextField alloc] initWithFrame:CGRectMake(38+((screenWidth-40)*0.65), 2, ((screenWidth-40)*0.125), rowHeight)];
+        if(resType.noOfAddOns.intValue <= 0){
+            resType.noOfAddOns=[NSNumber numberWithInt:1];
+        }
+        cnt.layer.borderColor=[UIColor grayColor].CGColor;
+        cnt.layer.borderWidth=1;
+        cnt.text = [NSString stringWithFormat:@"%d",resType.noOfAddOns.intValue];
+        if(![resType.planLimitUnit.uppercaseString isEqualToString:@"MONTH"]){
+            [cnt setEnabled:NO];
+            [cnt setKeyboardType:UIKeyboardTypeNumberPad];
+            [cnt addTarget:self action:@selector(editQuantity:) forControlEvents: UIControlEventEditingDidEnd] ;
+            [cnt resignFirstResponder];
+            
+            
+        }
+        cnt.textAlignment=NSTextAlignmentCenter;
+        cnt.tag=resType.resourceTypeId.intValue+1000;
+        [rowView addSubview: cnt];
+        
+        
+        UILabel *torPrice = [[UILabel alloc] initWithFrame:CGRectMake(40+((screenWidth-40)*0.8), 2, ((screenWidth-40)*0.225), rowHeight)];
+        torPrice.text = [NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:resType.planSplPrice.doubleValue]];
+         [rowView addSubview: torPrice];
+        torPrice.tag=resType.resourceTypeId.intValue+2000;
+        torPrice.textAlignment=NSTextAlignmentCenter;
         price.hidden = false;
         [self.addonScrView addSubview:rowView];
         prevView=rowView;
@@ -366,59 +412,108 @@ double offerPercent=0;
         subIndex++;
         self.addonScrView.scrollEnabled=true;
         self.addonScrView.scrollsToTop=true;
-        self.addonScrView.contentSize = CGSizeMake(screenWidth, ((self.addonList.count)*34) );
-        self.addonScrHeight.constant=self.addonList.count*34;
+        self.addonScrView.contentSize = CGSizeMake(screenWidth, ((self.addonList.count+1)*34) );
+        self.addonScrHeight.constant=(self.addonList.count+1)*34;
     }
     if(subIndex == 0){
         self.addonHeader.hidden=true;
         self.addonHeaderHeight.constant=0;
         self.addonScrHeight.constant=0;
     }
-    totalAmountVal=(self.selectedPlnModel.planPrice.doubleValue+addonPrice);
-    totalAmountVal = totalAmountVal - (totalAmountVal*offerPercent);
-    self.planCost.text=[NSString stringWithFormat:@"%s%@" ,"Plan cost : $",[self.utils getNumberFormatter:totalAmountVal]];
 }
 
+-(void) hideKeyBord{
+    [self.view endEditing:YES];
+}
+
+-(IBAction) editQuantity:(UITextField *)textView{
+    if(textView.text.intValue<=0){
+        textView.text=@"1";
+    }
+    int resId = (int)textView.tag-1000;
+    UILabel *totAmt = (UILabel *)[self.addonScrView viewWithTag:resId+2000];
+    for(ResourceTypeModel *resTypeMdl in self.addonList){
+        if(resTypeMdl.resourceTypeId.intValue == resId){
+            resTypeMdl.noOfAddOns=[NSNumber numberWithInt:textView.text.intValue];
+            totAmt.text=[NSString stringWithFormat:@"$%@",[self.utils getNumberFormatter:(resTypeMdl.planSplPrice.doubleValue*resTypeMdl.noOfAddOns.intValue)]];
+            break;
+        }
+    }
+    [self calculateAmount];
+    NSLog(@"%@\t%@",textView.text,totAmt.text);
+}
 - (void)addAddOn:(UITapGestureRecognizer *) rec{
     int resId = (int)rec.view.tag;
+    UIImageView *selectAddOn = (UIImageView *) rec.view;
+    UITextField *cntLabel = (UITextField *)[self.addonScrView viewWithTag:resId+1000];
+    UITextField *totLabel = (UITextField *)[self.addonScrView viewWithTag:resId+2000];
     if(resId >=0 ){
         for(ResourceTypeModel *resTypeMdl in self.addonList){
             if(resTypeMdl.resourceTypeId.intValue == resId){
                 if([self.selectedAddonIds containsObject:resTypeMdl.resourceTypeId]){
                     [self.selectedAddonIds removeObject:resTypeMdl.resourceTypeId];
+                    [selectAddOn setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
+                    resTypeMdl.noOfAddOns=[NSNumber numberWithInt:1];
+                    cntLabel.text=@"1";
+                    [cntLabel setEnabled:FALSE];
+                    cntLabel.layer.borderColor=[UIColor grayColor].CGColor;
+                    totLabel.text=[NSString stringWithFormat:@"$%@",resTypeMdl.planSplPrice];
                 }else{
                     [self.selectedAddonIds addObject:resTypeMdl.resourceTypeId];
+                    [selectAddOn setImage:[UIImage imageNamed:@"checkbox_sel.png"]];
+                    [cntLabel setEnabled:TRUE];
+                    cntLabel.layer.borderColor=[self.wnpConst getThemeBaseColor].CGColor;
                 }
                 
                 break;
             }
         }
     }
-    
-    [self loadAddons];
-   
+   [self calculateAmount];
 }
 
 - (void)addOffer:(UITapGestureRecognizer *) rec{
     int offerId = (int)rec.view.tag;
-    
+    UIImageView *selectAddOn = (UIImageView *) rec.view;
     if(offerId >=0 ){
         for(PlanOfferModel *offerMdl in self.offerList){
             if(offerMdl.offerId.intValue == offerId){
                 if(self.selectedOffer !=nil && self.selectedOffer.offerId.intValue==offerMdl.offerId.intValue){
                     self.selectedOffer =nil;
+                    [selectAddOn setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
                 }else{
                    self.selectedOffer =offerMdl;
+                    [selectAddOn setImage:[UIImage imageNamed:@"checkbox_sel.png"]];
                 }
                 break;
             }
         }
     }
-   
-    [self loadOffers];
-    
+    [self loadAddons];
+    [self calculateAmount];
 }
 
+- (void)calculateAmount{
+    totalAmountVal=self.selectedPlnModel.planPrice.doubleValue;
+    addonPrice =0;
+    if(self.selectedOffer != nil){
+        offerPercent = self.selectedOffer.offerValue.doubleValue/100.00;
+    }else{
+        offerPercent=0;
+    }
+    if(self.selectedAddonIds != nil && self.selectedAddonIds.count >0){
+        for(ResourceTypeModel *resTypeMdl in self.addonList){
+            if([self.selectedAddonIds containsObject:resTypeMdl.resourceTypeId]){
+                addonPrice=addonPrice+(resTypeMdl.planSplPrice.doubleValue*(resTypeMdl.noOfAddOns.intValue<=0?1:resTypeMdl.noOfAddOns.intValue));
+            }
+        }
+    }
+    
+    totalAmountVal=totalAmountVal+addonPrice;
+    totalAmountVal = totalAmountVal - (totalAmountVal*offerPercent);
+    
+    self.planCost.text=[NSString stringWithFormat:@"%s%@" ,"Plan cost : $",[self.utils getNumberFormatter:totalAmountVal]];
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -428,6 +523,9 @@ double offerPercent=0;
     UIStoryboard *stryBrd = [UIStoryboard storyboardWithName:@"SelectPlan" bundle:nil];
     SelectPlanController *viewCtrl=[stryBrd instantiateViewControllerWithIdentifier:@"SelectPlan"];
     viewCtrl.adminAcctModel=self.adminAcctModel;
+    for(ResourceTypeModel *resModel in self.addonList){
+        resModel.noOfAddOns=[NSNumber numberWithInt:1];
+    }
     viewCtrl.addonList = self.addonList;
     viewCtrl.planArray = self.planArray;
     viewCtrl.offerList=self.offerList;

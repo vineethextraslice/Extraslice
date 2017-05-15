@@ -146,6 +146,7 @@ self.pickerData = @[@"Admin", @"Member"];
     if(self.orgArray.count >0){
     @try{
         NSDictionary *subscData =[self.smDao getSubscriptionData:self.userId OrgId:self.selectedOrg.orgId];
+        NSLog(@"%@",subscData);
         if(subscData != nil){
             int userLimit = 0;
             NSString *status = [subscData objectForKey:@"STATUS"];
@@ -153,7 +154,7 @@ self.pickerData = @[@"Admin", @"Member"];
                 
                 BOOL canUnsubscribe =NO;
                 @try {
-                   NSNumber* canUnsubscribeInt = [subscData objectForKey:@"canUnsubscribe"];
+                    NSNumber* canUnsubscribeInt = [subscData objectForKey:@"canUnsubscribe"];
                     if ([canUnsubscribeInt boolValue] == YES){
                         canUnsubscribe =YES;
                     }
@@ -183,7 +184,7 @@ self.pickerData = @[@"Admin", @"Member"];
                     NSMutableDictionary *dic = [[NSMutableDictionary alloc]init];
                     [dic setValue:@"Addon" forKey:@"Type"];
                     [dic setValue:resModel.resourceTypeId forKey:@"Id"];
-                     [dic setValue:[NSString stringWithFormat:@"%@ ($%@)",resModel.resourceTypeName ,resModel.planSplPrice ]  forKey:@"Name"];//[dic setValue:resModel.resourceTypeName forKey:@"Name"];
+                     [dic setValue:[NSString stringWithFormat:@"%@ ",resModel.resourceTypeName  ]  forKey:@"Name"];//[dic setValue:resModel.resourceTypeName forKey:@"Name"];
                     [dic setValue:[NSNumber numberWithBool:false] forKey:@"Selected"];
                     [self.itemsArray addObject:dic];
                 }
@@ -382,7 +383,7 @@ self.pickerData = @[@"Admin", @"Member"];
                     [self.plnBenfDetl addSubview:role];
                     
                     UILabel *status =[[UILabel alloc] initWithFrame:CGRectMake((scrWidthpb*0.75)+15,top+2,(scrWidthpb*0.25),30)];
-                    if(resMdl.currentUsage.doubleValue <0){
+                    if(resMdl.planLimit.doubleValue <0){
                         status.text=@"Unlimited";
                     }else{
                         double bal = resMdl.planLimit.doubleValue -resMdl.currentUsage.doubleValue;

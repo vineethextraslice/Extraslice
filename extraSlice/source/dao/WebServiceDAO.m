@@ -25,6 +25,7 @@
         NSURLResponse *resp =[[NSURLResponse alloc] init];
         NSError *theError =nil;
         NSData *data = [NSURLConnection sendSynchronousRequest:req returningResponse:&resp error:&theError];
+       // NSLog(@"%s%@","response ............. ",data);
         if(data == nil){
             NSMutableDictionary *errorDic = [[NSMutableDictionary alloc]init];
             [errorDic setObject:@"FAILED" forKey:@"STATUS"];
@@ -41,6 +42,7 @@
             NSMutableDictionary *errorDic = [[NSMutableDictionary alloc]init];
             [errorDic setObject:@"FAILED" forKey:@"STATUS"];
             [errorDic setObject:error.description forKey:@"ERRORMESSAGE"];
+            NSLog(@"%s%@","response error............. ",errorDic);
             return errorDic;
         }else{
             return json;
@@ -49,6 +51,7 @@
         NSMutableDictionary *errorDic = [[NSMutableDictionary alloc]init];
         [errorDic setObject:@"FAILED" forKey:@"STATUS"];
         [errorDic setObject:exp.description forKey:@"ERRORMESSAGE"];
+        NSLog(@"%s%@","response error2............. ",errorDic);
         return errorDic;
     }
 }

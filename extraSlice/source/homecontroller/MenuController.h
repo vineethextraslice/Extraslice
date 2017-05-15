@@ -33,4 +33,5 @@ static  NSString *viewName;
 - (void)loadViewData:(id)sender;
 @property(strong,nonatomic) NSDate *selectedDate;
 @property(strong,nonatomic) NSString *selectedDayType;
+@property(strong,nonatomic) NSString *selectedRoomType;
 @end

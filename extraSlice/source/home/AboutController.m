@@ -25,6 +25,7 @@
         self.admModel = [smDAO getAdminAccount];
         self.aboutText.text = self.admModel.about;
         self.aboutText.numberOfLines=-1;
+        self.webserviceVersion.text=self.admModel.webserviceVersion;
     }@catch (NSException *exception) {
         
     }

@@ -17,6 +17,9 @@
 @property(strong, nonatomic) NSNumber *offerId ;
 @property(strong, nonatomic) NSString *commitmentType;
 @property(strong, nonatomic) NSNumber *commitmentValue ;
+@property(strong, nonatomic) NSString *monthsExcluded;
+@property(strong, nonatomic) NSString *validFrom;
+@property(strong, nonatomic) NSString *validTill;
 
 - (NSDictionary *) dictionaryWithPropertiesOfObject:(id)obj;
 -(NSString*) convertObjectToJsonString:(BOOL) prettyPrint;

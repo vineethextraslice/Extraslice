@@ -23,6 +23,7 @@
         self.planSplPrice =  @-1;
         self.orgId =  @-1;
         self.resourceDesc=@"";
+        self.noOfAddOns=@-1;
     }
     return self;
 }

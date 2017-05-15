@@ -11,19 +11,18 @@
 #import "SmartSpaceDAO.h"
 #import "Utilities.h"
 #import "ReservationModel.h"
-#import "STPPaymentCardTextField.h"
 #import "STPAPIClient.h"
 #import "Stripe.h"
 #import "StripeDAO.h"
-#import "StripePlanModel.h"
 #import "OrganizationModel.h"
 #import "ResourceModel.h"
 #import "AdminAccountModel.h"
 #import "SmartSpaceModel.h"
 #import "MenuController.h"
+#import "CardIO.h"
 static UIColor *SelectedCellBGColor ;
 static UIColor *NotSelectedCellBGColor;
-@interface MyConfRoomReservations ()<STPPaymentCardTextFieldDelegate>
+@interface MyConfRoomReservations ()<CardIOPaymentViewControllerDelegate>
 @property(strong,nonatomic)ESliceConstants *wnpConst;
 @property(nonatomic)BOOL overLimit;
 @property(strong,nonatomic)UIScrollView *dayScrView;
@@ -52,7 +51,6 @@ static UIColor *NotSelectedCellBGColor;
 @property(strong,nonatomic) UIButton *popCancelBtn;
 @property(strong,nonatomic) UIButton *strpSubmitBtn;
 @property(strong,nonatomic) UIButton *strpCancelBtn;
-@property(strong,nonatomic) STPPaymentCardTextField *strpPymntTf;
 @property(strong,nonatomic) NSNumber *payableAmount;
 @property(strong,nonatomic) StripeDAO *strpDAO;
 @property(strong,nonatomic) NSString *pymntRefkey;
@@ -78,6 +76,17 @@ static UIColor *NotSelectedCellBGColor;
 @property(nonatomic) BOOL isExpanded;
 @property(strong,nonatomic) NSMutableArray *daysInMonthArray;
 @property(strong,nonatomic) NSDictionary *jSonResult;
+@property(nonatomic) int noOfMonthtoAdd;
+@property(strong,nonatomic) UIView *scanCardView;
+
+@property(nonatomic) UIImageView *selCardImg;
+@property(strong,nonatomic) UILabel *selCardNum;
+@property(strong,nonatomic) UILabel *selectedCardExp;
+@property(strong,nonatomic) UILabel *selectedCardCVV;
+
+@property(strong,nonatomic) CardIOCreditCardInfo *ioCard;
+@property(strong,nonatomic) UILabel *scantxt;
+
 @end
 
 @implementation MyConfRoomReservations
@@ -87,6 +96,7 @@ static UIColor *NotSelectedCellBGColor;
     if(self.selectedDate == (id)[NSNull null] || self.selectedDate == nil){
         self.selectedDate = [NSDate date];
     }
+    self.noOfMonthtoAdd=1;
     self.overLimit=false;
     self.previousRow=nil;
     self.previousOrgRow = nil;
@@ -122,6 +132,8 @@ static UIColor *NotSelectedCellBGColor;
     }
     self.adminAcct = [self.smSpaceDAO getAdminAccount];
     self.selSmartSpace = [smList objectAtIndex:0];
+    self.noOfMonthtoAdd=3;
+    self.selectedDate = [NSDate date];
     //if(self.currSchedules == (id)[NSNull null] || self.currSchedules == nil){
         [self loadCurrentSchedule];
    // }
@@ -145,7 +157,7 @@ static UIColor *NotSelectedCellBGColor;
         }
     }
     if(self.selectedDayType == nil){
-        self.selectedDayType=@"Day";
+        self.selectedDayType=@"List";
     }
     [self setSelectedDat:self.selectedDayType SelectedDate:self.selectedDate];
     UISwipeGestureRecognizer * swipeleft=[[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(swipeleft:)];
@@ -190,9 +202,15 @@ static UIColor *NotSelectedCellBGColor;
         NSDate *calStartDate = [gregorian dateByAddingComponents:dateComponents toDate:firstDayOfMonthDate options:0];
         
         dateComponents = [[NSDateComponents alloc] init];
-        [dateComponents setDay:(48)];
-        NSDate *calEndDate = [gregorian dateByAddingComponents:dateComponents toDate:calStartDate options:0];
+        if(self.noOfMonthtoAdd==1){
+            [dateComponents setDay:(48)];
+        }else{
+            [dateComponents setMonth:(3)];
+        }
         
+        NSDate *calEndDate = [gregorian dateByAddingComponents:dateComponents toDate:calStartDate options:0];
+        NSLog(@"eeeeeeeee   %@  --   %@",[self.y_m_dhmFormatter stringFromDate:calStartDate],[self.y_m_dhmFormatter stringFromDate:calEndDate]);
+         NSLog(@"fdsdsfsdff   --   %@",self.selectedDate);
         self.currSchedules = [self.smSpaceDAO getCurrentSchedulesForPeriod:[self.y_m_dhmFormatter stringFromDate:calStartDate] EndTime:[self.y_m_dhmFormatter stringFromDate:calEndDate]];
         if(self.currSchedules != (id)[NSNull null] && self.currSchedules != nil){
             for(ReservationModel *resModel in self.currSchedules){
@@ -232,10 +250,11 @@ static UIColor *NotSelectedCellBGColor;
         if([self.daysInMonthArray containsObject:[self.mdyFormatter stringFromDate:self.selectedDate]]){
             [self setSelectedDat:@"Day" SelectedDate:self.selectedDate];
         }else{
+            self.dailySchedules = [[NSMutableDictionary alloc]init];
             [self loadCurrentSchedule];
             [self setSelectedDat:@"Day" SelectedDate:self.selectedDate];
         }
-    }else if([self.selectedDayType.uppercaseString isEqualToString:@"WEEK"]){
+    }else if([self.selectedDayType.uppercaseString isEqualToString:@"LIST"]){
             NSCalendar *gregorian = [NSCalendar currentCalendar];
             NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
             [dateComponents setDay:(7)];
@@ -247,16 +266,19 @@ static UIColor *NotSelectedCellBGColor;
             NSDate *newDate = [gregorian dateByAddingComponents:dateComponents toDate:self.selectedDate options:0];
             
             if([self.daysInMonthArray containsObject:[self.mdyFormatter stringFromDate:newDate]]){
-                [self setSelectedDat:@"Week" SelectedDate:self.selectedDate];
+                [self setSelectedDat:@"List" SelectedDate:self.selectedDate];
             }else{
+                self.dailySchedules = [[NSMutableDictionary alloc]init];
                 [self loadCurrentSchedule];
-                [self setSelectedDat:@"Week" SelectedDate:self.selectedDate];
+                [self setSelectedDat:@"List" SelectedDate:self.selectedDate];
             }
     }else if([self.selectedDayType.uppercaseString isEqualToString:@"MONTH"]){
         NSCalendar *gregorian = [NSCalendar currentCalendar];
-        NSDateComponents *comp = [[NSDateComponents alloc] init];
-        [comp setMonth:1];
-         self.selectedDate = [gregorian dateByAddingComponents:comp toDate:self.selectedDate options:0];
+        NSDateComponents *comp = [gregorian components: NSCalendarUnitYear | NSCalendarUnitMonth fromDate:self.selectedDate];
+        [comp setMonth:(comp.month+1)];
+        self.dailySchedules = [[NSMutableDictionary alloc]init];
+        self.selectedDate = [gregorian dateFromComponents:comp];
+        [self loadCurrentSchedule];
         [self setSelectedDat:@"Month" SelectedDate:self.selectedDate];
     }
 }
@@ -272,10 +294,11 @@ static UIColor *NotSelectedCellBGColor;
         if([self.daysInMonthArray containsObject:[self.mdyFormatter stringFromDate:self.selectedDate]]){
             [self setSelectedDat:@"Day" SelectedDate:self.selectedDate];
         }else{
+             self.dailySchedules = [[NSMutableDictionary alloc]init];
             [self loadCurrentSchedule];
             [self setSelectedDat:@"Day" SelectedDate:self.selectedDate];
         }
-    }else if([self.selectedDayType.uppercaseString isEqualToString:@"WEEK"]){
+    }else if([self.selectedDayType.uppercaseString isEqualToString:@"LIST"]){
         NSCalendar *gregorian = [NSCalendar currentCalendar];
         NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
         [dateComponents setDay:(-7)];
@@ -287,89 +310,84 @@ static UIColor *NotSelectedCellBGColor;
         NSDate *newDate = [gregorian dateByAddingComponents:dateComponents toDate:self.selectedDate options:0];
         
         if([self.daysInMonthArray containsObject:[self.mdyFormatter stringFromDate:newDate]]){
-            [self setSelectedDat:@"Week" SelectedDate:self.selectedDate];
+            [self setSelectedDat:@"List" SelectedDate:self.selectedDate];
         }else{
+             self.dailySchedules = [[NSMutableDictionary alloc]init];
             [self loadCurrentSchedule];
-            [self setSelectedDat:@"Week" SelectedDate:self.selectedDate];
+            [self setSelectedDat:@"List" SelectedDate:self.selectedDate];
         }
     }else if([self.selectedDayType.uppercaseString isEqualToString:@"MONTH"]){
         NSCalendar *gregorian = [NSCalendar currentCalendar];
-        NSDateComponents *comp = [[NSDateComponents alloc] init];
-        [comp setMonth:-1];
-        self.selectedDate = [gregorian dateByAddingComponents:comp toDate:self.selectedDate options:0];
+        NSDateComponents *comp = [gregorian components: NSCalendarUnitYear | NSCalendarUnitMonth fromDate:self.selectedDate];
+       // [comp setDay:1];
+         [comp setMonth:(comp.month-1)];
+        self.selectedDate = [gregorian dateFromComponents:comp];
+        self.dailySchedules = [[NSMutableDictionary alloc]init];
+        [self loadCurrentSchedule];
         [self setSelectedDat:@"Month" SelectedDate:self.selectedDate];
     }
 }
 -(void) setSelectedDateTap:(UITapGestureRecognizer *) rec{
     UILabel *lbl = (UILabel *)rec.view;
+    self.selectedDate = [NSDate date];
+    if([lbl.text isEqualToString:@"Day"]){
+        
+        self.noOfMonthtoAdd=1;
+       
+    }else if(([lbl.text isEqualToString:@"List"])){
+        self.noOfMonthtoAdd=3;
+    }else{
+        self.noOfMonthtoAdd=1;
+    }
+    self.dailySchedules = [[NSMutableDictionary alloc]init];
+    [self loadCurrentSchedule];
     [self setSelectedDat:lbl.text SelectedDate:[NSDate date]];
 }
 -(void ) setSelectedDat:(NSString *)dateStr SelectedDate:(NSDate *) selDate{
     [self startFade:self.nextImage];
     [self startFade:self.previousImage];
-    /*self.nextImage.hidden = NO;
-    self.nextImage.alpha = 1.0f;
-    self.previousImage.hidden = NO;
-    self.previousImage.alpha = 1.0f;
-    // Then fades it away after 2 seconds (the cross-fade animation will take 0.5s)
-    [UIView animateWithDuration:0.5 delay:2.0 options:0 animations:^{
-        // Animate the alpha value of your imageView from 1.0 to 0.0 here
-        self.nextImage.alpha = 0.0f;
-         self.previousImage.alpha = 0.0f;
-    } completion:^(BOOL finished) {
-        // Once the animation is completed and the alpha has gone to 0.0, hide the view for good
-        self.nextImage.hidden = YES;
-         self.previousImage.hidden = YES;
-    }];*/
     for(UIView *sv in self.dayTypeHeader.subviews){
         [sv removeFromSuperview];
     }
     self.selectedDayType=dateStr;
     float scrWidth = self.view.frame.size.width;
     float wid = (scrWidth)/3;
-    UIView *todayBottom= [[UIView alloc] initWithFrame:CGRectMake(0 ,28, wid, 2)];
-    UILabel *today = [[UILabel alloc] initWithFrame:CGRectMake(0 ,0, wid, 28)];
+    
+    UIView *listBottom= [[UIView alloc] initWithFrame:CGRectMake(0 ,28, wid, 2)];
+    UILabel *listLbl = [[UILabel alloc] initWithFrame:CGRectMake(0 ,0, wid, 28)];
+    listLbl.text=@"List";
+    listLbl.textAlignment = NSTextAlignmentCenter;
+    
+    UIView *todayBottom= [[UIView alloc] initWithFrame:CGRectMake(wid ,28, wid, 2)];
+    UILabel *today = [[UILabel alloc] initWithFrame:CGRectMake(wid ,0, wid, 28)];
     today.text=@"Day";
     today.textAlignment = NSTextAlignmentCenter;
     
-    UIView *tomorrowBottom= [[UIView alloc] initWithFrame:CGRectMake(wid ,28, wid, 2)];
-    UILabel *tomorrow = [[UILabel alloc] initWithFrame:CGRectMake(wid ,0, wid, 28)];
-    tomorrow.text=@"Week";
-    tomorrow.textAlignment = NSTextAlignmentCenter;
     
     UIView *pickBottom= [[UIView alloc] initWithFrame:CGRectMake(2*wid ,28, wid, 2)];
     UILabel *pick = [[UILabel alloc] initWithFrame:CGRectMake(2*wid ,0, wid, 28)];
     pick.text=@"Month";
     pick.textAlignment = NSTextAlignmentCenter;
     
+    [self.dayTypeHeader addSubview:listBottom];
+    [self.dayTypeHeader addSubview:listLbl];
     [self.dayTypeHeader addSubview:today];
     [self.dayTypeHeader addSubview:todayBottom];
-    [self.dayTypeHeader addSubview:tomorrowBottom];
-    [self.dayTypeHeader addSubview:tomorrow];
     [self.dayTypeHeader addSubview:pickBottom];
     [self.dayTypeHeader addSubview:pick];
-
-    //today.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    //todayBottom.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    //tomorrowBottom.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    //tomorrow.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    //pickBottom.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    //pick.backgroundColor = [self.wnpConst getThemeColorWithTransparency:0.2];
-    tomorrow.textColor=[UIColor blackColor];
+    listLbl.textColor=[UIColor blackColor];
     today.textColor=[UIColor blackColor];
     pick.textColor=[UIColor blackColor];
     self.selectedDayType=dateStr;
     if([dateStr isEqualToString:@"Day"]){
         todayBottom.backgroundColor = [self.utils getThemeDarkBlue];
         [self loadDailyData:selDate];
-    }else if(([dateStr isEqualToString:@"Week"])){
-        tomorrowBottom.backgroundColor = [self.utils getThemeDarkBlue];
+    }else if(([dateStr isEqualToString:@"List"])){
+        listBottom.backgroundColor = [self.utils getThemeDarkBlue];
         [self loadWeeklyData:selDate];
     }else{
         pickBottom.backgroundColor = [self.utils getThemeDarkBlue];
-       // pick.backgroundColor = [self.wnpConst getThemeBaseColor];
-        //pick.textColor=[UIColor whiteColor];
-          [self loadMonthlyData:selDate];
+        [self loadMonthlyData:selDate];
         
     }
     UITapGestureRecognizer *todayTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(setSelectedDateTap:)];
@@ -378,11 +396,11 @@ static UIColor *NotSelectedCellBGColor;
     [today setUserInteractionEnabled:YES];
     [today addGestureRecognizer:todayTap];
     
-    UITapGestureRecognizer *tomorrowTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(setSelectedDateTap:)];
-    tomorrowTap.numberOfTapsRequired = 1;
-    tomorrowTap.numberOfTouchesRequired = 1;
-    [tomorrow setUserInteractionEnabled:YES];
-    [tomorrow addGestureRecognizer:tomorrowTap];
+    UITapGestureRecognizer *listTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(setSelectedDateTap:)];
+    listTap.numberOfTapsRequired = 1;
+    listTap.numberOfTouchesRequired = 1;
+    [listLbl setUserInteractionEnabled:YES];
+    [listLbl addGestureRecognizer:listTap];
     
     UITapGestureRecognizer *pickTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(setSelectedDateTap:)];
     pickTap.numberOfTapsRequired = 1;
@@ -532,140 +550,34 @@ static UIColor *NotSelectedCellBGColor;
     [self.dayScrView removeFromSuperview];
     CGRect screenRect = [[UIScreen mainScreen] bounds];
     CGFloat tableWidth = screenRect.size.width;
-     self.dayNameStrs =[[UIScrollView alloc] initWithFrame:CGRectMake(0, 63 ,tableWidth, 30)];
-    self.dayScrView =[[UIScrollView alloc] initWithFrame:CGRectMake(0, 93 ,tableWidth, screenRect.size.height-93)];
+    self.dayDescription.backgroundColor = [self.wnpConst getThemeBaseColor];
+    
+    self.dayDescription.text=@"All reservations";
+    self.dayScrView =[[UIScrollView alloc] initWithFrame:CGRectMake(0, 63 ,tableWidth, screenRect.size.height-93)];
     self.dayScrView.contentSize = CGSizeMake(tableWidth, 1560);
     self.dayScrView.scrollEnabled=true;
     [self.view addSubview:self.dayScrView];
-
-    NSCalendar *gregorian = [NSCalendar currentCalendar];
-    NSDateComponents *comps = [gregorian components:NSCalendarUnitWeekday fromDate:selDate];
-    int weekday = (int)[comps weekday];
-    
-    NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
-    [dateComponents setDay:(-weekday+1)];
-
-    // Retrieve date with increased days count
-    NSDate *newDate = [gregorian dateByAddingComponents:dateComponents toDate:selDate options:0];
-    NSString *weekDes=[self.ddMMMFormat stringFromDate:newDate];
-    [dateComponents setDay:7];
-    newDate = [gregorian dateByAddingComponents:dateComponents toDate:newDate options:0];
-    [self.view addSubview:self.dayNameStrs];
-    weekDes= [NSString stringWithFormat:@"%@%s%@",weekDes," - ",[self.ddMMMFormat stringFromDate:newDate]];
-    self.dayDescription.backgroundColor = [self.wnpConst getThemeBaseColor];
-    self.dayDescription.text=weekDes;
-    [dateComponents setDay:-7];
-    newDate = [gregorian dateByAddingComponents:dateComponents toDate:newDate options:0];
-    self.dayScrView.scrollEnabled=true;
-     double hourWidth = ((tableWidth-30)/7);
-    for(int i=0;i<24;i++){
-        UILabel *hourValView= [[UILabel alloc] initWithFrame:CGRectMake(0, (i*60) ,30, 20)];
-        [self.dayScrView addSubview:hourValView];
-        if(i==0){
-            hourValView.text =@"12a";
-        }
-        else if(i<12){
-            hourValView.text =[NSString stringWithFormat:@"%d%s",i,"a"];
-        }else if(i==12){
-            hourValView.text =[NSString stringWithFormat:@"%d%s",12,"p"];
-        }else{
-            hourValView.text =[NSString stringWithFormat:@"%d%s",(i-12),"p"];
-        }
-       
-        for(int day = 0;day<=6;day++){
-            UIView *hourView = [[UIView alloc] initWithFrame:CGRectMake(30+(day*hourWidth), (i*60) ,hourWidth, 60)];
-            hourView.layer.borderColor = [self.utils getLightGray].CGColor;
-            hourView.layer.borderWidth = 1.0f;
-            [self.dayScrView addSubview:hourView];
-        }
-    }
-
-    for(int day = 0;day<=6;day++){
-        UILabel *headerView = [[UILabel alloc] initWithFrame:CGRectMake(30+(day*hourWidth), 0 ,hourWidth, 30)];
-        //headerView.layer.borderColor = [self.wnpConst getThemeHeaderColor].CGColor;
-        //hourView.layer.borderWidth = 1.0f;
-        [self.dayNameStrs addSubview:headerView];
-        headerView.text=[self.ddMMMFormat stringFromDate:newDate];
-        UIFont *txtFont = [headerView.font fontWithSize:12.0];
-        headerView.font = txtFont;
-
-          [dateComponents setDay:1];
-       
-        NSDateFormatter *hourFormatter = [[NSDateFormatter alloc] init];
-        [hourFormatter setDateFormat:@"HH"];
-        
-        NSDateFormatter *minFormatter = [[NSDateFormatter alloc] init];
-        [minFormatter setDateFormat:@"mm"];
-        
-        NSString *dayStr = [self.mdyFormatter stringFromDate:newDate];
-        NSMutableArray *dayArray = [self.dailySchedules objectForKey:dayStr];
-
-        if( dayArray != (id)[NSNull null] && dayArray != nil){
-            
-            NSMutableDictionary *idMap = [[NSMutableDictionary alloc]init];
-            for(int topInd=0;topInd  < dayArray.count ; topInd++){
-                ReservationModel *resModel = [dayArray objectAtIndex:topInd];
+    int top=5;
+             for(ReservationModel *resModel in self.currSchedules){
                 if(resModel.reservedByUser.intValue != [self.utils getLoggedinUser].userId.intValue){
                     continue;
                 }
-                NSMutableArray *val = [[NSMutableArray alloc]init];
-                [val addObject:resModel.reservationId];
-                if([idMap objectForKey:resModel.reservationId] != (id)[NSNull null] && [idMap objectForKey:resModel.reservationId] != nil){
-                    val = [idMap objectForKey:resModel.reservationId];
-                }
-                
-                
-                [idMap setObject:val forKey:resModel.reservationId];
-                NSDate *rsrvStart = [NSDate dateWithTimeIntervalSince1970:resModel.startDate.doubleValue/1000];
-                NSDate *rsrvEnd = [NSDate dateWithTimeIntervalSince1970:resModel.endTime.doubleValue/1000];
-                for(int compInd=(topInd+1);compInd  < dayArray.count ; compInd++){
-                    ReservationModel *compModel = [dayArray objectAtIndex:compInd];
-                    if(compModel.reservedByUser.intValue != [self.utils getLoggedinUser].userId.intValue){
-                        continue;
-                    }
-                    val = [idMap objectForKey:resModel.reservationId];
-                    
-                    NSDate *newRsrvStart = [NSDate dateWithTimeIntervalSince1970:compModel.startDate.doubleValue/1000];
-                    
-                    if([self isAfter:rsrvStart CompareTo:newRsrvStart] && [self isBefore:rsrvEnd CompareTo:newRsrvStart]){
-                        if(![val containsObject:compModel.reservationId]){
-                            [val addObject:compModel.reservationId];
-                        }
-                        [idMap setObject:val forKey:resModel.reservationId];
-                        [idMap setObject:val forKey:compModel.reservationId];
-                    }
-                    
-                }
-            }
-
-            for(ReservationModel *resModel in dayArray){
-                if(resModel.reservedByUser.intValue != [self.utils getLoggedinUser].userId.intValue){
-                    continue;
-                }
-                NSDate *dte =  [NSDate dateWithTimeIntervalSince1970:resModel.startDate.doubleValue/1000];
-                int top=([hourFormatter stringFromDate:dte].intValue)*60;
-                top = top +[minFormatter stringFromDate:dte].intValue;
-                 NSMutableArray *val = [idMap objectForKey:resModel.reservationId];
-                int start = -1;
-                for(NSNumber *num in val){
-                    start++;
-                    if(num.intValue == resModel.reservationId.intValue){
-                        break;
-                    }
-                }
-                float meetingWidth = (hourWidth-4)/val.count;
-                //UILabel *meeting= [[UILabel alloc] initWithFrame:CGRectMake(30+(start*meetingWidth)+5, top ,meetingWidth, resModel.duration.intValue)];
-                UILabel *meeting= [[UILabel alloc] initWithFrame:CGRectMake(30+((start*meetingWidth)+day*hourWidth+2), top ,meetingWidth, resModel.duration.intValue)];
+                UILabel *meeting= [[UILabel alloc] initWithFrame:CGRectMake(10, top ,tableWidth-20, 70)];
                 NSString *resrvedBy = resModel.reservedByOrgName;
                 if([resrvedBy.uppercaseString isEqualToString:@"INDIVIDUAL"] ){
                     resrvedBy = resModel.reservedByUserName;
                 }
-               meeting.text=resModel.reservationName;
-               
+              NSDate *startTime = [NSDate dateWithTimeIntervalSince1970:resModel.startDate.doubleValue/1000];
+                 NSDate *endTime = [NSDate dateWithTimeIntervalSince1970:resModel.endTime.doubleValue/1000];
+                meeting.text=[NSString stringWithFormat:@"%@\n%@\n%@-%@", resModel.reservationName,resModel.resourceName,[self.mdyhmFormatter stringFromDate:startTime],[self.mdyhmFormatter stringFromDate:endTime]];
                 meeting.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.2];
                 meeting.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
                 meeting.layer.borderWidth = 1.0f;
-                //meeting.clipsToBounds=true;
+                 meeting.numberOfLines = 0;
+                 UIFont *txtFont = [meeting.font fontWithSize:14.0];
+                 meeting.font = txtFont;
+                 
+                 meeting.textAlignment=NSTextAlignmentCenter;
                 
                 UITapGestureRecognizer *showMeetingTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(showMeetingPopup:)];
                 showMeetingTap.numberOfTapsRequired = 1;
@@ -678,13 +590,11 @@ static UIColor *NotSelectedCellBGColor;
                 [self.dayScrView addSubview:meeting];
                 [self.dayScrView bringSubviewToFront:meeting];
                  [self.view bringSubviewToFront:meeting];
-                
+                 top=top+75;
             }
-        }
         
-        newDate = [gregorian dateByAddingComponents:dateComponents toDate:newDate options:0];
-    }
-    self.dayScrView.contentOffset = CGPointMake(0, 540);
+     
+    //self.dayScrView.contentOffset = CGPointMake(0, 540);
     
 }
 -(void) loadMonthlyData:(NSDate *)selDate{
@@ -821,7 +731,7 @@ static UIColor *NotSelectedCellBGColor;
     float centerY = self.view.center.y;
     
     self.view.userInteractionEnabled=false;
-    self.strpPopup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-125,270,250)];
+    self.strpPopup=[[UIView alloc] initWithFrame:CGRectMake(centerX-135,centerY-125-65,270,250)];
     self.strpPopup.backgroundColor = [UIColor whiteColor];
     self.strpPopup.layer.borderColor = [self.wnpConst getThemeBaseColor].CGColor;
     self.strpPopup.layer.borderWidth = 1.0f;
@@ -838,12 +748,12 @@ static UIColor *NotSelectedCellBGColor;
     headerLbl.backgroundColor=[self.wnpConst getThemeBaseColor];
     [self.strpPopup addSubview:headerLbl];
     
-    self.popupError = [[UILabel alloc] initWithFrame:CGRectMake(10, 40 , 250, 30)];
+    self.popupError = [[UILabel alloc] initWithFrame:CGRectMake(5, 40 , 260, 30)];
     self.popupError.hidden=true;
     self.popupError.textColor=[UIColor redColor];
     [self.strpPopup addSubview: self.popupError];
     
-    UILabel *descLabel =[[UILabel alloc] initWithFrame:CGRectMake(10,75,250,90)];
+    UILabel *descLabel =[[UILabel alloc] initWithFrame:CGRectMake(5,75,260,90)];
     descLabel.text=message;
     descLabel.textAlignment=NSTextAlignmentCenter;
     descLabel.numberOfLines=-1;
@@ -853,22 +763,62 @@ static UIColor *NotSelectedCellBGColor;
     // headerLbl.backgroundColor=[self.wnpConst getThemeBaseColor];
     [self.strpPopup addSubview:descLabel];
     
-    /*UILabel *amtLbl =[[UILabel alloc] initWithFrame:CGRectMake(210,75,50,30)];
-    amtLbl.text=[NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:payable]];
-    amtLbl.textAlignment=NSTextAlignmentLeft;
-    // UIFont *txtFont = [headerLbl.font fontWithSize:fontSize];
-    amtLbl.font = txtFont;
-    amtLbl.textColor=[UIColor blackColor];
-    // headerLbl.backgroundColor=[self.wnpConst getThemeBaseColor];
-    [self.strpPopup addSubview:amtLbl];*/
+
     
     
-    self.payableAmount = [NSNumber numberWithDouble:payable] ;
-    self.strpPymntTf = [[STPPaymentCardTextField alloc] initWithFrame:CGRectMake(10,170,250,30)];
-    self.strpPymntTf.delegate=self;
-    [self.strpPopup addSubview:self.strpPymntTf];
+    self.scanCardView = [[UIView alloc] initWithFrame:CGRectMake(25,175,220,50)];
+    [self.popup addSubview:self.scanCardView];
+    UITapGestureRecognizer *scanCardTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(scanCard:)];
+    scanCardTap.numberOfTapsRequired = 1;
+    scanCardTap.numberOfTouchesRequired = 1;
+    [self.scanCardView setUserInteractionEnabled:YES];
+    [self.scanCardView addGestureRecognizer:scanCardTap];
+    self.scanCardView.layer.borderColor= [self.wnpConst getThemeBaseColor].CGColor;
+    self.scanCardView.layer.borderWidth = 1.0f;
+    self.scanCardView.backgroundColor=[self.wnpConst getThemeColorWithTransparency:0.2];
+    self.scantxt =[[UILabel alloc] initWithFrame:CGRectMake(57,5,150,40)];
+    self.scantxt.text=@"Scan your card";
+    self.scantxt.textAlignment=NSTextAlignmentCenter;
+    [self.scantxt setFont:[UIFont boldSystemFontOfSize:17.0]];
+    [self.scanCardView addSubview:self.scantxt];
+    self.scanCardView.layer.cornerRadius = 5;
+    self.scanCardView.layer.masksToBounds = YES;
+    UIImageView *scanImage =[[UIImageView alloc] initWithFrame:CGRectMake(12,5,40,40)];
+    [scanImage setImage:[UIImage imageNamed:@"camera_bl.png"]];
+    [self.scanCardView addSubview:scanImage];
     
-    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(20,210,100,30)];
+    self.selCardImg=[[UIImageView alloc] initWithFrame:CGRectMake(25,235,40,30)];
+    
+    [self.popup addSubview:self.selCardImg];
+    
+    self.selCardNum=[[UILabel alloc] initWithFrame:CGRectMake(70,235,175,30)];
+    self.selCardNum.textAlignment=NSTextAlignmentRight;
+    self.selCardNum.textColor = [self.wnpConst getThemeBaseColor];
+    txtFont = [self.selCardNum.font fontWithSize:16];
+    self.selCardNum.font = txtFont;
+    [self.popup addSubview:self.selCardNum];
+    
+    self.selectedCardExp=[[UILabel alloc] initWithFrame:CGRectMake(25,275,80,30)];
+    self.selectedCardExp.textAlignment=NSTextAlignmentCenter;
+    txtFont = [self.selectedCardExp.font fontWithSize:16];
+    self.selectedCardExp.font = txtFont;
+    self.selectedCardExp.textColor = [self.wnpConst getThemeBaseColor];
+    [self.popup addSubview:self.selectedCardExp];
+    
+    self.selectedCardCVV=[[UILabel alloc] initWithFrame:CGRectMake(165,275,80,30)];
+    self.selectedCardCVV.textAlignment=NSTextAlignmentCenter;
+    self.selectedCardCVV.textColor = [self.wnpConst getThemeBaseColor];
+    txtFont = [self.selectedCardCVV.font fontWithSize:16];
+    self.selectedCardCVV.font = txtFont;
+    [self.popup addSubview:self.selectedCardCVV];
+
+    
+    
+    
+    
+    
+    
+    self.strpSubmitBtn = [[UIButton alloc] initWithFrame:CGRectMake(15,315,100,30)];
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
     [self.strpSubmitBtn setTitle: @"Submit" forState: UIControlStateNormal];
     self.strpSubmitBtn.userInteractionEnabled=TRUE;
@@ -878,7 +828,7 @@ static UIColor *NotSelectedCellBGColor;
     
     [self.strpPopup addSubview:self.strpSubmitBtn];
     
-    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(150,210,100,30)];
+    self.strpCancelBtn = [[UIButton alloc] initWithFrame:CGRectMake(155,315,100,30)];
     self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
     // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
     
@@ -895,16 +845,8 @@ static UIColor *NotSelectedCellBGColor;
     [self.self.strpPopup addGestureRecognizer:viewTap];
 }
 
-- (void)paymentCardTextFieldDidChange:(nonnull STPPaymentCardTextField *)textField {
-    self.strpSubmitBtn.enabled = textField.isValid;
-    if(textField.isValid){
-        [self hideKeyBord];
-        self.strpSubmitBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-    }
-    
-}
+
 -(void) hideKeyBord{
-    [self.strpPymntTf resignFirstResponder];
     [self.view endEditing:YES];
 }
 
@@ -1858,53 +1800,58 @@ static UIColor *NotSelectedCellBGColor;
     self.strpSubmitBtn.backgroundColor=[UIColor grayColor];
     self.strpSubmitBtn.userInteractionEnabled=FALSE;
     self.strpSubmitBtn.enabled=FALSE;
+    self.scanCardView.userInteractionEnabled=false;
+    self.scantxt.text=@"Processing...";
     
+    self.scantxt.alpha = 0;
+    [UIView animateWithDuration:0.75 delay:0.5 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
+        self.scantxt.alpha = 1;
+    } completion:nil];
     self.strpCancelBtn.backgroundColor=[UIColor grayColor];
     self.strpCancelBtn.userInteractionEnabled=FALSE;
     self.strpCancelBtn.enabled=FALSE;
     if(self.adminAcct.strpPubKey == (id)[NSNull null] || self.adminAcct.strpPubKey == nil){
         self.popupError.text= @"Invalid Stripe  account";
         self.popupError.hidden=false;
+        self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
+        self.scanCardView.userInteractionEnabled=true;
+        [self.scantxt.layer removeAllAnimations];
+        self.scantxt.text=@"Scan you card";
+        self.strpCancelBtn.userInteractionEnabled=TRUE;
+        self.strpCancelBtn.enabled=TRUE;
+
         return;
     }
-
+    STPCardParams *strpcardParams = [[STPCardParams alloc]init];
     NSString *publicKey=[self.utils decode:self.adminAcct.strpPubKey];
     @try{
         NSLog(@"%@",publicKey);
         STPAPIClient *strpClient = [[STPAPIClient alloc] initWithPublishableKey:publicKey];
         [Stripe setDefaultPublishableKey:publicKey];
-        NSLog(@"%@",strpClient.publishableKey);
-        if (![self.strpPymntTf isValid]) {
-            self.popupError.text= @"Invalid Card";
-            self.popupError.hidden=false;
-            self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-            // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-            
-            self.strpCancelBtn.userInteractionEnabled=TRUE;
-            self.strpCancelBtn.enabled=TRUE;
-            return;
-        }
+        strpcardParams.cvc=self.ioCard.cvv;
+        strpcardParams.number=self.ioCard.cardNumber;
+        strpcardParams.expMonth=self.ioCard.expiryMonth;
+        strpcardParams.expYear=self.ioCard.expiryYear;
         if (![Stripe defaultPublishableKey]) {
-  
-            
-            
+            self.scanCardView.userInteractionEnabled=true;
+            [self.scantxt.layer removeAllAnimations];
+            self.scantxt.text=@"Scan you card";
             self.popupError.text= @"Invalid key";
             self.popupError.hidden=false;
             self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-            // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-            
             self.strpCancelBtn.userInteractionEnabled=TRUE;
             self.strpCancelBtn.enabled=TRUE;
             return;
         }
         
-        [strpClient createTokenWithCard:self.strpPymntTf.card completion:^(STPToken *token, NSError *error) {
+        [strpClient createTokenWithCard:strpcardParams completion:^(STPToken *token, NSError *error) {
             if (error) {
                 self.popupError.text= error.description;
                 self.popupError.hidden=false;
                 self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-                // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-                
+                self.scanCardView.userInteractionEnabled=true;
+                [self.scantxt.layer removeAllAnimations];
+                self.scantxt.text=@"Scan you card";
                 self.strpCancelBtn.userInteractionEnabled=TRUE;
                 self.strpCancelBtn.enabled=TRUE;
                 return;
@@ -1942,8 +1889,10 @@ static UIColor *NotSelectedCellBGColor;
                         self.popupError.text= [result objectForKey:@"ERRORMESSAGE"];
                         self.popupError.hidden=false;
                         self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-                        // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-                        
+                        self.scanCardView.userInteractionEnabled=true;
+                        [self.scantxt.layer removeAllAnimations];
+                        self.scantxt.text=@"Scan you card";
+
                         self.strpCancelBtn.userInteractionEnabled=TRUE;
                         self.strpCancelBtn.enabled=TRUE;
                         
@@ -1955,8 +1904,9 @@ static UIColor *NotSelectedCellBGColor;
                     self.popupError.text= exception.description;
                     self.popupError.hidden=false;
                     self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-                    // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-                    
+                    self.scanCardView.userInteractionEnabled=true;
+                    [self.scantxt.layer removeAllAnimations];
+                    self.scantxt.text=@"Scan you card";
                     self.strpCancelBtn.userInteractionEnabled=TRUE;
                     self.strpCancelBtn.enabled=TRUE;
                     
@@ -1969,8 +1919,9 @@ static UIColor *NotSelectedCellBGColor;
         self.popupError.text= exception.description;
         self.popupError.hidden=false;
         self.strpCancelBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
-        // self.strpCancelBtn.backgroundColor=[UIColor grayColor];
-        
+        self.scanCardView.userInteractionEnabled=true;
+        [self.scantxt.layer removeAllAnimations];
+        self.scantxt.text=@"Scan you card";
         self.strpCancelBtn.userInteractionEnabled=TRUE;
         self.strpCancelBtn.enabled=TRUE;
         return;
@@ -2068,5 +2019,33 @@ static UIColor *NotSelectedCellBGColor;
         [self showPopup:@"Failed" Message:exp.description AnotherPopup:YES];
     }
 }
-
+- (void)userDidProvideCreditCardInfo:(CardIOCreditCardInfo *)info inPaymentViewController:(CardIOPaymentViewController *)paymentViewController {
+    self.ioCard=info;
+    self.strpSubmitBtn.enabled=true;
+    self.strpSubmitBtn.userInteractionEnabled=true;
+    self.strpSubmitBtn.backgroundColor=[self.wnpConst getThemeBaseColor];
+    self.selCardNum.text=info.cardNumber;
+    self.selectedCardExp.text=[NSString stringWithFormat:@"%d/%d", (int)info.expiryMonth,(int) (info.expiryYear % 100)];
+    self.selectedCardCVV.text=info.cvv;
+    
+    
+    
+    NSString *cardName = [CardIOCreditCardInfo displayStringForCardType:info.cardType usingLanguageOrLocale:@"en_US"];
+    [self.selCardImg setImage:[UIImage imageNamed:[NSString stringWithFormat:@"cio_ic_%@.png",cardName.lowercaseString ]]];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+- (void)userDidCancelPaymentViewController:(CardIOPaymentViewController *)paymentViewController {
+    NSLog(@"User cancelled scan");
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+- (IBAction)scanCard:(UITapGestureRecognizer *)sender {
+    self.selCardNum.text=@"";
+    self.selectedCardExp.text=@"";
+    self.selectedCardCVV.text=@"";
+    [self.selCardImg setImage:nil];
+    CardIOPaymentViewController *scanViewController = [[CardIOPaymentViewController alloc] initWithPaymentDelegate:self];
+    scanViewController.modalPresentationStyle = UIModalPresentationFormSheet;
+    scanViewController.hideCardIOLogo=YES;
+    [self presentViewController:scanViewController animated:YES completion:nil];
+}
 @end
