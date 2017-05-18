@@ -16,6 +16,7 @@
 		8417EE941D22A28F006D0F02 /* Support.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8417EE931D22A28F006D0F02 /* Support.storyboard */; };
 		8417EE971D22A436006D0F02 /* SupportController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8417EE961D22A436006D0F02 /* SupportController.m */; };
 		8417EE9A1D22A44F006D0F02 /* AboutController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8417EE991D22A44F006D0F02 /* AboutController.m */; };
+		841EA4FF1ECC6E0300163F7F /* PassKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 841EA4FE1ECC6E0300163F7F /* PassKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		843A32721D99A98600015491 /* forum.png in Resources */ = {isa = PBXBuildFile; fileRef = 843A32711D99A98600015491 /* forum.png */; };
 		844382691D19BEC600ECB506 /* checkbox_unsel.png in Resources */ = {isa = PBXBuildFile; fileRef = 844382551D19BEC600ECB506 /* checkbox_unsel.png */; };
 		8443826A1D19BEC600ECB506 /* checkbox_sel.png in Resources */ = {isa = PBXBuildFile; fileRef = 844382561D19BEC600ECB506 /* checkbox_sel.png */; };
@@ -289,6 +290,7 @@
 		8417EE961D22A436006D0F02 /* SupportController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SupportController.m; sourceTree = "<group>"; };
 		8417EE981D22A44F006D0F02 /* AboutController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutController.h; sourceTree = "<group>"; };
 		8417EE991D22A44F006D0F02 /* AboutController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutController.m; sourceTree = "<group>"; };
+		841EA4FE1ECC6E0300163F7F /* PassKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PassKit.framework; path = System/Library/Frameworks/PassKit.framework; sourceTree = SDKROOT; };
 		843A32711D99A98600015491 /* forum.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = forum.png; sourceTree = "<group>"; };
 		844382551D19BEC600ECB506 /* checkbox_unsel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_unsel.png; sourceTree = "<group>"; };
 		844382561D19BEC600ECB506 /* checkbox_sel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_sel.png; sourceTree = "<group>"; };
@@ -675,6 +677,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				841EA4FF1ECC6E0300163F7F /* PassKit.framework in Frameworks */,
 				84555A981E223A63002122CC /* Accelerate.framework in Frameworks */,
 				84555A991E223A63002122CC /* AudioToolbox.framework in Frameworks */,
 				84555A9A1E223A63002122CC /* AVFoundation.framework in Frameworks */,
@@ -694,6 +697,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		841EA4FD1ECC6E0300163F7F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				841EA4FE1ECC6E0300163F7F /* PassKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		845559DC1E2230AE002122CC /* wnpsource */ = {
 			isa = PBXGroup;
 			children = (
@@ -1302,6 +1313,7 @@
 				84F30C4A1D15D22600B12E8D /* Products */,
 				84555A961E223A63002122CC /* SafariServices.framework */,
 				84555A971E223A63002122CC /* SystemConfiguration.framework */,
+				841EA4FD1ECC6E0300163F7F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1421,7 +1433,7 @@
 			isa = PBXGroup;
 			children = (
 				84FB08591D20DC9B00075381 /* logincontroller */,
-				84FB08581D20DC0800075381 /* homecontroller */,
+				84FB08581D20DC0800075381 /* MenuController */,
 				84F29B121D1E3197006D8C32 /* home */,
 				847AF8801D18F10A00A87CAD /* dao */,
 				847AF8911D18F10A00A87CAD /* models */,
@@ -1456,12 +1468,13 @@
 			path = uistoryboards;
 			sourceTree = "<group>";
 		};
-		84FB08581D20DC0800075381 /* homecontroller */ = {
+		84FB08581D20DC0800075381 /* MenuController */ = {
 			isa = PBXGroup;
 			children = (
 				84FB08661D20DD5600075381 /* MenuController.h */,
 				84FB08671D20DD5600075381 /* MenuController.m */,
 			);
+			name = MenuController;
 			path = homecontroller;
 			sourceTree = "<group>";
 		};
@@ -1470,8 +1483,8 @@
 			children = (
 				8467AC221E2425E100C0A744 /* GuestSignup.h */,
 				8467AC231E2425E100C0A744 /* GuestSignup.m */,
-				84FB085B1D20DC9B00075381 /* LoginController.m */,
 				84FB085A1D20DC9B00075381 /* LoginController.h */,
+				84FB085B1D20DC9B00075381 /* LoginController.m */,
 				84FB085C1D20DC9B00075381 /* ResetPwdController.h */,
 				84FB085D1D20DC9B00075381 /* ResetPwdController.m */,
 				84FB085E1D20DC9B00075381 /* SelectPlanController.h */,

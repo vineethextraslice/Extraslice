@@ -510,7 +510,7 @@ static UIViewController *newController;
          if(indexPath.row ==0){
              
              
-             UIImageView *itemIcon = [[UIImageView alloc] initWithFrame:CGRectMake(20, 30 , 30, 30)];
+             UIImageView *itemIcon = [[UIImageView alloc] initWithFrame:CGRectMake(20, 20 , 40, 40)];
              [itemIcon setImage:[UIImage imageNamed:[self.navItemsImg objectAtIndex:indexPath.row]]];
              itemIcon.clipsToBounds =TRUE;
              [itemIcon setUserInteractionEnabled:YES];

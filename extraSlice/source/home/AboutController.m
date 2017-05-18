@@ -19,13 +19,21 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    SmartSpaceDAO *smDAO = [[SmartSpaceDAO alloc]init];
+    [self performSelectorInBackground:@selector(backgroundMainMethod)
+                           withObject:nil];
+   }
 
+-(void)backgroundMainMethod
+{
+    SmartSpaceDAO *smDAO = [[SmartSpaceDAO alloc]init];
+    
     @try{
         self.admModel = [smDAO getAdminAccount];
+         dispatch_async(dispatch_get_main_queue(), ^{
         self.aboutText.text = self.admModel.about;
         self.aboutText.numberOfLines=-1;
         self.webserviceVersion.text=self.admModel.webserviceVersion;
+         });
     }@catch (NSException *exception) {
         
     }
@@ -39,15 +47,21 @@
     
     NSMutableAttributedString *urlString = [[NSMutableAttributedString alloc] initWithString:@"Website"];
     [urlString addAttribute:NSLinkAttributeName value:@"http://extraslice.com" range:NSMakeRange(0,urlString.length)];
+    dispatch_async(dispatch_get_main_queue(), ^{
     self.webSite.attributedText=urlString;
+    });
     UITapGestureRecognizer *showWebSiteTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(showWebSite:)];
     showWebSiteTap.numberOfTapsRequired = 1;
     showWebSiteTap.numberOfTouchesRequired = 1;
     [self.webSite setUserInteractionEnabled:YES];
     [self.webSite addGestureRecognizer:showWebSiteTap];
     NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    dispatch_async(dispatch_get_main_queue(), ^{
     self.appVersion.text=version;
+    });
+ 
 }
+
 -(void) showWebSite:(UITapGestureRecognizer *) rec{
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString: @"http://extraslice.com"]];
 }

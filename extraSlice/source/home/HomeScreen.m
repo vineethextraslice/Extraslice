@@ -79,7 +79,7 @@
     self.walletTxt.textAlignment=NSTextAlignmentCenter;
 
 
-    self.reserveText.text=@"Reserve a conference room";
+    self.reserveText.text=@"Reservation";
     self.supportText.text=@"Support";
     self.wnpText.text=@"walkNPay store";
     self.walletTxt.text=@"Wallet";;

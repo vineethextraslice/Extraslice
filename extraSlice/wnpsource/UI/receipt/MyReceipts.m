@@ -59,6 +59,13 @@ static UIColor *NotSelectedCellBGColor;
     
     self.indicator.frame = CGRectMake(0.0, 0.0, 80.0, 80.0);
     [self.view addSubview:self.indicator];
+  /*  NSLayoutConstraint *cont = [NSLayoutConstraint constraintWithItem:self.indicator attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:80.0];
+    [self.view addConstraint:cont];
+    
+    cont = [NSLayoutConstraint constraintWithItem:self.indicator attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:80.0];
+    
+    [self.view addConstraint:cont];*/
+    
     self.wnpCont=[[WnPConstants alloc]init];
     self.trxnDao=[[TransactionDAO alloc]init];
     self.utils=[[WnPUtilities alloc]init];
@@ -585,7 +592,7 @@ static UIColor *NotSelectedCellBGColor;
             self.indicator.center = self.view.center;
             [self.indicator bringSubviewToFront:self.view];
             if(![self.indicator isAnimating]){
-              //  [self.indicator startAnimating];
+               // [self.indicator startAnimating];
             }
             
         }
@@ -753,7 +760,7 @@ static UIColor *NotSelectedCellBGColor;
                     [self.paginationView bringSubviewToFront:sv];
                 }
                 
-                [self.indicator stopAnimating];
+               // [self.indicator stopAnimating];
                 self.esRLoaded=FALSE;
                 self.wnpRLoaded=FALSE;
                 

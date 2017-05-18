@@ -38,6 +38,7 @@
 @property(strong,nonatomic) NSMutableArray *addonList;
 @property(strong,nonatomic) NSMutableArray *planArray;
 @property(strong,nonatomic) NSMutableArray *offerList;
+@property(strong,nonatomic) NSMutableArray *offertagArray;
 @property(strong,nonatomic) NSNumber *noOfdaystoSubsDate ;
 @property(strong,nonatomic) NSNumber *trialEndsAt ;
 @property(strong,nonatomic) NSNumber *firstsubDate;

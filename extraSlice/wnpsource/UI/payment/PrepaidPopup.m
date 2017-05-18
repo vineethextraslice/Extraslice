@@ -62,6 +62,7 @@
     self.wnpCont = [[WnPConstants alloc]init];
     self.utils = [[WnPUtilities alloc]init];
 
+     self.view.backgroundColor = [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.0/255.0 alpha:0.5];
     self.nmbrFrmtr= [[NSNumberFormatter alloc] init];
     self.strpDAO=[[StripeDAO alloc]init];
     self.nmbrFrmtr.numberStyle = NSNumberFormatterDecimalStyle;

@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--WnPHomeScreen-->
@@ -18,8 +22,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b1T-VC-q3P">
-                                <rect key="frame" x="10" y="10" width="580" height="570"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b1T-VC-q3P">
+                                <rect key="frame" x="5" y="5" width="590" height="590"/>
                                 <subviews>
                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mdG-5v-4u6">
                                         <rect key="frame" x="185" y="220" width="220" height="150"/>
@@ -49,11 +53,11 @@
                                                     <constraint firstAttribute="width" constant="100" id="mFC-ty-c14"/>
                                                 </constraints>
                                                 <state key="normal" title="Sumbit">
-                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 </state>
                                             </button>
                                         </subviews>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="220" id="3bS-iH-JLt"/>
                                             <constraint firstItem="ZRs-8y-ofw" firstAttribute="centerX" secondItem="mdG-5v-4u6" secondAttribute="centerX" id="5jd-JT-YDf"/>
@@ -65,12 +69,12 @@
                                             <constraint firstAttribute="height" constant="150" id="zjL-t2-Sii"/>
                                         </constraints>
                                     </view>
-                                    <view contentMode="center" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3PR-VA-0HU">
-                                        <rect key="frame" x="8" y="15" width="567" height="550"/>
+                                    <view contentMode="center" translatesAutoresizingMaskIntoConstraints="NO" id="3PR-VA-0HU">
+                                        <rect key="frame" x="10" y="10" width="570" height="570"/>
                                         <subviews>
-                                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="X0n-Bt-hlv">
-                                                <rect key="frame" x="0.0" y="0.0" width="567" height="550"/>
-                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="X0n-Bt-hlv">
+                                                <rect key="frame" x="0.0" y="0.0" width="570" height="570"/>
+                                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             </view>
                                         </subviews>
                                         <constraints>
@@ -84,7 +88,7 @@
                                         <edgeInsets key="layoutMargins" top="10" left="10" bottom="10" right="10"/>
                                     </view>
                                 </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="3PR-VA-0HU" secondAttribute="bottom" constant="10" id="2ua-AC-6fu"/>
                                     <constraint firstItem="3PR-VA-0HU" firstAttribute="leading" secondItem="b1T-VC-q3P" secondAttribute="leading" constant="10" id="IRf-nl-vlj"/>

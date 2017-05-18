@@ -500,9 +500,12 @@ static UIColor *NotSelectedCellBGColor;
         UIScrollView *hourScrView = [[UIScrollView alloc] initWithFrame:CGRectMake(0 ,68, scrWidth, 81)];
         UIImageView *leftArrow = [[UIImageView alloc] initWithFrame:CGRectMake(5 ,108, 20, 20)];
         [leftArrow setImage:[UIImage imageNamed:@"swiperight.png"]];
+        [leftArrow setContentMode:UIViewContentModeCenter];
+
         
         UIImageView *rightArrow = [[UIImageView alloc] initWithFrame:CGRectMake(scrWidth-25 ,108, 20, 20)];
         [rightArrow setImage:[UIImage imageNamed:@"swipeleft.png"]];
+        [rightArrow setContentMode:UIViewContentModeCenter];
         
         [topView addSubview: leftArrow];
         [topView addSubview: rightArrow];

@@ -38,6 +38,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *totalUsabeleAmt;
 @property (weak, nonatomic) IBOutlet UILabel *minimumAmtLabel;
 
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *prepaidpoupheight;
 @property (nonatomic, weak) id<PaymentViewControllerDelegate> delegate;
 
 - (IBAction)submitOnClick:(id)sender;

@@ -25,9 +25,16 @@
 - (void)viewDidLoad {
     
     [super viewDidLoad];
+    [self performSelectorInBackground:@selector(backgroundMethod)
+                           withObject:@"test"];
+    
+}
+
+-(void)backgroundMethod
+{
     self.storeDao = [[StoreDAO alloc]init];
     self.wnpCont= [[WnPConstants alloc] init];
-     [self.wnpCont setColor:0];
+    [self.wnpCont setColor:0];
     self.containerView.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
     self.containerView.layer.borderWidth = 1.0f;
     
@@ -59,13 +66,13 @@
     self.inner21= [[UIView alloc] initWithFrame:CGRectMake(10, (20+rowHeight), rowWidth/2, rowHeight)];
     self.inner22= [[UIView alloc] initWithFrame:CGRectMake(9+rowWidth/2, (20+rowHeight), rowWidth/2, rowHeight)];
     self.inner31= [[UIView alloc] initWithFrame:CGRectMake(10, (30+2*rowHeight), rowWidth, rowHeight)];
-   
+    
     UIView *view1 =nil;
     UIView *view20 =nil;
     UIView *view21 =nil;
     UIView *view22 =nil;
     UIView *view31 =nil;
-
+    
     if(rowHeight <140){
         view1= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth, 100)];
         view20= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth, 100)];
@@ -74,7 +81,7 @@
         view31= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-100)/2, rowWidth, 100)];
         
         
-
+        
         self.storeTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth, 30)];
         self.scanTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth/2, 30)];
         self.cart1Txt = [[UILabel alloc] initWithFrame:CGRectMake(0, 70, rowWidth/2, 30)];
@@ -95,7 +102,7 @@
         view21= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth/2, 120)];
         view22= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth/2, 120)];
         view31= [[UIView alloc] initWithFrame:CGRectMake(0, (rowHeight-120)/2, rowWidth, 120)];
-       
+        
         
         self.storeTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
         self.scanTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth/2, 30)];
@@ -104,33 +111,34 @@
         self.checkoutTxt = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
         
         /*self.reserveText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
-        self.supportText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
-        self.wnpText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
-        
-        self.wnpImage = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
-        self.supportImg = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
-        self.reserveImg = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];*/
+         self.supportText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
+         self.wnpText = [[UILabel alloc] initWithFrame:CGRectMake(0, 90, rowWidth, 30)];
+         
+         self.wnpImage = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
+         self.supportImg = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
+         self.reserveImg = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];*/
         self.store = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
         self.scan = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/4)-40, 0, 80, 80)];
         self.cart1 = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/4)-40, 0, 80, 80)];
         self.cart2 = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
         self.checkout = [[UIImageView alloc] initWithFrame:CGRectMake((rowWidth/2)-40, 0, 80, 80)];
-       
-   }
+        
+    }
     [self showStoreSelectionPopup:FALSE];
+    dispatch_async(dispatch_get_main_queue(), ^{
     [self.scan setImage:[UIImage imageNamed:@"qr_scanner.png"]];
     [self.cart1 setImage:[UIImage imageNamed:@"cart.png"]];
     [self.cart2 setImage:[UIImage imageNamed:@"cart.png"]];
     [self.checkout setImage:[UIImage imageNamed:@"checkout.png"]];
-   
+    
     self.store.tag=0;
     self.scan.tag=1;
     self.cart1.tag=2;
     self.cart2.tag=2;
     self.checkout.tag=3;
-   
     
-   
+    
+    
     
     self.scanTxt.textAlignment=NSTextAlignmentCenter;
     self.scanTxt.text=@"Scan";
@@ -153,7 +161,7 @@
     [self.checkoutTxt setFont:[UIFont boldSystemFontOfSize:17.0]];
     [view31 addSubview:self.checkoutTxt];
     
-   
+    
     
     
     
@@ -162,9 +170,9 @@
     [view21 addSubview:self.scan];
     [view22 addSubview:self.cart1];
     [view31 addSubview:self.checkout];
-   
     
-
+    
+    
     [self.inner11 addSubview:view1];
     [self.inner20 addSubview:view20];
     [self.inner21 addSubview:view21];
@@ -190,11 +198,11 @@
         [view1 addSubview:self.storeTxt];
         [self.containerView addSubview:self.inner20];
     }
-
+    
     
     [self.containerView addSubview:self.inner11];
     [self.containerView addSubview:self.inner31];
-   
+    
     
     self.inner11.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
     self.inner11.layer.borderWidth = 1.0f;
@@ -206,13 +214,13 @@
     self.inner22.layer.borderWidth = 1.0f;
     self.inner31.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
     self.inner31.layer.borderWidth = 1.0f;
-   
     
-
-    
+    });
     
     
-
+    
+    
+    
     
     UITapGestureRecognizer *singleTap0 = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(tapDetected:)];
     singleTap0.numberOfTapsRequired = 1;
@@ -257,10 +265,11 @@
     self.resetConfPwd.layer.borderColor = [self.wnpCont getThemeBaseColor].CGColor;
     self.resetConfPwd.layer.borderWidth = 1.0f;
     self.resetPwdSubmit.layer.backgroundColor = [self.wnpCont getThemeBaseColor].CGColor;
-    
+ 
 }
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
+    
     if(self.resetPwd){
         self.resetPwdPopup.hidden=FALSE;
         
@@ -306,7 +315,7 @@
             if(viewCtrl != nil){
                 viewCtrl.loadScanpopup =NO;
                 viewCtrl.modalTransitionStyle=UIModalTransitionStyleFlipHorizontal;
-                viewCtrl.viewName=@"Cart";
+                viewCtrl.viewName=@"Scan";
                 [self presentViewController:viewCtrl animated:YES completion:nil];
                 break;
             }

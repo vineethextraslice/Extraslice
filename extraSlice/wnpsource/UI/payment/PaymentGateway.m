@@ -916,7 +916,7 @@
         viewController.custRechMinAmt=dlrModel.minRechargeAmt;
         
         UIView *dashboardView = viewController.view;
-        [dashboardView setFrame:CGRectMake(self.view.bounds.origin.x-155,self.view.bounds.origin.x-180,310,360)];
+        //[dashboardView setFrame:CGRectMake(self.view.bounds.origin.x-155,self.view.bounds.origin.x-180,310,360)];
         
         [self.view addSubview:dashboardView];
         [self addChildViewController:viewController];

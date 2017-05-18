@@ -491,6 +491,7 @@ UserModel *addedModel = nil;
     self.crtOrgContactNo.placeholder=@"Contact no";
     self.crtOrgContactNo.textAlignment=NSTextAlignmentCenter;
     self.crtOrgContactNo.background = greyBGImg;
+    self.crtOrgContactNo.keyboardType = UIKeyboardTypePhonePad;
     self.crtOrgContactNo.delegate =self;
     [self.crtOrgPopup addSubview: self.crtOrgContactNo];
     

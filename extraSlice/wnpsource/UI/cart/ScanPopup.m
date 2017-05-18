@@ -43,9 +43,13 @@
         [self setupScanningSession];
     }
     
-    self.view.layer.borderColor = [UIColor blackColor].CGColor;
-    self.view.layer.borderWidth = 1.0f;
-    [self.view setBounds:CGRectMake(0,0, 302,340)];
+    //self.view.layer.borderColor = [UIColor blackColor].CGColor;
+   // self.view.layer.borderWidth = 1.0f;
+    self.view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.5f];
+
+    CGSize screenSize = [UIScreen mainScreen].bounds.size;
+    //[self.view setBounds:CGRectMake((screenSize.width/2)-302,0, 302,340)];
+     
     [self.previewArea bringSubviewToFront:self.closeBtn];
     self.closeBtn.userInteractionEnabled=true;
     UITapGestureRecognizer *close=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cancelPopup)];

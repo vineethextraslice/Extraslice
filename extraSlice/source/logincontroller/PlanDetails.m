@@ -25,6 +25,7 @@ double offerPercent=0;
 @property(strong,nonatomic) NSMutableDictionary *selectedPlnMap;
 @property(strong,nonatomic) NSMutableArray *selectedPlnArray;
 @property(strong,nonatomic) UIView *popup;
+@property(strong,nonatomic) UIView *rowView;
 
 @end
 
@@ -208,6 +209,7 @@ double offerPercent=0;
 }
 
 - (void)loadOffers{
+     self.offertagArray =[[NSMutableArray alloc]init];
     int subIndex =0;
     float rowHeight=30;
     UIView *prevView = nil;
@@ -231,17 +233,17 @@ double offerPercent=0;
         if(found==NO){
             continue;
         }
-        UIView *rowView = [[UIView alloc] initWithFrame:CGRectMake(0, 5 , (screenWidth), rowHeight)];
+        self.rowView = [[UIView alloc] initWithFrame:CGRectMake(0, 5 , (screenWidth), rowHeight)];
         if(prevView !=nil){
             CGSize lastRect = [prevNameView sizeThatFits: prevNameView.frame.size];
             float lastHeight = rowHeight;
             if(lastRect.height > rowHeight){
                 lastHeight = lastRect.height;
             }
-            rowView = [[UIView alloc] initWithFrame:CGRectMake(0, (prevView.frame.origin.y+lastHeight+5) , (screenWidth), rowHeight)];
+            self.rowView = [[UIView alloc] initWithFrame:CGRectMake(0, (prevView.frame.origin.y+lastHeight+5) , (screenWidth), rowHeight)];
         }
         
-        [rowView sizeToFit];
+        [self.rowView sizeToFit];
         UIImageView *selectAddOn = [[UIImageView alloc] initWithFrame:CGRectMake(2, 2 , 25, 25)];
         [selectAddOn setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
       
@@ -253,7 +255,7 @@ double offerPercent=0;
             [selectAddOn setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
         }*/
         
-        [rowView addSubview: selectAddOn];
+        [self.rowView addSubview: selectAddOn];
         
         UILabel *resourceName = [[UILabel alloc] initWithFrame:CGRectMake(32, 2 , ((screenWidth-35)*0.75), rowHeight)];
         resourceName.numberOfLines=0;
@@ -261,24 +263,26 @@ double offerPercent=0;
         resourceName.text = offerMdl.offerName;
         [resourceName sizeToFit];
         
-        [rowView addSubview: resourceName];
+        [self.rowView addSubview: resourceName];
         
         
         UILabel *price = [[UILabel alloc] initWithFrame:CGRectMake(36+((screenWidth-35)*0.75), 2, ((screenWidth-35)*0.25), rowHeight)];
         double offerPrice = (self.selectedPlnModel.planPrice.doubleValue)-(offerMdl.offerValue.doubleValue*self.selectedPlnModel.planPrice.doubleValue/100.00);
         price.text = [NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:offerPrice]];
         selectAddOn.hidden = false;
-        selectAddOn.tag=offerMdl.offerId.intValue;;
+        selectAddOn.tag=offerMdl.offerId.intValue;
+        [self.offertagArray addObject:[NSNumber numberWithInt: offerMdl.offerId.intValue]];
+        
         UITapGestureRecognizer *selAddOnTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(addOffer:)];
         selAddOnTap.numberOfTapsRequired = 1;
         selAddOnTap.numberOfTouchesRequired = 1;
         [selectAddOn setUserInteractionEnabled:YES];
         [selectAddOn addGestureRecognizer:selAddOnTap];
         
-        [rowView addSubview: price];
+        [self.rowView addSubview: price];
         price.hidden = false;
-        [self.offerScrView addSubview:rowView];
-        prevView=rowView;
+        [self.offerScrView addSubview:self.rowView];
+        prevView=self.rowView;
         prevNameView=resourceName;
         subIndex++;
         self.offerScrView.scrollEnabled=true;
@@ -395,13 +399,21 @@ double offerPercent=0;
             
             
         }
+        else
+        {
+             [cnt setUserInteractionEnabled:NO];
+        }
         cnt.textAlignment=NSTextAlignmentCenter;
         cnt.tag=resType.resourceTypeId.intValue+1000;
         [rowView addSubview: cnt];
         
         
         UILabel *torPrice = [[UILabel alloc] initWithFrame:CGRectMake(40+((screenWidth-40)*0.8), 2, ((screenWidth-40)*0.225), rowHeight)];
-        torPrice.text = [NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:resType.planSplPrice.doubleValue]];
+        double totalPrice =resType.planSplPrice.doubleValue * (resType.noOfAddOns.intValue==0?1:resType.noOfAddOns.intValue) ;
+        if(self.selectedOffer != nil){
+            totalPrice = totalPrice - (totalPrice*self.selectedOffer.offerValue.doubleValue/100.00);
+        }
+        torPrice.text = [NSString stringWithFormat:@"%s%@","$",[self.utils getNumberFormatter:totalPrice]];
          [rowView addSubview: torPrice];
         torPrice.tag=resType.resourceTypeId.intValue+2000;
         torPrice.textAlignment=NSTextAlignmentCenter;
@@ -412,8 +424,8 @@ double offerPercent=0;
         subIndex++;
         self.addonScrView.scrollEnabled=true;
         self.addonScrView.scrollsToTop=true;
-        self.addonScrView.contentSize = CGSizeMake(screenWidth, ((self.addonList.count+1)*34) );
-        self.addonScrHeight.constant=(self.addonList.count+1)*34;
+        self.addonScrView.contentSize = CGSizeMake(screenWidth, ((self.addonList.count+1)*50) );
+        self.addonScrHeight.constant=(self.addonList.count+1)*50;
     }
     if(subIndex == 0){
         self.addonHeader.hidden=true;
@@ -473,6 +485,21 @@ double offerPercent=0;
 }
 
 - (void)addOffer:(UITapGestureRecognizer *) rec{
+   // for (UIView *subview in self.rowView.subviews)
+    {
+
+    for(int i =0;i<self.offertagArray.count;i++)
+    {
+        int offerId = [[self.offertagArray objectAtIndex:i] intValue];
+       // if(subview.tag == (int)[self.offertagArray objectAtIndex:i])
+        {
+        UIImageView *selectAddOn = (UIImageView *) [self.view viewWithTag:offerId];
+        [selectAddOn setImage:[UIImage imageNamed:@"checkbox_unsel.png"]];
+        }
+        }
+ 
+    }
+    
     int offerId = (int)rec.view.tag;
     UIImageView *selectAddOn = (UIImageView *) rec.view;
     if(offerId >=0 ){

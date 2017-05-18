@@ -601,7 +601,7 @@
     ScanPopup *viewController=[stryBrd instantiateViewControllerWithIdentifier:@"ScanPopup"];
     // UIView *dashboardView = viewController.view;
     // [dashboardView setFrame:CGRectMake(self.view.bounds.origin.x-90,self.view.bounds.origin.y-100,180,200)];
-    
+    viewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     [self addChildViewController:viewController];
     [self.view addSubview:viewController.view];
     [self.view bringSubviewToFront:viewController.view];
