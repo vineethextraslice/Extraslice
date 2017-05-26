@@ -117,6 +117,7 @@
         userModel.email=self.email.text;
         userModel.userName= self.email.text;
         userModel.password=[self.utils encode:self.password.text];
+        userModel.userType=@"guest";
         userModel = [userDAO addGuestUser:userModel];
         [self showPopup:@"Successful" Message:@"Please use the verification code send to your email for login."];
     }

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ScanPopup : UIViewController
+@interface ScanPopup : UIViewController<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UIView *previewArea;
 @property (weak, nonatomic) IBOutlet UITextField *manualBarcode;
 @property (weak, nonatomic) IBOutlet UIButton *manualSubmitBtn;

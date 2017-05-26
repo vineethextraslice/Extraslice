@@ -17,9 +17,9 @@ static NSNumber *selectedStoreId;
 static NSString *currencyCode;
 static NSString *currencySymbol;
 static UserModel *loggedInUserModel;
+static NSString *urlStartsWith=@"http://walknpaydev01.cloudapp.net:8080/ExtraSliceWebService/jsonws/"; //test
+//static NSString *urlStartsWith=@"https://extraslice.com/ExtraSliceWebService/jsonws/"; //live
 
-//static NSString *urlStartsWith=@"https://extraslice.com/ExtraSliceWebService/jsonws/";
-static NSString *urlStartsWith=@"http://walknpaydev01.cloudapp.net:8080/ExtraSliceWebService/jsonws/";
 static int fontSize=15;
 static UIColor *baseColor;
 static UIColor *headerColor;

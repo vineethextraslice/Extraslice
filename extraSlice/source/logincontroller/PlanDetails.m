@@ -206,6 +206,7 @@ double offerPercent=0;
     self.planDetlScrView.contentSize = CGSizeMake(screenWidth, totalLytHeight);
     [self loadAddons];
     [self loadOffers];
+     [self calculateAmount];
 }
 
 - (void)loadOffers{

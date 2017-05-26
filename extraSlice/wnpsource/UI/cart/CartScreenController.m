@@ -531,7 +531,7 @@
         storeArray = [self.storeDao  getAllStoresForDealerByLocation:@1];
         if (storeArray == nil || storeArray.count ==0) {
             error=@"No store found";
-            showPopup=true;
+            showPopup=false;
         }else if(storeArray.count ==1){
             StoreModel *strMdl = [storeArray objectAtIndex:0];
             [self.wnpCont setSelectedStoreId:strMdl.storeId];

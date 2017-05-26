@@ -117,6 +117,7 @@
     
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     WebServiceDAO *wbDAO = [[WebServiceDAO alloc]init];
+    NSLog(@"User request : %@",jsonString);
     NSDictionary *result = [wbDAO getDataFromWebService:urlString requestJson:jsonString];
     if(result == nil || [result objectForKey:@"STATUS"]==nil){
         NSException *e = [NSException exceptionWithName:@"UserException" reason:@"Error. Failed to create user." userInfo:nil];

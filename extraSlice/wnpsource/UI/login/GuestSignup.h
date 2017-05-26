@@ -19,6 +19,8 @@
 @property (weak, nonatomic) IBOutlet UIButton *cancel;
 - (IBAction)signupAsGuest:(id)sender;
 - (IBAction)cancelSignup:(id)sender;
+@property (weak, nonatomic) IBOutlet UIImageView *errorimg;
+
 @property (weak, nonatomic) IBOutlet UIView *errorLyt;
 @property (weak, nonatomic) IBOutlet UILabel *errorText;
 @property (weak, nonatomic) IBOutlet UILabel *header;

@@ -36,6 +36,7 @@
 @property(nonatomic) BOOL *haveSubscription;
 @property(nonatomic) BOOL *haveMemberSubscription;
 @property(nonatomic) BOOL *havePermission;
+@property(nonatomic) BOOL *isACH;
 @property (strong,nonatomic) UIView *popup;
 @property(strong,nonatomic) UILabel *popupError;
 @property(strong,nonatomic) UIButton *strpSubmitBtn;
@@ -81,6 +82,7 @@
     self.cardTableExpanded=false;
     self.subsChecked=FALSE;
     self.addToSubscription=FALSE;
+    self.isACH=FALSE;
     NSDictionary *underlineAttribute = @{NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle)};
     self.rechargeLabel.attributedText = [[NSAttributedString alloc] initWithString:@"Recharge" attributes:underlineAttribute];
     UITapGestureRecognizer *linkTap = [[UITapGestureRecognizer alloc] initWithTarget:self action: @selector(tapDetected:)];
@@ -118,6 +120,12 @@
             if ([havePermissionInt boolValue] == YES){
                 self.havePermission =YES;
             }
+            NSNumber* isACHInt = [cardRes objectForKey:@"isACH"];
+            if ([isACHInt boolValue] == YES){
+                self.isACH =YES;
+            }
+            
+            
             self.custId = [cardRes objectForKey:@"custId"];
             self.stripeApiKey = [self.eUtils decode:[cardRes objectForKey:@"strpPubKey"]];
            
@@ -148,7 +156,12 @@
     self.cardTableHt.constant=expTabHeight;
     if([[self.eUtils getLoggedinUser].userType.uppercaseString isEqualToString:@"MEMBER"]){
         if(self.havePermission && !self.haveMemberSubscription){
-            self.addSubsLabel.hidden=false;
+            if(!self.isACH){
+                self.addSubsLabel.hidden=false;
+            }else{
+                self.addSubsLabel.hidden=true;
+            }
+            
         }else{
             self.addSubsLabel.hidden=true;
         }

@@ -1049,6 +1049,7 @@ UserModel *addedModel = nil;
             userModel.userId = [NSNumber numberWithInt:0];
             userModel.roleId = [NSNumber numberWithInt:0];
             userModel.firstName = self.userName.text;
+            userModel.userType=@"member";
             NSMutableArray *orgArray = [[NSMutableArray alloc]init];
             if(self.selectedOrg != nil){
                 [orgArray addObject:[self.selectedOrg dictionaryWithPropertiesOfObject:self.selectedOrg]];
