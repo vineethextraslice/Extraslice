@@ -26,6 +26,7 @@
 
 }
 
+
 -(UIColor * )getColor:(int) colorIndex{
     if(colorIndex==0){
         return [UIColor colorWithRed:38.0/255.0 green:140.0/255.0 blue:171.0/255.0 alpha:1.0];
