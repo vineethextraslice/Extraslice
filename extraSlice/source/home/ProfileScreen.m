@@ -101,8 +101,8 @@ self.pickerData = @[@"Admin", @"Member"];
    // orgModel.orgName=@"test";
     //[self.orgArray addObject:orgModel];
     if(self.orgArray.count ==0){
-        self.errorText.text=@"You are not autherized to do this action";
-        self.errorText.numberOfLines = 0;
+        self.errorText.text=@"You do not have sufficient permission to view this page.Please contact your admin";
+        self.errorText.numberOfLines = 3;
         [self.errorText sizeToFit];
         self.errorLayout.hidden=false;
         self.errorLytHeight.constant=100;

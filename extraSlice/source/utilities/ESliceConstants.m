@@ -25,7 +25,7 @@
     }
 
 }
- 
+
 
 -(UIColor * )getColor:(int) colorIndex{
     if(colorIndex==0){

@@ -20,10 +20,10 @@ static NSString *currencySymbol;
 static WnPUserModel *wnpUserModel;
 static NSNumber *numberOfStores;
 //testserver
-static NSString *wnpUrlStartsWith=@"http://walknpaydev01.cloudapp.net:8080/WalkNPayWebService/jsonws/";
+//static NSString *wnpUrlStartsWith=@"http://walknpaydev01.cloudapp.net:8080/WalkNPayWebService/jsonws/";
 
 //liveserver
-//static NSString *wnpUrlStartsWith=@"https://extraslice.com/WalkNPayWebService/jsonws/";
+static NSString *wnpUrlStartsWith=@"https://extraslice.com/WalkNPayWebService/jsonws/";
 static int wnpFontSize=15;
 static UIColor *baseColor;
 static UIColor *headerColor;

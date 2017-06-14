@@ -27,7 +27,9 @@
 - (void) viewDidLoad {
     
     [super viewDidLoad];
+    
     self.utils= [[WnPUtilities alloc] init];
+   
     self.wnpCont=[[WnPConstants alloc]init];
     self.locationManager = [[CLLocationManager alloc] init];
     self.locationManager.delegate = self;

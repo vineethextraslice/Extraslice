@@ -278,7 +278,7 @@
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:celId];
                 CGRect screenRect = [[UIScreen mainScreen] bounds];
                 CGFloat tableWidth = screenRect.size.width-10;
-                UILabel *cardNo = [[UILabel alloc] initWithFrame:CGRectMake(2, 2 , (tableWidth*0.3), 34)];
+                UILabel *cardNo = [[UILabel alloc] initWithFrame:CGRectMake(2, 2 , (tableWidth*0.6), 34)];
                 UIFont *txtFont = [cardNo.font fontWithSize:15.0];
                 cardNo.font = txtFont;
                 cardNo.text=[NSString stringWithFormat:@"%s%@","XXXXXXXXXXXX",trxnModel.last4];
@@ -313,7 +313,7 @@
                         if(self.haveMemberSubscription){
                             str = @"Card used for all subscription. Do you want to change? Change";
                         }else{
-                            str = @"Card used for conference subscription. Do you want to change? Change";
+                            str = @"Card used for reservations. Do you want to change? Change";
                         }
                         NSRange theRange = NSMakeRange(str.length-6,6);
                         NSMutableAttributedString *tcurl=[[NSMutableAttributedString alloc]initWithString:str attributes:subAttrs];

@@ -93,7 +93,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="E2j-O7-0tm">
-                                        <rect key="frame" x="0.0" y="528" width="375" height="139"/>
+                                        <rect key="frame" x="0.0" y="518" width="375" height="149"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4Ps-tx-2fZ">
                                                 <rect key="frame" x="223" y="3" width="149" height="105"/>
@@ -394,7 +394,7 @@
                                         <constraints>
                                             <constraint firstItem="3Ua-2z-yNW" firstAttribute="top" secondItem="E2j-O7-0tm" secondAttribute="top" constant="3" id="5MS-PT-sWI"/>
                                             <constraint firstItem="4Ps-tx-2fZ" firstAttribute="top" secondItem="E2j-O7-0tm" secondAttribute="top" constant="3" id="DpX-hK-CO0"/>
-                                            <constraint firstAttribute="height" constant="139" id="Ivq-tV-Goq"/>
+                                            <constraint firstAttribute="height" constant="149" id="Ivq-tV-Goq"/>
                                             <constraint firstItem="ZJw-uz-a4F" firstAttribute="centerX" secondItem="E2j-O7-0tm" secondAttribute="centerX" id="Zbu-F9-0ca"/>
                                             <constraint firstItem="3Ua-2z-yNW" firstAttribute="leading" secondItem="E2j-O7-0tm" secondAttribute="leading" constant="3" id="aGL-by-uoE"/>
                                             <constraint firstItem="ZJw-uz-a4F" firstAttribute="top" secondItem="3Ua-2z-yNW" secondAttribute="bottom" constant="3" id="aZd-v1-HQo"/>
@@ -402,7 +402,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zfH-Ug-sIU">
-                                        <rect key="frame" x="0.0" y="126" width="375" height="399"/>
+                                        <rect key="frame" x="0.0" y="126" width="375" height="384"/>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
@@ -421,7 +421,7 @@
                                     <constraint firstItem="3PZ-yD-fVR" firstAttribute="top" secondItem="arl-tl-lbi" secondAttribute="bottom" id="KRY-rg-SE2"/>
                                     <constraint firstAttribute="trailing" secondItem="zfH-Ug-sIU" secondAttribute="trailing" id="LWQ-TQ-6su"/>
                                     <constraint firstItem="fUd-I9-o0B" firstAttribute="top" secondItem="3PZ-yD-fVR" secondAttribute="bottom" constant="1" id="P4Q-5d-OKe"/>
-                                    <constraint firstItem="E2j-O7-0tm" firstAttribute="top" secondItem="zfH-Ug-sIU" secondAttribute="bottom" constant="3" id="Swi-s6-y3f"/>
+                                    <constraint firstItem="E2j-O7-0tm" firstAttribute="top" secondItem="zfH-Ug-sIU" secondAttribute="bottom" constant="8" id="Swi-s6-y3f"/>
                                     <constraint firstAttribute="trailing" secondItem="3PZ-yD-fVR" secondAttribute="trailing" constant="3" id="ThC-jg-ZBM"/>
                                     <constraint firstItem="05S-nn-0gx" firstAttribute="top" secondItem="uPH-xD-GrT" secondAttribute="top" id="UpZ-oT-g3M"/>
                                     <constraint firstItem="E2j-O7-0tm" firstAttribute="leading" secondItem="uPH-xD-GrT" secondAttribute="leading" id="VEJ-R9-cZk"/>
@@ -472,7 +472,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="DEL-hy-g8e" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="178" y="251"/>
+            <point key="canvasLocation" x="176.80000000000001" y="250.52473763118442"/>
         </scene>
     </scenes>
     <resources>

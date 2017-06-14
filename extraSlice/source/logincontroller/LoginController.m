@@ -35,10 +35,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
      self.wnpCont = [[ESliceConstants alloc]init];
+   
+    
      self.userDAO = [[UserDAO alloc]init];
      [self.wnpCont setColor:0];
     self.errorLyt.hidden = true;
     self.utils=[[Utilities alloc]init];
+  /* NSString *mypassword= [self.utils decode:@"pGYzCW0URRfir+1kv+MS1A=="];
+    NSLog(@"mypassword=%@",mypassword);*/
+    
     self.password.delegate =self;
     self.email.delegate =self;
     self.errorLytHeight.constant = 0;
